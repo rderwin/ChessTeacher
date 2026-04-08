@@ -19,6 +19,12 @@ const MODULES = [
     description: "Understand stalemate, threefold repetition, the 50-move rule, and other ways games end in draws.",
     ready: false,
   },
+  {
+    title: "Analyze",
+    href: "/analyze",
+    description: "Paste a PGN to replay any game move by move on an interactive board with keyboard navigation.",
+    ready: true,
+  },
 ];
 
 export default function Home() {
@@ -33,7 +39,7 @@ export default function Home() {
           and understand <em>why</em> each move matters — not just what to play.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left mb-10">
           {MODULES.map((mod) => (
             <Link
               key={mod.href}

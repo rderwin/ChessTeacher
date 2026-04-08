@@ -47,6 +47,12 @@ export default function Navbar() {
           >
             Draws
           </Link>
+          <Link
+            href="/analyze"
+            className="text-sm text-stone-400 hover:text-white transition-colors"
+          >
+            Analyze
+          </Link>
           {!loading && (
             <>
               {user ? (

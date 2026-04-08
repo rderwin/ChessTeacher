@@ -1,15 +1,34 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Chessboard } from "react-chessboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { BOARD_THEMES, PIECE_STYLES, getBoardTheme, getPieceStyle } from "@/lib/preferences";
+import { getSavedGames, deleteGame } from "@/lib/saved-games";
+import type { SavedGame } from "@/lib/saved-games";
 
 const PREVIEW_FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4";
 
 export default function AccountPage() {
   const { user, signInWithGoogle, signOut } = useAuth();
   const { prefs, updatePreferences } = usePreferences();
+  const [savedGames, setSavedGames] = useState<SavedGame[]>([]);
+  const [loadingGames, setLoadingGames] = useState(true);
+
+  useEffect(() => {
+    setLoadingGames(true);
+    getSavedGames(user?.uid).then((games) => {
+      setSavedGames(games);
+      setLoadingGames(false);
+    });
+  }, [user?.uid]);
+
+  const handleDelete = async (id: string) => {
+    await deleteGame(id, user?.uid);
+    setSavedGames((prev) => prev.filter((g) => g.id !== id));
+  };
 
   const currentTheme = getBoardTheme(prefs.boardTheme);
   const currentPieceStyle = getPieceStyle(prefs.pieceStyle);
@@ -114,6 +133,65 @@ export default function AccountPage() {
             </button>
           ))}
         </div>
+      </section>
+
+      {/* Saved Games */}
+      <section className="bg-stone-800 rounded-xl p-6 border border-stone-700 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-white">Saved Games</h2>
+          <Link
+            href="/analyze"
+            className="text-xs text-stone-400 hover:text-stone-200 transition-colors"
+          >
+            Open Analyzer
+          </Link>
+        </div>
+        {loadingGames ? (
+          <p className="text-sm text-stone-500">Loading...</p>
+        ) : savedGames.length === 0 ? (
+          <p className="text-sm text-stone-500">
+            No saved games yet.{" "}
+            <Link href="/analyze" className="text-emerald-400 hover:underline">
+              Analyze a game
+            </Link>{" "}
+            and save it to see it here.
+          </p>
+        ) : (
+          <div className="grid gap-2">
+            {savedGames.map((g) => (
+              <div
+                key={g.id}
+                className="flex items-center justify-between bg-stone-900/50 rounded-lg p-3 border border-stone-700/50"
+              >
+                <Link
+                  href={`/analyze`}
+                  className="flex-1 min-w-0 hover:opacity-80 transition-opacity"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm text-white font-medium truncate">
+                      {g.white}
+                    </span>
+                    <span className="text-stone-500 text-xs">vs</span>
+                    <span className="text-sm text-white font-medium truncate">
+                      {g.black}
+                    </span>
+                    <span className="text-xs text-stone-500 ml-1">{g.result}</span>
+                  </div>
+                  {g.event && (
+                    <p className="text-xs text-stone-500 truncate">{g.event}{g.date ? ` — ${g.date}` : ""}</p>
+                  )}
+                </Link>
+                <button
+                  onClick={() => handleDelete(g.id)}
+                  className="ml-3 shrink-0 text-xs text-stone-600 hover:text-red-400 transition-colors"
+                  title="Remove"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Piece Style */}
