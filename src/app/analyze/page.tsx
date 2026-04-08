@@ -8,6 +8,8 @@ import { parsePgn } from "@/lib/pgn";
 import type { ParsedGame } from "@/lib/pgn";
 import { saveGame, getSavedGames } from "@/lib/saved-games";
 import type { SavedGame } from "@/lib/saved-games";
+import EvalBar from "@/components/analysis/EvalBar";
+import EnginePanel from "@/components/analysis/EnginePanel";
 
 const SAMPLE_PGN = `[Event "Example Game"]
 [White "Player 1"]
@@ -32,6 +34,10 @@ export default function AnalyzePage() {
   const [saving, setSaving] = useState(false);
   const [savedGames, setSavedGames] = useState<SavedGame[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(true);
+  const [currentEval, setCurrentEval] = useState<{ evaluation: number; mate: number | null }>({
+    evaluation: 0,
+    mate: null,
+  });
 
   // Load saved games on mount
   useEffect(() => {
@@ -127,6 +133,10 @@ export default function AnalyzePage() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [game]);
 
+  // Derive turn from FEN (active color field)
+  const currentTurn: "w" | "b" =
+    currentFen !== "start" && currentFen.split(" ")[1] === "b" ? "b" : "w";
+
   const squareStyles: Record<string, React.CSSProperties> = {};
   if (currentMove) {
     squareStyles[currentMove.from] = HIGHLIGHT_FROM;
@@ -176,33 +186,40 @@ export default function AnalyzePage() {
         </div>
       ) : (
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Board */}
+          {/* Board + Eval Bar */}
           <div className="shrink-0">
-            <div
-              className="w-full max-w-[480px] aspect-square"
-              style={
-                pieceFilter
-                  ? ({ filter: pieceFilter } as React.CSSProperties)
-                  : undefined
-              }
-            >
-              <Chessboard
-                options={{
-                  position: currentFen,
-                  boardOrientation: orientation,
-                  allowDragging: false,
-                  squareStyles,
-                  animationDurationInMs: 200,
-                  boardStyle: {
-                    borderRadius: "4px",
-                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-                  },
-                  darkSquareStyle: { backgroundColor: boardTheme.darkSquare },
-                  lightSquareStyle: {
-                    backgroundColor: boardTheme.lightSquare,
-                  },
-                }}
+            <div className="flex gap-2">
+              <EvalBar
+                evaluation={currentEval.evaluation}
+                mate={currentEval.mate}
+                orientation={orientation}
               />
+              <div
+                className="w-full max-w-[480px] aspect-square"
+                style={
+                  pieceFilter
+                    ? ({ filter: pieceFilter } as React.CSSProperties)
+                    : undefined
+                }
+              >
+                <Chessboard
+                  options={{
+                    position: currentFen,
+                    boardOrientation: orientation,
+                    allowDragging: false,
+                    squareStyles,
+                    animationDurationInMs: 200,
+                    boardStyle: {
+                      borderRadius: "4px",
+                      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                    },
+                    darkSquareStyle: { backgroundColor: boardTheme.darkSquare },
+                    lightSquareStyle: {
+                      backgroundColor: boardTheme.lightSquare,
+                    },
+                  }}
+                />
+              </div>
             </div>
 
             {/* Controls */}
@@ -317,21 +334,12 @@ export default function AnalyzePage() {
               </div>
             </div>
 
-            {/* Engine analysis stub */}
-            <div className="bg-stone-900/50 border border-stone-700/50 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-sm font-medium text-stone-400">
-                  Engine Analysis
-                </span>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 bg-stone-700 text-stone-400 rounded-full">
-                  Coming soon
-                </span>
-              </div>
-              <p className="text-xs text-stone-500">
-                Move-by-move evaluation, best move suggestions, blunder
-                detection, and accuracy scores.
-              </p>
-            </div>
+            {/* Engine analysis */}
+            <EnginePanel
+              fen={currentFen}
+              turn={currentTurn}
+              onEval={(evaluation, mate) => setCurrentEval({ evaluation, mate })}
+            />
 
             {/* Save & back */}
             <div className="flex items-center gap-4 mt-4">
