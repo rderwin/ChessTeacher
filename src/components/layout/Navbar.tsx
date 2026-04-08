@@ -35,6 +35,18 @@ export default function Navbar() {
           >
             Openings
           </Link>
+          <Link
+            href="/endgames"
+            className="text-sm text-stone-400 hover:text-white transition-colors"
+          >
+            Endgames
+          </Link>
+          <Link
+            href="/draws"
+            className="text-sm text-stone-400 hover:text-white transition-colors"
+          >
+            Draws
+          </Link>
           {!loading && (
             <>
               {user ? (
