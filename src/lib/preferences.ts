@@ -35,11 +35,13 @@ export const PIECE_STYLES: PieceStyle[] = [
 export interface UserPreferences {
   boardTheme: string;
   pieceStyle: string;
+  chessComUsername: string;
 }
 
 const DEFAULT_PREFS: UserPreferences = {
   boardTheme: "classic",
   pieceStyle: "default",
+  chessComUsername: "",
 };
 
 const STORAGE_KEY = "chessteacher_preferences";

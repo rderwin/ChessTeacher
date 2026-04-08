@@ -44,7 +44,7 @@ const BADGE_STYLES: Record<MoveClass, { bg: string; text: string; symbol: string
 };
 
 export default function AnalyzePage() {
-  const { boardTheme, pieceStyle } = usePreferences();
+  const { prefs, boardTheme, pieceStyle } = usePreferences();
   const { user } = useAuth();
   const [pgnInput, setPgnInput] = useState("");
   const [game, setGame] = useState<ParsedGame | null>(null);
@@ -85,8 +85,12 @@ export default function AnalyzePage() {
       setGame(parsed);
       setActivePgn(pgn);
       setMoveIndex(-1);
-      if (parsed.headers["Black"]?.toLowerCase().includes("you")) {
+      // Auto-orient board: if we know the user's chess.com username, put their color on bottom
+      const username = prefs.chessComUsername.toLowerCase();
+      if (username && parsed.headers["Black"]?.toLowerCase().includes(username)) {
         setOrientation("black");
+      } else if (username && parsed.headers["White"]?.toLowerCase().includes(username)) {
+        setOrientation("white");
       } else {
         setOrientation("white");
       }
@@ -95,7 +99,7 @@ export default function AnalyzePage() {
     } catch {
       setError("Invalid PGN. Check the format and try again.");
     }
-  }, [resetAnalysis, analyzeGame]);
+  }, [resetAnalysis, analyzeGame, prefs.chessComUsername]);
 
   const handleSaveGame = useCallback(async () => {
     if (!game || saving) return;
@@ -403,10 +407,16 @@ export default function AnalyzePage() {
                     <span className="text-white font-medium">
                       {game.headers["White"] ?? "White"}
                     </span>
+                    {prefs.chessComUsername && game.headers["White"]?.toLowerCase().includes(prefs.chessComUsername.toLowerCase()) && (
+                      <span className="text-emerald-400 text-xs ml-1">(you)</span>
+                    )}
                     <span className="text-stone-500 mx-2">vs</span>
                     <span className="text-white font-medium">
                       {game.headers["Black"] ?? "Black"}
                     </span>
+                    {prefs.chessComUsername && game.headers["Black"]?.toLowerCase().includes(prefs.chessComUsername.toLowerCase()) && (
+                      <span className="text-emerald-400 text-xs ml-1">(you)</span>
+                    )}
                   </div>
                   <span className="text-stone-400">{game.result}</span>
                 </div>

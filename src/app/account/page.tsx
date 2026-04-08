@@ -79,6 +79,21 @@ export default function AccountPage() {
         )}
       </section>
 
+      {/* Chess.com Username */}
+      <section className="bg-stone-800 rounded-xl p-6 border border-stone-700 mb-8">
+        <h2 className="text-lg font-semibold text-white mb-1">Chess.com Username</h2>
+        <p className="text-xs text-stone-500 mb-3">
+          Set this so the analyzer knows which side is yours and auto-orients the board.
+        </p>
+        <input
+          type="text"
+          value={prefs.chessComUsername ?? ""}
+          onChange={(e) => updatePreferences({ chessComUsername: e.target.value.trim() })}
+          placeholder="e.g. hikaru"
+          className="w-64 bg-stone-900 border border-stone-700 rounded-lg px-3 py-2 text-sm text-stone-200 placeholder:text-stone-600 focus:outline-none focus:border-emerald-600 transition-colors"
+        />
+      </section>
+
       {/* Board Preview */}
       <section className="bg-stone-800 rounded-xl p-6 border border-stone-700 mb-8">
         <h2 className="text-lg font-semibold text-white mb-4">Preview</h2>

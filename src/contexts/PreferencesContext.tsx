@@ -27,7 +27,7 @@ interface PreferencesContextType {
 }
 
 const defaults: PreferencesContextType = {
-  prefs: { boardTheme: "classic", pieceStyle: "default" },
+  prefs: { boardTheme: "classic", pieceStyle: "default", chessComUsername: "" },
   boardTheme: getBoardTheme("classic"),
   pieceStyle: getPieceStyle("default"),
   updatePreferences: () => {},
