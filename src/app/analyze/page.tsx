@@ -10,6 +10,13 @@ import { saveGame, getSavedGames } from "@/lib/saved-games";
 import type { SavedGame } from "@/lib/saved-games";
 import EvalBar from "@/components/analysis/EvalBar";
 import EnginePanel from "@/components/analysis/EnginePanel";
+import { useGameAnalysis, type GameAnalysis } from "@/hooks/useGameAnalysis";
+import {
+  MOVE_CLASS_COLORS,
+  MOVE_CLASS_BG,
+  MOVE_CLASS_SYMBOLS,
+  type MoveClass,
+} from "@/lib/classify-moves";
 
 const SAMPLE_PGN = `[Event "Example Game"]
 [White "Player 1"]
@@ -18,8 +25,19 @@ const SAMPLE_PGN = `[Event "Example Game"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 1-0`;
 
-const HIGHLIGHT_FROM = { backgroundColor: "rgba(255, 255, 0, 0.4)" };
-const HIGHLIGHT_TO = { backgroundColor: "rgba(255, 255, 0, 0.4)" };
+const HIGHLIGHT_FROM: React.CSSProperties = { backgroundColor: "rgba(255, 255, 0, 0.4)" };
+const HIGHLIGHT_TO: React.CSSProperties = { backgroundColor: "rgba(255, 255, 0, 0.4)" };
+
+const BADGE_STYLES: Record<MoveClass, { bg: string; text: string; symbol: string } | null> = {
+  brilliant: { bg: "bg-cyan-500", text: "text-white", symbol: "!!" },
+  best:      { bg: "bg-emerald-500", text: "text-white", symbol: "★" },
+  excellent: { bg: "bg-emerald-600", text: "text-white", symbol: "!" },
+  good:      null, // no badge for good moves
+  inaccuracy:{ bg: "bg-yellow-500", text: "text-black", symbol: "?!" },
+  mistake:   { bg: "bg-orange-500", text: "text-white", symbol: "?" },
+  blunder:   { bg: "bg-red-600", text: "text-white", symbol: "??" },
+  book:      null,
+};
 
 export default function AnalyzePage() {
   const { boardTheme, pieceStyle } = usePreferences();
@@ -38,6 +56,7 @@ export default function AnalyzePage() {
     evaluation: 0,
     mate: null,
   });
+  const { analysis, analyzeGame, reset: resetAnalysis } = useGameAnalysis();
 
   // Load saved games on mount
   useEffect(() => {
@@ -51,6 +70,7 @@ export default function AnalyzePage() {
   const loadPgn = useCallback((pgn: string) => {
     setError(null);
     setSaved(false);
+    resetAnalysis();
     try {
       const parsed = parsePgn(pgn);
       if (parsed.moves.length === 0) {
@@ -68,7 +88,7 @@ export default function AnalyzePage() {
     } catch {
       setError("Invalid PGN. Check the format and try again.");
     }
-  }, []);
+  }, [resetAnalysis]);
 
   const handleSaveGame = useCallback(async () => {
     if (!game || saving) return;
@@ -143,6 +163,27 @@ export default function AnalyzePage() {
     squareStyles[currentMove.to] = HIGHLIGHT_TO;
   }
 
+  // Badge overlay for move classification
+  const badge = analysis.complete && moveIndex >= 0 && currentMove
+    ? analysis.moves[moveIndex]
+    : null;
+  const badgeClass = badge ? badge.classification : null;
+  // Compute badge position as grid coords (0-7) from the destination square
+  const badgeSquare = currentMove?.to;
+  let badgeCol = 0;
+  let badgeRow = 0;
+  if (badgeSquare) {
+    const file = badgeSquare.charCodeAt(0) - 97; // a=0, h=7
+    const rank = parseInt(badgeSquare[1]) - 1;    // 1=0, 8=7
+    if (orientation === "white") {
+      badgeCol = file;
+      badgeRow = 7 - rank;
+    } else {
+      badgeCol = 7 - file;
+      badgeRow = rank;
+    }
+  }
+
   const pieceFilter = [pieceStyle.filter, pieceStyle.shadow]
     .filter((v) => v !== "none")
     .join(" ");
@@ -195,7 +236,7 @@ export default function AnalyzePage() {
                 orientation={orientation}
               />
               <div
-                className="flex-1 aspect-square"
+                className="flex-1 aspect-square relative"
                 style={
                   pieceFilter
                     ? ({ filter: pieceFilter } as React.CSSProperties)
@@ -219,6 +260,23 @@ export default function AnalyzePage() {
                     },
                   }}
                 />
+                {/* Move classification badge overlay */}
+                {badgeClass && BADGE_STYLES[badgeClass] && (
+                  <div
+                    className="absolute pointer-events-none z-10"
+                    style={{
+                      left: `${(badgeCol / 8) * 100 + 12.5 / 2}%`,
+                      top: `${(badgeRow / 8) * 100}%`,
+                      transform: "translate(-50%, -40%)",
+                    }}
+                  >
+                    <div
+                      className={`${BADGE_STYLES[badgeClass]!.bg} ${BADGE_STYLES[badgeClass]!.text} rounded-full w-6 h-6 flex items-center justify-center text-xs font-black shadow-lg border-2 border-stone-900/50`}
+                    >
+                      {BADGE_STYLES[badgeClass]!.symbol}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -303,31 +361,85 @@ export default function AnalyzePage() {
               </div>
             )}
 
+            {/* Analyze button + progress */}
+            {!analysis.complete && (
+              <div className="mb-4">
+                {analysis.analyzing ? (
+                  <div className="bg-stone-800 rounded-xl border border-stone-700 p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-stone-300">
+                        Analyzing game...
+                      </span>
+                      <span className="text-xs text-stone-500">
+                        {analysis.progress}/{analysis.total}
+                      </span>
+                    </div>
+                    <div className="h-1.5 bg-stone-700 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-emerald-500 transition-all duration-300"
+                        style={{
+                          width: `${
+                            analysis.total
+                              ? (analysis.progress / analysis.total) * 100
+                              : 0
+                          }%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => game && analyzeGame(game)}
+                    className="w-full px-4 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-500 transition-colors font-medium text-sm"
+                  >
+                    Analyze Full Game
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Summary panel — shown when analysis is complete */}
+            {analysis.complete && <AnalysisSummary analysis={analysis} />}
+
             {/* Move list */}
             <div className="bg-stone-800 rounded-xl border border-stone-700 p-4 mb-4">
               <h3 className="text-sm font-medium text-stone-400 mb-3">
                 Moves
               </h3>
               <div className="flex flex-wrap gap-x-1 gap-y-1">
-                {game.moves.map((move, i) => (
-                  <span key={i} className="inline-flex items-center">
-                    {move.color === "w" && (
-                      <span className="text-stone-600 text-xs mr-0.5 font-mono">
-                        {move.moveNumber}.
-                      </span>
-                    )}
-                    <button
-                      onClick={() => goTo(i)}
-                      className={`text-sm px-1.5 py-0.5 rounded transition-colors ${
-                        i === moveIndex
-                          ? "bg-emerald-600 text-white"
-                          : "text-stone-300 hover:bg-stone-700"
-                      }`}
-                    >
-                      {move.san}
-                    </button>
-                  </span>
-                ))}
+                {game.moves.map((move, i) => {
+                  const mc = analysis.complete ? analysis.moves[i] : null;
+                  const sym = mc ? MOVE_CLASS_SYMBOLS[mc.classification] : "";
+                  const colorCls = mc
+                    ? MOVE_CLASS_COLORS[mc.classification]
+                    : "";
+                  const bgCls = mc ? MOVE_CLASS_BG[mc.classification] : "";
+
+                  return (
+                    <span key={i} className="inline-flex items-center">
+                      {move.color === "w" && (
+                        <span className="text-stone-600 text-xs mr-0.5 font-mono">
+                          {move.moveNumber}.
+                        </span>
+                      )}
+                      <button
+                        onClick={() => goTo(i)}
+                        className={`text-sm px-1.5 py-0.5 rounded transition-colors ${
+                          i === moveIndex
+                            ? "bg-emerald-600 text-white"
+                            : mc
+                            ? `${colorCls} ${bgCls} hover:brightness-125`
+                            : "text-stone-300 hover:bg-stone-700"
+                        }`}
+                      >
+                        {move.san}
+                        {sym && (
+                          <span className="text-[10px] ml-0.5">{sym}</span>
+                        )}
+                      </button>
+                    </span>
+                  );
+                })}
                 <span className="text-xs text-stone-500 self-center ml-1">
                   {game.result}
                 </span>
@@ -351,6 +463,7 @@ export default function AnalyzePage() {
                   setPgnInput("");
                   setError(null);
                   setSaved(false);
+                  resetAnalysis();
                 }}
                 className="text-sm text-stone-500 hover:text-stone-300 transition-colors"
               >
@@ -413,6 +526,56 @@ export default function AnalyzePage() {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+// --- Summary component ---
+
+const SUMMARY_ROWS: { key: MoveClass; label: string; dot: string }[] = [
+  { key: "brilliant", label: "Brilliant", dot: "bg-cyan-400" },
+  { key: "best", label: "Best", dot: "bg-emerald-400" },
+  { key: "excellent", label: "Excellent", dot: "bg-emerald-500" },
+  { key: "good", label: "Good", dot: "bg-emerald-700" },
+  { key: "inaccuracy", label: "Inaccuracy", dot: "bg-yellow-400" },
+  { key: "mistake", label: "Mistake", dot: "bg-orange-400" },
+  { key: "blunder", label: "Blunder", dot: "bg-red-500" },
+];
+
+function AnalysisSummary({ analysis }: { analysis: GameAnalysis }) {
+  // Split by color
+  const white: Record<MoveClass, number> = { brilliant: 0, best: 0, excellent: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0, book: 0 };
+  const black: Record<MoveClass, number> = { brilliant: 0, best: 0, excellent: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0, book: 0 };
+
+  analysis.moves.forEach((m, i) => {
+    const bucket = i % 2 === 0 ? white : black;
+    bucket[m.classification]++;
+  });
+
+  return (
+    <div className="bg-stone-800 rounded-xl border border-stone-700 p-4 mb-4">
+      <h3 className="text-sm font-medium text-stone-400 mb-3">
+        Game Summary
+      </h3>
+      <div className="grid grid-cols-[1fr_auto_auto] gap-x-6 gap-y-1.5 text-xs">
+        <span />
+        <span className="text-stone-400 font-medium text-center">White</span>
+        <span className="text-stone-400 font-medium text-center">Black</span>
+        {SUMMARY_ROWS.map((row) => (
+          <div key={row.key} className="contents">
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${row.dot}`} />
+              <span className="text-stone-300">{row.label}</span>
+            </div>
+            <span className="text-stone-200 text-center font-mono">
+              {white[row.key] || "—"}
+            </span>
+            <span className="text-stone-200 text-center font-mono">
+              {black[row.key] || "—"}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
