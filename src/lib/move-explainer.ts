@@ -338,6 +338,15 @@ export function explainMove(
     }
   }
 
+  // Filter out reasons that are the same for both moves (e.g. both "develop a piece")
+  // so we only highlight what's actually different
+  const uniqueBestReasons = bestReasons.filter(
+    (r) => !playedReasons.includes(r)
+  );
+  const uniquePlayedReasons = playedReasons.filter(
+    (r) => !bestReasons.includes(r)
+  );
+
   // Build summary
   let summary: string;
   if (isBest || classification === "excellent") {
@@ -349,45 +358,46 @@ export function explainMove(
       summary = "This is the best move in the position.";
     }
   } else if (classification === "good") {
-    summary = "A solid move, close to the engine's top choice.";
-    if (bestDescription) {
-      summary += ` Slightly better was ${bestDescription}.`;
+    if (bestDescription && uniqueBestReasons.length > 0) {
+      summary = `A solid move. Slightly better was ${bestDescription} which ${uniqueBestReasons[0]}.`;
+    } else if (bestDescription) {
+      summary = `A solid move, close to the engine's top choice. The engine slightly prefers ${bestDescription} — the difference is small.`;
+    } else {
+      summary = "A solid move, close to the engine's top choice.";
     }
   } else if (classification === "inaccuracy") {
-    const lossText = `(${(cpLoss / 100).toFixed(1)} pawns)`;
-    summary = `A small inaccuracy ${lossText}.`;
-    if (bestDescription) {
-      summary += ` Better was ${bestDescription}`;
-      if (bestReasons.length > 0) {
-        summary += ` which ${bestReasons[0]}`;
-      }
-      summary += ".";
+    if (bestDescription && uniqueBestReasons.length > 0) {
+      summary = `A slightly imprecise move. Better was ${bestDescription} which ${uniqueBestReasons[0]}.`;
+    } else if (bestDescription) {
+      summary = `A slightly imprecise move. The engine prefers ${bestDescription} — the advantage is subtle and positional.`;
+    } else {
+      summary = "A slightly imprecise move.";
     }
   } else if (classification === "mistake") {
     const lossText = `(${(cpLoss / 100).toFixed(1)} pawns)`;
     summary = `This is a mistake ${lossText}.`;
-    if (playedReasons.some((r) => r.includes("loses material"))) {
+    if (uniquePlayedReasons.some((r) => r.includes("loses material"))) {
       summary += " It loses material.";
     }
     if (bestDescription) {
       summary += ` The best move was ${bestDescription}`;
-      if (bestReasons.length > 0) {
-        summary += ` — it ${bestReasons.slice(0, 2).join(" and ")}`;
+      if (uniqueBestReasons.length > 0) {
+        summary += ` — it ${uniqueBestReasons.slice(0, 2).join(" and ")}`;
       }
       summary += ".";
     }
   } else if (classification === "blunder") {
     const lossText = `(${(cpLoss / 100).toFixed(1)} pawns)`;
     summary = `This is a serious blunder ${lossText}!`;
-    if (playedReasons.some((r) => r.includes("loses material"))) {
+    if (uniquePlayedReasons.some((r) => r.includes("loses material"))) {
       summary += " It loses significant material.";
-    } else if (playedReasons.some((r) => r.includes("undefended"))) {
+    } else if (uniquePlayedReasons.some((r) => r.includes("undefended"))) {
       summary += ` The ${pieceName(playedDetail.piece)} is left hanging.`;
     }
     if (bestDescription) {
       summary += ` The best move was ${bestDescription}`;
-      if (bestReasons.length > 0) {
-        summary += ` which ${bestReasons.slice(0, 2).join(" and ")}`;
+      if (uniqueBestReasons.length > 0) {
+        summary += ` which ${uniqueBestReasons.slice(0, 2).join(" and ")}`;
       }
       summary += ".";
     }
@@ -397,9 +407,9 @@ export function explainMove(
 
   return {
     playedDescription,
-    playedReasons,
+    playedReasons: uniquePlayedReasons,
     bestDescription,
-    bestReasons,
+    bestReasons: uniqueBestReasons,
     summary,
   };
 }

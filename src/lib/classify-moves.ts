@@ -53,7 +53,7 @@ export const MOVE_CLASS_SYMBOLS: Record<MoveClass, string> = {
   best: "",
   excellent: "",
   good: "",
-  inaccuracy: "?!",
+  inaccuracy: "",
   mistake: "?",
   blunder: "??",
   book: "",
