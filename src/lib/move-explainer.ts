@@ -16,99 +16,25 @@ const PIECE_VALUES: Record<PieceSymbol, number> = {
   p: 1, n: 3, b: 3, r: 5, q: 9, k: 0,
 };
 
+const ALL_SQUARES: Square[] = [];
+for (const file of "abcdefgh") {
+  for (const rank of "12345678") {
+    ALL_SQUARES.push((file + rank) as Square);
+  }
+}
+
+const CENTER_SQUARES = new Set(["d4", "d5", "e4", "e5"]);
+const EXTENDED_CENTER = new Set(["c3", "c4", "c5", "c6", "d3", "d6", "e3", "e6", "f3", "f4", "f5", "f6"]);
+
 function pieceName(p: PieceSymbol): string {
   return PIECE_NAMES[p] ?? p;
-}
-
-function squareName(sq: string): string {
-  return sq; // just the algebraic notation
-}
-
-function colorName(c: Color): string {
-  return c === "w" ? "White" : "Black";
 }
 
 function oppositeColor(c: Color): Color {
   return c === "w" ? "b" : "w";
 }
 
-interface SquareInfo {
-  piece: PieceSymbol;
-  color: Color;
-}
-
-function getPiece(chess: Chess, sq: string): SquareInfo | null {
-  const p = chess.get(sq as Square);
-  if (!p) return null;
-  return { piece: p.type, color: p.color };
-}
-
-/** Check if a square is attacked by the given color */
-function isAttacked(chess: Chess, sq: string, byColor: Color): boolean {
-  return chess.isAttacked(sq as Square, byColor);
-}
-
-/** Count material for a color */
-function countMaterial(chess: Chess, color: Color): number {
-  const board = chess.board();
-  let total = 0;
-  for (const row of board) {
-    for (const cell of row) {
-      if (cell && cell.color === color) {
-        total += PIECE_VALUES[cell.type];
-      }
-    }
-  }
-  return total;
-}
-
-/** Count developed minor pieces (knights and bishops not on back rank) */
-function countDeveloped(chess: Chess, color: Color): number {
-  const board = chess.board();
-  const backRank = color === "w" ? 7 : 0; // board[0] is rank 8, board[7] is rank 1
-  let count = 0;
-  for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
-      const cell = board[row][col];
-      if (cell && cell.color === color && (cell.type === "n" || cell.type === "b")) {
-        if (row !== backRank) count++;
-      }
-    }
-  }
-  return count;
-}
-
-/** Check if a side has castled (king not on starting square) */
-function hasCastled(chess: Chess, color: Color): boolean {
-  const kingSquare = color === "w" ? "e1" : "e8";
-  const p = chess.get(kingSquare as Square);
-  // If king is not on starting square, it probably castled (or moved)
-  return !p || p.type !== "k" || p.color !== color;
-}
-
-/** Check if a piece is hanging (attacked by opponent, not adequately defended) */
-function isHanging(chess: Chess, sq: string, pieceColor: Color): boolean {
-  const opp = oppositeColor(pieceColor);
-  if (!isAttacked(chess, sq, opp)) return false;
-  if (!isAttacked(chess, sq, pieceColor)) return true;
-  // Simplified: if attacked and defended, check if the attacker is worth less
-  // This is a rough heuristic
-  return false;
-}
-
-/** Check center control (d4, d5, e4, e5) */
-function centerControl(chess: Chess, color: Color): number {
-  const centerSquares = ["d4", "d5", "e4", "e5"];
-  let control = 0;
-  for (const sq of centerSquares) {
-    const p = getPiece(chess, sq);
-    if (p && p.color === color && p.piece === "p") control += 2;
-    if (isAttacked(chess, sq, color)) control += 1;
-  }
-  return control;
-}
-
-// --- Move description ---
+// --- Move-specific analysis ---
 
 interface MoveDetail {
   san: string;
@@ -123,21 +49,192 @@ interface MoveDetail {
   color: Color;
 }
 
+/** Get squares attacked by a specific piece on a given square */
+function squaresAttackedBy(chess: Chess, sq: Square): Square[] {
+  const piece = chess.get(sq);
+  if (!piece) return [];
+  const attacked: Square[] = [];
+  for (const s of ALL_SQUARES) {
+    if (s === sq) continue;
+    if (chess.isAttacked(s, piece.color)) {
+      // Check if removing the piece would stop the attack
+      // This is approximate — we check if the piece could move there
+      const moves = chess.moves({ square: sq, verbose: true });
+      if (moves.some((m) => m.to === s)) {
+        attacked.push(s);
+      }
+    }
+  }
+  return attacked;
+}
+
+/** Count how many center/extended center squares a piece attacks */
+function centerSquaresAttacked(chess: Chess, sq: Square): { center: string[]; extended: string[] } {
+  const moves = chess.moves({ square: sq, verbose: true });
+  const targetSquares = moves.map((m) => m.to);
+  const center = targetSquares.filter((s) => CENTER_SQUARES.has(s));
+  const extended = targetSquares.filter((s) => EXTENDED_CENTER.has(s));
+  return { center, extended };
+}
+
+/** Count legal moves for a piece (measure of activity) */
+function pieceMobility(chess: Chess, sq: Square): number {
+  return chess.moves({ square: sq, verbose: true }).length;
+}
+
+/** Check if a piece on this square blocks a friendly central pawn from advancing.
+ *  Only flags c, d, e pawns — blocking the f-pawn with Nf3 isn't meaningful. */
+function blocksPawn(chess: Chess, sq: Square, color: Color): string | null {
+  const file = sq[0];
+  // Only care about central/semi-central pawns (c, d, e)
+  if (file !== "c" && file !== "d" && file !== "e") return null;
+  const rank = parseInt(sq[1]);
+  const pawnRank = color === "w" ? rank - 1 : rank + 1;
+  if (pawnRank < 1 || pawnRank > 8) return null;
+  const pawnSq = (file + pawnRank) as Square;
+  const p = chess.get(pawnSq);
+  if (p && p.type === "p" && p.color === color) return file;
+  return null;
+}
+
+/** Check if a piece attacks opponent's king zone (squares around the king) */
+function attacksKingZone(chess: Chess, sq: Square, oppColor: Color): boolean {
+  // Find opponent's king
+  const board = chess.board();
+  let kingRow = -1, kingCol = -1;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const cell = board[r][c];
+      if (cell && cell.type === "k" && cell.color === oppColor) {
+        kingRow = r;
+        kingCol = c;
+      }
+    }
+  }
+  if (kingRow < 0) return false;
+
+  // King zone: squares adjacent to the king
+  const moves = chess.moves({ square: sq, verbose: true });
+  for (const m of moves) {
+    const toFile = m.to.charCodeAt(0) - 97;
+    const toRank = 8 - parseInt(m.to[1]);
+    if (Math.abs(toFile - kingCol) <= 1 && Math.abs(toRank - kingRow) <= 1) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/** Check if piece is on an open/semi-open file (for rooks/queens) */
+function isOpenFile(chess: Chess, file: string): "open" | "semi-open" | "closed" {
+  const board = chess.board();
+  const col = file.charCodeAt(0) - 97;
+  let whitePawns = 0, blackPawns = 0;
+  for (let r = 0; r < 8; r++) {
+    const cell = board[r][col];
+    if (cell && cell.type === "p") {
+      if (cell.color === "w") whitePawns++;
+      else blackPawns++;
+    }
+  }
+  if (whitePawns === 0 && blackPawns === 0) return "open";
+  if (whitePawns === 0 || blackPawns === 0) return "semi-open";
+  return "closed";
+}
+
+/** Analyze what a specific move accomplishes */
+function analyzeMoveEffects(
+  fenBefore: string,
+  detail: MoveDetail,
+  posAfter: Chess
+): string[] {
+  const reasons: string[] = [];
+  const chess = new Chess(fenBefore);
+  const turn = detail.color;
+  const opp = oppositeColor(turn);
+
+  // --- Material ---
+  if (detail.captured) {
+    if (!detail.captured) {
+      // already handled in description
+    }
+  }
+
+  // --- Piece placement analysis ---
+  const toSq = detail.to as Square;
+
+  // Center control from the new square
+  const { center: centerAfter } = centerSquaresAttacked(posAfter, toSq);
+  if (centerAfter.length >= 2) {
+    reasons.push(`controls key center squares ${centerAfter.join(" and ")} from ${detail.to}`);
+  } else if (centerAfter.length === 1) {
+    reasons.push(`puts pressure on ${centerAfter[0]}`);
+  }
+
+  // Piece activity (mobility)
+  const mobility = pieceMobility(posAfter, toSq);
+  if ((detail.piece === "n" || detail.piece === "b") && mobility >= 6) {
+    reasons.push(`the ${pieceName(detail.piece)} is very active on ${detail.to} with ${mobility} possible moves`);
+  }
+
+  // King zone pressure
+  if (detail.piece !== "k" && detail.piece !== "p" && attacksKingZone(posAfter, toSq, opp)) {
+    reasons.push(`puts pressure on the opponent's king`);
+  }
+
+  // Pawn blocking (only central pawns)
+  const blockedFile = blocksPawn(posAfter, toSq, turn);
+  if (blockedFile) {
+    reasons.push(`blocks the ${blockedFile}-pawn from advancing`);
+  }
+
+  // Rook on open file
+  if ((detail.piece === "r" || detail.piece === "q") && !detail.isCastle) {
+    const fileStatus = isOpenFile(posAfter, detail.to[0]);
+    if (fileStatus === "open") {
+      reasons.push(`places the ${pieceName(detail.piece)} on the open ${detail.to[0]}-file`);
+    } else if (fileStatus === "semi-open") {
+      reasons.push(`places the ${pieceName(detail.piece)} on the semi-open ${detail.to[0]}-file`);
+    }
+  }
+
+  // Castling
+  if (detail.isCastle) {
+    reasons.push("gets the king to safety and connects the rooks");
+  }
+
+  // Check
+  if (detail.isCheck) {
+    reasons.push("gives check, gaining a tempo");
+  }
+
+  // Development (only for minor pieces leaving back rank)
+  const fromRank = parseInt(detail.from[1]);
+  const backRank = turn === "w" ? 1 : 8;
+  if ((detail.piece === "n" || detail.piece === "b") && fromRank === backRank) {
+    reasons.push(`develops the ${pieceName(detail.piece)} into the game`);
+  }
+
+  return reasons;
+}
+
+// --- Move description ---
+
 function describeMoveAction(m: MoveDetail): string {
   if (m.isCheckmate) {
-    return `${pieceName(m.piece)} to ${squareName(m.to)} is checkmate!`;
+    return `${pieceName(m.piece)} to ${m.to} is checkmate!`;
   }
   if (m.isCastle) {
     const side = m.to.charAt(0) === "g" ? "kingside" : "queenside";
-    return `castles ${side}, improving king safety`;
+    return `castles ${side}`;
   }
   if (m.isPromotion) {
-    return `pawn promotes on ${squareName(m.to)}`;
+    return `pawn promotes on ${m.to}`;
   }
 
-  let desc = `${pieceName(m.piece)} to ${squareName(m.to)}`;
+  let desc = `${pieceName(m.piece)} to ${m.to}`;
   if (m.captured) {
-    desc = `${pieceName(m.piece)} captures ${pieceName(m.captured)} on ${squareName(m.to)}`;
+    desc = `${pieceName(m.piece)} captures ${pieceName(m.captured)} on ${m.to}`;
   }
   if (m.isCheck) {
     desc += " with check";
@@ -145,96 +242,44 @@ function describeMoveAction(m: MoveDetail): string {
   return desc;
 }
 
-// --- Positional analysis ---
+// --- Position comparison (coarse, for material/castling changes) ---
 
-interface PositionAnalysis {
-  materialWhite: number;
-  materialBlack: number;
-  developedWhite: number;
-  developedBlack: number;
-  centerWhite: number;
-  centerBlack: number;
-  whiteCastled: boolean;
-  blackCastled: boolean;
+function countMaterial(chess: Chess, color: Color): number {
+  const board = chess.board();
+  let total = 0;
+  for (const row of board) {
+    for (const cell of row) {
+      if (cell && cell.color === color) {
+        total += PIECE_VALUES[cell.type];
+      }
+    }
+  }
+  return total;
 }
 
-function analyzePosition(chess: Chess): PositionAnalysis {
-  return {
-    materialWhite: countMaterial(chess, "w"),
-    materialBlack: countMaterial(chess, "b"),
-    developedWhite: countDeveloped(chess, "w"),
-    developedBlack: countDeveloped(chess, "b"),
-    centerWhite: centerControl(chess, "w"),
-    centerBlack: centerControl(chess, "b"),
-    whiteCastled: hasCastled(chess, "w"),
-    blackCastled: hasCastled(chess, "b"),
-  };
+function hasCastled(chess: Chess, color: Color): boolean {
+  const kingSquare = color === "w" ? "e1" : "e8";
+  const p = chess.get(kingSquare as Square);
+  return !p || p.type !== "k" || p.color !== color;
 }
 
-function comparePositions(
-  before: PositionAnalysis,
-  after: PositionAnalysis,
-  color: Color
-): string[] {
-  const reasons: string[] = [];
-  const opp = oppositeColor(color);
-
-  // Material changes
-  const myMatBefore = color === "w" ? before.materialWhite : before.materialBlack;
-  const myMatAfter = color === "w" ? after.materialWhite : after.materialBlack;
-  const oppMatBefore = color === "w" ? before.materialBlack : before.materialWhite;
-  const oppMatAfter = color === "w" ? after.materialBlack : after.materialWhite;
-
-  if (oppMatAfter < oppMatBefore) {
-    reasons.push("wins material");
-  }
-  if (myMatAfter < myMatBefore && oppMatAfter >= oppMatBefore) {
-    reasons.push("loses material without compensation");
-  }
-
-  // Development
-  const myDevBefore = color === "w" ? before.developedWhite : before.developedBlack;
-  const myDevAfter = color === "w" ? after.developedWhite : after.developedBlack;
-  if (myDevAfter > myDevBefore) {
-    reasons.push("develops a piece");
-  }
-
-  // Center control
-  const myCenterBefore = color === "w" ? before.centerWhite : before.centerBlack;
-  const myCenterAfter = color === "w" ? after.centerWhite : after.centerBlack;
-  if (myCenterAfter > myCenterBefore + 1) {
-    reasons.push("improves center control");
-  }
-
-  // Castling
-  const castledBefore = color === "w" ? before.whiteCastled : before.blackCastled;
-  const castledAfter = color === "w" ? after.whiteCastled : after.blackCastled;
-  if (!castledBefore && castledAfter) {
-    reasons.push("gets the king to safety");
-  }
-
-  return reasons;
+function isHanging(chess: Chess, sq: string, pieceColor: Color): boolean {
+  const opp = oppositeColor(pieceColor);
+  if (!chess.isAttacked(sq as Square, opp)) return false;
+  if (!chess.isAttacked(sq as Square, pieceColor)) return true;
+  return false;
 }
 
 // --- Main explainer ---
 
 export interface MoveExplanation {
-  /** What the played move does */
   playedDescription: string;
-  /** Why the played move is good/bad */
   playedReasons: string[];
-  /** What the best move does (null if played move IS best) */
   bestDescription: string | null;
-  /** Why the best move is better */
   bestReasons: string[];
-  /** Overall assessment */
   summary: string;
 }
 
-/**
- * Generate a human-readable explanation comparing the played move
- * to the engine's best move.
- */
 export function explainMove(
   fenBefore: string,
   playedSan: string,
@@ -245,7 +290,6 @@ export function explainMove(
   const chess = new Chess(fenBefore);
   const turn = chess.turn();
 
-  // Analyze the played move
   const playedVerbose = chess.moves({ verbose: true }).find((m) => m.san === playedSan);
   if (!playedVerbose) {
     return {
@@ -270,16 +314,33 @@ export function explainMove(
     color: turn,
   };
 
-  // Play the move to check for check/mate
-  const posBefore = analyzePosition(chess);
-  const chessCopy = new Chess(fenBefore);
-  chessCopy.move(playedSan);
-  playedDetail.isCheck = chessCopy.isCheck();
-  playedDetail.isCheckmate = chessCopy.isCheckmate();
-  const posAfterPlayed = analyzePosition(chessCopy);
+  // Play the move
+  const posAfterPlayed = new Chess(fenBefore);
+  posAfterPlayed.move(playedSan);
+  playedDetail.isCheck = posAfterPlayed.isCheck();
+  playedDetail.isCheckmate = posAfterPlayed.isCheckmate();
 
   const playedDescription = describeMoveAction(playedDetail);
-  const playedReasons = comparePositions(posBefore, posAfterPlayed, turn);
+  const playedReasons = analyzeMoveEffects(fenBefore, playedDetail, posAfterPlayed);
+
+  // Material loss check
+  const matBefore = countMaterial(chess, turn);
+  const matAfterPlayed = countMaterial(posAfterPlayed, turn);
+  const oppMatBefore = countMaterial(chess, oppositeColor(turn));
+  const oppMatAfterPlayed = countMaterial(posAfterPlayed, oppositeColor(turn));
+  if (matAfterPlayed < matBefore && oppMatAfterPlayed >= oppMatBefore) {
+    playedReasons.unshift("loses material without compensation");
+  }
+  if (oppMatAfterPlayed < oppMatBefore) {
+    playedReasons.unshift("wins material");
+  }
+
+  // Hanging piece check
+  if (isHanging(posAfterPlayed, playedVerbose.to, turn)) {
+    playedReasons.push(
+      `leaves the ${pieceName(playedDetail.piece)} undefended on ${playedVerbose.to}`
+    );
+  }
 
   // Check if the played move IS the best move
   const playedUci = playedVerbose.from + playedVerbose.to + (playedVerbose.promotion ?? "");
@@ -289,7 +350,6 @@ export function explainMove(
   let bestReasons: string[] = [];
 
   if (!isBest && bestMoveUci && bestMoveUci.length >= 4) {
-    // Analyze the best move
     const bestChess = new Chess(fenBefore);
     const from = bestMoveUci.slice(0, 2);
     const to = bestMoveUci.slice(2, 4);
@@ -311,25 +371,13 @@ export function explainMove(
           color: turn,
         };
         bestDescription = describeMoveAction(bestDetail);
-        const posAfterBest = analyzePosition(bestChess);
-        bestReasons = comparePositions(posBefore, posAfterBest, turn);
+        bestReasons = analyzeMoveEffects(fenBefore, bestDetail, bestChess);
 
-        // Add reasons based on what the best move achieves that the played doesn't
-        if (bestDetail.captured && !playedDetail.captured) {
-          bestReasons.push(
-            `captures the ${pieceName(bestDetail.captured)} which you left on the board`
-          );
-        }
-        if (bestDetail.isCheck && !playedDetail.isCheck) {
-          bestReasons.push("gives check, gaining tempo");
-        }
-
-        // Check if played move leaves a piece hanging
-        const hangingCheck = new Chess(fenBefore);
-        hangingCheck.move(playedSan);
-        if (isHanging(hangingCheck, playedVerbose.to, turn)) {
-          playedReasons.push(
-            `leaves the ${pieceName(playedDetail.piece)} undefended on ${squareName(playedVerbose.to)}`
+        // Material
+        const oppMatAfterBest = countMaterial(bestChess, oppositeColor(turn));
+        if (oppMatAfterBest < oppMatBefore && oppMatAfterPlayed >= oppMatBefore) {
+          bestReasons.unshift(
+            `captures the ${pieceName(bestDetail.captured!)} which you left on the board`
           );
         }
       }
@@ -338,14 +386,9 @@ export function explainMove(
     }
   }
 
-  // Filter out reasons that are the same for both moves (e.g. both "develop a piece")
-  // so we only highlight what's actually different
-  const uniqueBestReasons = bestReasons.filter(
-    (r) => !playedReasons.includes(r)
-  );
-  const uniquePlayedReasons = playedReasons.filter(
-    (r) => !bestReasons.includes(r)
-  );
+  // Filter out identical reasons
+  const uniqueBestReasons = bestReasons.filter((r) => !playedReasons.includes(r));
+  const uniquePlayedReasons = playedReasons.filter((r) => !bestReasons.includes(r));
 
   // Build summary
   let summary: string;
@@ -353,20 +396,39 @@ export function explainMove(
     if (playedDetail.isCheckmate) {
       summary = "Checkmate! The game is over.";
     } else if (playedReasons.length > 0) {
-      summary = `This is a strong move — it ${playedReasons.join(" and ")}.`;
+      summary = `This is a strong move — it ${playedReasons.slice(0, 2).join(" and ")}.`;
     } else {
       summary = "This is the best move in the position.";
     }
   } else if (classification === "good") {
     if (bestDescription && uniqueBestReasons.length > 0) {
-      summary = `A solid move. Slightly better was ${bestDescription} which ${uniqueBestReasons[0]}.`;
+      summary = `A solid move. Slightly better was ${bestDescription} — it ${uniqueBestReasons[0]}.`;
     } else if (bestDescription) {
-      summary = `A solid move, close to the engine's top choice. The engine slightly prefers ${bestDescription} — the difference is small.`;
+      summary = `A solid move. The engine slightly prefers ${bestDescription} — the difference is small and positional.`;
     } else {
       summary = "A solid move, close to the engine's top choice.";
     }
+    if (uniquePlayedReasons.length > 0) {
+      const downside = uniquePlayedReasons.find(
+        (r) => r.includes("blocks") || r.includes("leaves") || r.includes("loses")
+      );
+      if (downside) {
+        summary += ` Your move ${downside}.`;
+      }
+    }
   } else if (classification === "inaccuracy") {
-    if (bestDescription && uniqueBestReasons.length > 0) {
+    if (uniquePlayedReasons.length > 0 && bestDescription) {
+      const downside = uniquePlayedReasons.find(
+        (r) => r.includes("blocks") || r.includes("leaves") || r.includes("loses")
+      );
+      if (downside) {
+        summary = `A slightly imprecise move — it ${downside}. Better was ${bestDescription}.`;
+      } else if (uniqueBestReasons.length > 0) {
+        summary = `A slightly imprecise move. Better was ${bestDescription} which ${uniqueBestReasons[0]}.`;
+      } else {
+        summary = `A slightly imprecise move. The engine prefers ${bestDescription}.`;
+      }
+    } else if (bestDescription && uniqueBestReasons.length > 0) {
       summary = `A slightly imprecise move. Better was ${bestDescription} which ${uniqueBestReasons[0]}.`;
     } else if (bestDescription) {
       summary = `A slightly imprecise move. The engine prefers ${bestDescription} — the advantage is subtle and positional.`;
@@ -376,8 +438,11 @@ export function explainMove(
   } else if (classification === "mistake") {
     const lossText = `(${(cpLoss / 100).toFixed(1)} pawns)`;
     summary = `This is a mistake ${lossText}.`;
-    if (uniquePlayedReasons.some((r) => r.includes("loses material"))) {
-      summary += " It loses material.";
+    const downside = uniquePlayedReasons.find(
+      (r) => r.includes("loses") || r.includes("leaves") || r.includes("blocks")
+    );
+    if (downside) {
+      summary += ` It ${downside}.`;
     }
     if (bestDescription) {
       summary += ` The best move was ${bestDescription}`;
@@ -389,10 +454,11 @@ export function explainMove(
   } else if (classification === "blunder") {
     const lossText = `(${(cpLoss / 100).toFixed(1)} pawns)`;
     summary = `This is a serious blunder ${lossText}!`;
-    if (uniquePlayedReasons.some((r) => r.includes("loses material"))) {
-      summary += " It loses significant material.";
-    } else if (uniquePlayedReasons.some((r) => r.includes("undefended"))) {
-      summary += ` The ${pieceName(playedDetail.piece)} is left hanging.`;
+    const downside = uniquePlayedReasons.find(
+      (r) => r.includes("loses") || r.includes("leaves") || r.includes("undefended")
+    );
+    if (downside) {
+      summary += ` It ${downside}.`;
     }
     if (bestDescription) {
       summary += ` The best move was ${bestDescription}`;
