@@ -25,6 +25,14 @@ export interface MoveExplanation {
   }>;
 }
 
+export interface OpeningHistory {
+  origin: string;
+  nameExplanation: string;
+  popularity: string;
+  bestFor: string;
+  famousPlayers: string[];
+}
+
 export interface OpeningLine {
   id: string;
   name: string;
@@ -33,6 +41,7 @@ export interface OpeningLine {
   playerColor: PieceColor;
   description: string;
   level: "beginner" | "intermediate" | "advanced";
+  history: OpeningHistory;
   moves: MoveExplanation[];
   summary: string;
 }

@@ -9,6 +9,17 @@ export const queensGambit: OpeningLine = {
   level: "beginner",
   description:
     "A classical 1.d4 opening where White offers a pawn to seize central control. Black declines with ...e6, leading to a rich strategic battle over the center and the c- and d-files.",
+  history: {
+    origin:
+      "The Queen's Gambit is one of the oldest known chess openings, with references dating back to a 1490 manuscript. It became a cornerstone of competitive chess in the late 19th century and dominated world championship matches throughout the 20th century. The Netflix series 'The Queen's Gambit' (2020) brought it into mainstream pop culture.",
+    nameExplanation:
+      "Called a \"gambit\" because White offers the c4 pawn — but it's not a true sacrifice. If Black takes with ...dxc4, White can almost always win the pawn back while gaining a superior center. The \"Queen's\" part refers to the queenside (c and d files) where the action happens, as opposed to kingside openings like 1.e4.",
+    popularity:
+      "One of the most popular openings in chess history. It's the backbone of nearly every 1.d4 player's repertoire and has been played in countless world championship matches. At the club level, you'll encounter it in almost every tournament.",
+    bestFor:
+      "Players who enjoy strategic, positional chess. The Queen's Gambit teaches patience — you build pressure slowly, improve your pieces, and squeeze your opponent. It's less about tactics and more about understanding pawn structures and piece placement.",
+    famousPlayers: ["Anatoly Karpov", "Boris Spassky", "Ding Liren", "Gukesh Dommaraju"],
+  },
   moves: [
     {
       san: "d4",

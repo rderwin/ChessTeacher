@@ -9,6 +9,17 @@ export const italianGame: OpeningLine = {
   level: "beginner",
   description:
     "A classical opening that develops pieces toward the center and targets the vulnerable f7 square.",
+  history: {
+    origin:
+      "One of the oldest recorded openings in chess, the Italian Game dates back to the 15th century and was analyzed extensively by Italian masters like Gioacchino Greco in the 1620s. It was the dominant opening for centuries before the Ruy Lopez overtook it in popularity during the mid-1800s. It has seen a massive revival at the top level since the 2010s.",
+    nameExplanation:
+      "Called the \"Italian Game\" because it was developed and popularized by Italian chess players during the Renaissance. The variation name \"Giuoco Piano\" is Italian for \"quiet game,\" reflecting its initially calm, positional character before the center explodes open.",
+    popularity:
+      "Extremely popular at all levels. It's one of the first openings most players learn and has been a favorite of world champions from Morphy to Carlsen. At the amateur level, you'll face it constantly after 1.e4 e5.",
+    bestFor:
+      "Players who want to learn classical opening principles — develop pieces, control the center, and attack weaknesses. It teaches you WHY these principles matter because every move has a clear purpose.",
+    famousPlayers: ["Magnus Carlsen", "Garry Kasparov", "Paul Morphy", "Gioacchino Greco"],
+  },
   moves: [
     {
       san: "e4",

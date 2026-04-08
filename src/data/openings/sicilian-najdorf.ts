@@ -9,6 +9,17 @@ export const sicilianNajdorf: OpeningLine = {
   level: "intermediate",
   description:
     "The most combative and theoretically rich reply to 1.e4. Black fights for an asymmetrical game from move one, unbalancing the pawn structure to create dynamic counterplay on the queenside while White attacks on the kingside.",
+  history: {
+    origin:
+      "The Sicilian Defense has been known since the 16th century, but the Najdorf Variation was developed in the 1940s by Argentine grandmaster Miguel Najdorf. It quickly became the weapon of choice for aggressive players seeking winning chances with Black. Bobby Fischer adopted it as his main defense, and it has been the most analyzed opening in chess ever since.",
+    nameExplanation:
+      "The \"Sicilian\" name comes from the Italian chess player Pietro Carrera from Sicily, who analyzed 1...c5 in the 1600s. The \"Najdorf\" variation is named after Miguel Najdorf, a Polish-Argentine grandmaster who popularized the key move 5...a6. This modest-looking pawn move unlocks an incredibly rich and combative system.",
+    popularity:
+      "The single most popular defense to 1.e4 at the professional level. It has more published theory than any other opening. At the amateur level it's also extremely common, though the depth of theory can be daunting — which is exactly why practicing it here is so valuable.",
+    bestFor:
+      "Ambitious players who want to fight for a win with Black. The Najdorf rewards deep preparation and tactical skill. It teaches you about imbalances, opposite-side attacks, and how a seemingly small move like ...a6 can have enormous strategic consequences.",
+    famousPlayers: ["Bobby Fischer", "Garry Kasparov", "Viswanathan Anand", "Fabiano Caruana"],
+  },
   moves: [
     {
       san: "e4",

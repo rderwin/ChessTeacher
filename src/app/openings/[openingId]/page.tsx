@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getOpeningById, ALL_OPENINGS } from "@/data/openings";
-import PracticeSession from "@/components/practice/PracticeSession";
+import OpeningPage from "@/components/practice/OpeningPage";
 
 interface Props {
   params: Promise<{ openingId: string }>;
@@ -25,9 +25,5 @@ export default async function OpeningPracticePage({ params }: Props) {
   const opening = getOpeningById(openingId);
   if (!opening) notFound();
 
-  return (
-    <div className="px-4 py-8">
-      <PracticeSession opening={opening} />
-    </div>
-  );
+  return <OpeningPage opening={opening} />;
 }

@@ -9,6 +9,17 @@ export const slavDefense: OpeningLine = {
   level: "beginner",
   description:
     "A rock-solid response to the Queen's Gambit where Black defends d5 with the c-pawn, keeping the light-squared bishop free to develop outside the pawn chain.",
+  history: {
+    origin:
+      "The Slav Defense became prominent in the 1920s and 1930s when Slavic players — particularly from Czechoslovakia and Russia — developed it as a reliable alternative to the Queen's Gambit Declined. It was a key weapon in multiple world championship matches, including Alekhine-Euwe (1935) and Kramnik-Topalov (2006).",
+    nameExplanation:
+      "Named after the Slavic chess players who popularized and refined it in the early 20th century. The defining idea is 2...c6 — defending the d5 pawn with the c-pawn instead of the e-pawn. This seemingly small difference has huge strategic implications because it keeps the light-squared bishop free.",
+    popularity:
+      "One of the top two or three responses to 1.d4 d5 2.c4 at every level of chess. It's especially popular among players who want a solid, reliable defense without the \"problem bishop\" that plagues the Queen's Gambit Declined. You'll face the Queen's Gambit constantly as a 1.d4 player, so having the Slav ready is essential.",
+    bestFor:
+      "Players who want a rock-solid foundation as Black against 1.d4. The Slav teaches the importance of move order, how small structural decisions (c6 vs e6) create completely different games, and why keeping pieces active matters more than grabbing space.",
+    famousPlayers: ["Vladimir Kramnik", "Viswanathan Anand", "Max Euwe", "Veselin Topalov"],
+  },
   moves: [
     {
       san: "d4",
