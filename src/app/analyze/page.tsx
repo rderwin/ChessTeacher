@@ -85,10 +85,12 @@ export default function AnalyzePage() {
       } else {
         setOrientation("white");
       }
+      // Auto-start full game analysis
+      analyzeGame(parsed);
     } catch {
       setError("Invalid PGN. Check the format and try again.");
     }
-  }, [resetAnalysis]);
+  }, [resetAnalysis, analyzeGame]);
 
   const handleSaveGame = useCallback(async () => {
     if (!game || saving) return;
@@ -361,40 +363,29 @@ export default function AnalyzePage() {
               </div>
             )}
 
-            {/* Analyze button + progress */}
-            {!analysis.complete && (
-              <div className="mb-4">
-                {analysis.analyzing ? (
-                  <div className="bg-stone-800 rounded-xl border border-stone-700 p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-stone-300">
-                        Analyzing game...
-                      </span>
-                      <span className="text-xs text-stone-500">
-                        {analysis.progress}/{analysis.total}
-                      </span>
-                    </div>
-                    <div className="h-1.5 bg-stone-700 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-500 transition-all duration-300"
-                        style={{
-                          width: `${
-                            analysis.total
-                              ? (analysis.progress / analysis.total) * 100
-                              : 0
-                          }%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => game && analyzeGame(game)}
-                    className="w-full px-4 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-500 transition-colors font-medium text-sm"
-                  >
-                    Analyze Full Game
-                  </button>
-                )}
+            {/* Analysis progress */}
+            {analysis.analyzing && (
+              <div className="bg-stone-800 rounded-xl border border-stone-700 p-4 mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-stone-300">
+                    Analyzing game...
+                  </span>
+                  <span className="text-xs text-stone-500">
+                    {analysis.progress}/{analysis.total}
+                  </span>
+                </div>
+                <div className="h-1.5 bg-stone-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-emerald-500 transition-all duration-300"
+                    style={{
+                      width: `${
+                        analysis.total
+                          ? (analysis.progress / analysis.total) * 100
+                          : 0
+                      }%`,
+                    }}
+                  />
+                </div>
               </div>
             )}
 
