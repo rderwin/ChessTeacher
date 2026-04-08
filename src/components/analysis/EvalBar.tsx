@@ -10,29 +10,29 @@ interface EvalBarProps {
 }
 
 function clampEval(cp: number): number {
-  // Clamp to ±10 pawns for display, map to 0-100% for White
+  // Clamp to ±10 pawns, map to 0–100% White
   const pawns = Math.max(-10, Math.min(10, cp / 100));
-  return 50 + pawns * 5; // ±10 maps to 0-100
+  return 50 + pawns * 5;
 }
 
 function formatEval(cp: number, mate: number | null): string {
   if (mate !== null) {
     return mate > 0 ? `M${mate}` : `M${Math.abs(mate)}`;
   }
-  const pawns = cp / 100;
-  if (Math.abs(pawns) < 0.1) return "0.0";
-  return pawns > 0 ? `+${pawns.toFixed(1)}` : pawns.toFixed(1);
+  const pawns = Math.abs(cp / 100);
+  if (pawns < 0.1) return "0.0";
+  return pawns.toFixed(1);
 }
 
 export default function EvalBar({ evaluation, mate, orientation }: EvalBarProps) {
   let whitePercent: number;
   if (mate !== null) {
-    whitePercent = mate > 0 ? 100 : 0;
+    whitePercent = mate > 0 ? 98 : 2;
   } else {
     whitePercent = clampEval(evaluation);
   }
 
-  // If viewing from Black's side, flip the bar
+  // When viewing from Black's side, flip so Black is at the bottom
   const displayPercent =
     orientation === "white" ? whitePercent : 100 - whitePercent;
 
@@ -40,27 +40,35 @@ export default function EvalBar({ evaluation, mate, orientation }: EvalBarProps)
   const evalText = formatEval(evaluation, mate);
 
   return (
-    <div className="flex flex-col items-center w-7 h-full min-h-[320px] rounded-md overflow-hidden border border-stone-700 relative">
-      {/* Black side (top when white orientation) */}
+    <div className="flex flex-col w-8 rounded overflow-hidden select-none self-stretch">
+      {/* Black region (top when White orientation) */}
       <div
-        className="w-full bg-stone-800 transition-all duration-300 ease-out"
+        className="w-full bg-[#312e2b] transition-all duration-500 ease-out"
         style={{ height: `${100 - displayPercent}%` }}
-      />
-      {/* White side (bottom when white orientation) */}
-      <div
-        className="w-full bg-stone-200 transition-all duration-300 ease-out"
-        style={{ height: `${displayPercent}%` }}
-      />
-      {/* Eval text */}
-      <span
-        className={`absolute text-[10px] font-bold leading-none ${
-          isWhiteAdvantage
-            ? "bottom-1 text-stone-700"
-            : "top-1 text-stone-400"
-        }`}
       >
-        {evalText}
-      </span>
+        {/* Show eval on black side when black is ahead */}
+        {!isWhiteAdvantage && (
+          <div className="flex items-start justify-center pt-1 h-full">
+            <span className="text-[11px] font-bold text-[#999] leading-none">
+              {evalText}
+            </span>
+          </div>
+        )}
+      </div>
+      {/* White region (bottom when White orientation) */}
+      <div
+        className="w-full bg-[#e8e6e1] transition-all duration-500 ease-out"
+        style={{ height: `${displayPercent}%` }}
+      >
+        {/* Show eval on white side when white is ahead */}
+        {isWhiteAdvantage && (
+          <div className="flex items-end justify-center pb-1 h-full">
+            <span className="text-[11px] font-bold text-[#555] leading-none">
+              {evalText}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

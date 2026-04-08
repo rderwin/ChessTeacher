@@ -188,14 +188,14 @@ export default function AnalyzePage() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Board + Eval Bar */}
           <div className="shrink-0">
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-stretch max-w-[520px]">
               <EvalBar
                 evaluation={currentEval.evaluation}
                 mate={currentEval.mate}
                 orientation={orientation}
               />
               <div
-                className="w-full max-w-[480px] aspect-square"
+                className="flex-1 aspect-square"
                 style={
                   pieceFilter
                     ? ({ filter: pieceFilter } as React.CSSProperties)
