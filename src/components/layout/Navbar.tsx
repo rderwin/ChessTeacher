@@ -20,17 +20,13 @@ export default function Navbar() {
           >
             Openings
           </Link>
-          <Link
-            href="/account"
-            className="text-sm text-stone-400 hover:text-white transition-colors"
-          >
-            Account
-          </Link>
-
           {!loading && (
             <>
               {user ? (
-                <div className="flex items-center gap-3">
+                <Link
+                  href="/account"
+                  className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                >
                   {user.photoURL && (
                     <img
                       src={user.photoURL}
@@ -42,13 +38,7 @@ export default function Navbar() {
                   <span className="text-sm text-stone-300 hidden sm:inline">
                     {user.displayName?.split(" ")[0]}
                   </span>
-                  <button
-                    onClick={signOut}
-                    className="text-sm text-stone-500 hover:text-stone-300 transition-colors"
-                  >
-                    Sign out
-                  </button>
-                </div>
+                </Link>
               ) : (
                 <button
                   onClick={signInWithGoogle}
