@@ -20,6 +20,12 @@ export default function Navbar() {
           >
             Openings
           </Link>
+          <Link
+            href="/account"
+            className="text-sm text-stone-400 hover:text-white transition-colors"
+          >
+            Account
+          </Link>
 
           {!loading && (
             <>

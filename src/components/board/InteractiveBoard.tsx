@@ -4,6 +4,7 @@ import { CSSProperties, useState, useCallback, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
 import type { Arrow } from "react-chessboard";
 import { Chess } from "chess.js";
+import { usePreferences } from "@/contexts/PreferencesContext";
 
 interface InteractiveBoardProps {
   fen: string;
@@ -32,6 +33,7 @@ export default function InteractiveBoard({
   arrows = [],
   disabled = false,
 }: InteractiveBoardProps) {
+  const { boardTheme, pieceStyle } = usePreferences();
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [clickStyles, setClickStyles] = useState<Record<string, CSSProperties>>(
     {}
@@ -104,8 +106,15 @@ export default function InteractiveBoard({
 
   const mergedStyles = { ...clickStyles, ...highlightSquares };
 
+  const pieceFilter = [pieceStyle.filter, pieceStyle.shadow]
+    .filter((v) => v !== "none")
+    .join(" ");
+
   return (
-    <div className="w-full max-w-[560px] aspect-square">
+    <div
+      className="w-full max-w-[560px] aspect-square"
+      style={pieceFilter ? { filter: pieceFilter } as React.CSSProperties : undefined}
+    >
       <Chessboard
         options={{
           position: fen,
@@ -126,8 +135,8 @@ export default function InteractiveBoard({
             borderRadius: "4px",
             boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
           },
-          darkSquareStyle: { backgroundColor: "#B58863" },
-          lightSquareStyle: { backgroundColor: "#F0D9B5" },
+          darkSquareStyle: { backgroundColor: boardTheme.darkSquare },
+          lightSquareStyle: { backgroundColor: boardTheme.lightSquare },
         }}
       />
     </div>
