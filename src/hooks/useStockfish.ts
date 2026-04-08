@@ -17,19 +17,10 @@ export interface EngineEval {
   searching: boolean;
 }
 
-const EMPTY_EVAL: EngineEval = {
-  bestMove: "",
-  evaluation: 0,
-  depth: 0,
-  mate: null,
-  pv: [],
-  searching: true,
-};
-
 export function useStockfish(depth = 16) {
   const workerRef = useRef<Worker | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const activeHandlerRef = useRef<((e: MessageEvent) => void) | null>(null);
+  const searchIdRef = useRef(0);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -37,14 +28,14 @@ export function useStockfish(depth = 16) {
     const worker = new Worker("/stockfish/stockfish-18-lite-single.js");
     workerRef.current = worker;
 
-    worker.onmessage = (e: MessageEvent) => {
-      const line: string =
-        typeof e.data === "string" ? e.data : String(e.data);
+    const initHandler = (e: MessageEvent) => {
+      const line = typeof e.data === "string" ? e.data : String(e.data);
       if (line === "readyok") {
+        worker.removeEventListener("message", initHandler);
         setIsReady(true);
       }
     };
-
+    worker.addEventListener("message", initHandler);
     worker.postMessage("uci");
     worker.postMessage("isready");
 
@@ -57,30 +48,48 @@ export function useStockfish(depth = 16) {
 
   /**
    * Evaluate a position. Calls `onUpdate` with streaming results as the
-   * engine searches deeper, then a final result when `bestmove` arrives.
-   * Returns a cancel function.
+   * engine searches deeper. Returns a cancel function.
+   *
+   * Rapid calls are safe — each call bumps a search ID, and stale
+   * results from previous searches are silently discarded.
    */
   const evaluate = useCallback(
     (fen: string, onUpdate: (result: EngineEval) => void): (() => void) => {
       const worker = workerRef.current;
       if (!worker) return () => {};
 
-      // Remove any previous handler
-      if (activeHandlerRef.current) {
-        worker.removeEventListener("message", activeHandlerRef.current);
-        worker.postMessage("stop");
-      }
+      // Bump search ID — any messages from older searches will be ignored
+      const id = ++searchIdRef.current;
+
+      // Stop any in-progress search. We send stop + isready to drain
+      // any pending bestmove from the old search before starting new one.
+      worker.postMessage("stop");
 
       let lastEval = 0;
       let lastDepth = 0;
       let lastMate: number | null = null;
       let lastPv: string[] = [];
-      let cancelled = false;
+      let started = false;
 
       const handler = (e: MessageEvent) => {
-        if (cancelled) return;
+        // If a newer search was started, remove this handler
+        if (searchIdRef.current !== id) {
+          worker.removeEventListener("message", handler);
+          return;
+        }
+
         const line: string =
           typeof e.data === "string" ? e.data : String(e.data);
+
+        // Wait for readyok before we know the engine is clear
+        if (!started) {
+          if (line === "readyok") {
+            started = true;
+            worker.postMessage(`position fen ${fen}`);
+            worker.postMessage(`go depth ${depth}`);
+          }
+          return;
+        }
 
         if (line.startsWith("info") && line.includes(" score ")) {
           const depthMatch = line.match(/depth (\d+)/);
@@ -96,7 +105,6 @@ export function useStockfish(depth = 16) {
           if (mateMatch) lastMate = parseInt(mateMatch[1]);
           if (pvMatch) lastPv = pvMatch[1].split(" ");
 
-          // Stream intermediate results at every few depths
           if (lastDepth >= 4) {
             onUpdate({
               bestMove: lastPv[0] ?? "",
@@ -111,9 +119,6 @@ export function useStockfish(depth = 16) {
 
         if (line.startsWith("bestmove")) {
           worker.removeEventListener("message", handler);
-          if (activeHandlerRef.current === handler) {
-            activeHandlerRef.current = null;
-          }
           const bestMove = line.split(" ")[1] ?? "";
           onUpdate({
             bestMove,
@@ -126,18 +131,16 @@ export function useStockfish(depth = 16) {
         }
       };
 
-      activeHandlerRef.current = handler;
       worker.addEventListener("message", handler);
-      worker.postMessage("ucinewgame");
-      worker.postMessage(`position fen ${fen}`);
-      worker.postMessage(`go depth ${depth}`);
+      // Send isready — once we get readyok, the old search is fully drained
+      worker.postMessage("isready");
 
       return () => {
-        cancelled = true;
-        worker.removeEventListener("message", handler);
-        if (activeHandlerRef.current === handler) {
-          activeHandlerRef.current = null;
+        // Invalidate this search so the handler self-removes
+        if (searchIdRef.current === id) {
+          searchIdRef.current++;
         }
+        worker.removeEventListener("message", handler);
         worker.postMessage("stop");
       };
     },
@@ -145,13 +148,8 @@ export function useStockfish(depth = 16) {
   );
 
   const stop = useCallback(() => {
-    const worker = workerRef.current;
-    if (!worker) return;
-    if (activeHandlerRef.current) {
-      worker.removeEventListener("message", activeHandlerRef.current);
-      activeHandlerRef.current = null;
-    }
-    worker.postMessage("stop");
+    searchIdRef.current++;
+    workerRef.current?.postMessage("stop");
   }, []);
 
   return { isReady, evaluate, stop };
