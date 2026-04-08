@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -186,26 +185,19 @@ export default function AnalyzePage() {
       : game.startFen
     : "";
 
-  const bestMoveData = useMemo(() => {
-    if (!showingBest || !fenBefore || !bestMoveUci || bestMoveUci.length < 4) return null;
-    try {
-      const chess = new Chess(fenBefore);
-      const from = bestMoveUci.slice(0, 2);
-      const to = bestMoveUci.slice(2, 4);
-      const promotion = bestMoveUci.length > 4 ? bestMoveUci[4] : undefined;
-      chess.move({ from, to, promotion } as Parameters<typeof chess.move>[0]);
-      return { fen: chess.fen(), from, to };
-    } catch {
-      return null;
-    }
-  }, [showingBest, fenBefore, bestMoveUci]);
+  // When showing best, display the position BEFORE the played move
+  // with green highlights on the best move's from/to squares
+  const bestMoveSquares = useMemo(() => {
+    if (!showingBest || !bestMoveUci || bestMoveUci.length < 4) return null;
+    return { from: bestMoveUci.slice(0, 2), to: bestMoveUci.slice(2, 4) };
+  }, [showingBest, bestMoveUci]);
 
-  const displayFen = bestMoveData ? bestMoveData.fen : currentFen;
+  const displayFen = bestMoveSquares && fenBefore ? fenBefore : currentFen;
 
   const squareStyles: Record<string, React.CSSProperties> = {};
-  if (bestMoveData) {
-    squareStyles[bestMoveData.from] = BEST_FROM;
-    squareStyles[bestMoveData.to] = BEST_TO;
+  if (bestMoveSquares) {
+    squareStyles[bestMoveSquares.from] = BEST_FROM;
+    squareStyles[bestMoveSquares.to] = BEST_TO;
   } else if (currentMove) {
     squareStyles[currentMove.from] = HIGHLIGHT_FROM;
     squareStyles[currentMove.to] = HIGHLIGHT_TO;
