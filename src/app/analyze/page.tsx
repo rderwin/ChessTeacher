@@ -37,7 +37,7 @@ const BADGE_STYLES: Record<MoveClass, { bg: string; text: string; symbol: string
   best:      { bg: "bg-emerald-500", text: "text-white", symbol: "★" },
   excellent: { bg: "bg-emerald-600", text: "text-white", symbol: "!" },
   good:      null, // no badge for good moves
-  inaccuracy:null, // subtle enough to not need a badge
+  inaccuracy:{ bg: "bg-yellow-500", text: "text-black", symbol: "?!" },
   mistake:   { bg: "bg-orange-500", text: "text-white", symbol: "?" },
   blunder:   { bg: "bg-red-600", text: "text-white", symbol: "??" },
   book:      null,
