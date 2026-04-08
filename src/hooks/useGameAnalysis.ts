@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { Chess } from "chess.js";
 import type { ParsedGame } from "@/lib/pgn";
 import {
   classifyMove,
@@ -117,6 +118,32 @@ export function useGameAnalysis() {
 
       const fen = fens[currentPos];
       const turn = fen.split(" ")[1]; // "w" or "b"
+
+      // Handle terminal positions — Stockfish can't evaluate these
+      const probe = new Chess(fen);
+      if (probe.isCheckmate()) {
+        // Side to move is mated. From White's perspective:
+        // if White is mated (turn=w) → very negative; if Black is mated (turn=b) → very positive
+        const normalizedCp = turn === "w" ? -10000 : 10000;
+        evals.push({ cp: normalizedCp, mate: null, bestMove: "" });
+        currentPos++;
+        setAnalysis((prev) => ({
+          ...prev,
+          progress: Math.min(currentPos - 1, game.moves.length),
+        }));
+        evaluateNext();
+        return;
+      }
+      if (probe.isStalemate() || probe.isDraw()) {
+        evals.push({ cp: 0, mate: null, bestMove: "" });
+        currentPos++;
+        setAnalysis((prev) => ({
+          ...prev,
+          progress: Math.min(currentPos - 1, game.moves.length),
+        }));
+        evaluateNext();
+        return;
+      }
 
       let lastCp = 0;
       let lastMate: number | null = null;
