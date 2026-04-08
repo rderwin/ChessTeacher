@@ -1,43 +1,65 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   OpeningProgress,
-  getProgress as getStoredProgress,
+  getProgress as fetchProgress,
   saveProgress as storeProgress,
-  getAllProgress as getStoredAllProgress,
+  getAllProgress as fetchAllProgress,
+  migrateLocalToFirestore,
 } from "@/lib/progress";
 
 export function useProgress(openingId?: string) {
+  const { user } = useAuth();
+  const uid = user?.uid || null;
+
   const [progress, setProgress] = useState<OpeningProgress | null>(null);
   const [allProgress, setAllProgress] = useState<OpeningProgress[]>([]);
 
+  // Load progress (and migrate localStorage → Firestore on first login)
   useEffect(() => {
-    if (openingId) {
-      setProgress(getStoredProgress(openingId));
+    let cancelled = false;
+
+    async function load() {
+      if (uid) {
+        await migrateLocalToFirestore(uid);
+      }
+
+      if (openingId) {
+        const p = await fetchProgress(openingId, uid);
+        if (!cancelled) setProgress(p);
+      }
+
+      const all = await fetchAllProgress(uid);
+      if (!cancelled) setAllProgress(all);
     }
-    setAllProgress(getStoredAllProgress());
-  }, [openingId]);
+
+    load();
+    return () => { cancelled = true; };
+  }, [openingId, uid]);
 
   const saveProgress = useCallback(
-    (moveReached: number, totalMoves: number) => {
+    async (moveReached: number, totalMoves: number) => {
       if (!openingId) return;
-      storeProgress(openingId, moveReached, totalMoves);
-      setProgress(getStoredProgress(openingId));
-      setAllProgress(getStoredAllProgress());
+      await storeProgress(openingId, moveReached, totalMoves, uid);
+      const p = await fetchProgress(openingId, uid);
+      setProgress(p);
+      const all = await fetchAllProgress(uid);
+      setAllProgress(all);
     },
-    [openingId]
+    [openingId, uid]
   );
 
   const getCompletionPercent = useCallback(
     (id?: string) => {
       const target = id || openingId;
       if (!target) return 0;
-      const p = getStoredProgress(target);
-      if (!p || p.totalMoves === 0) return 0;
-      return Math.round((p.bestMoveReached / p.totalMoves) * 100);
+      const found = allProgress.find((p) => p.openingId === target);
+      if (!found || found.totalMoves === 0) return 0;
+      return Math.round((found.bestMoveReached / found.totalMoves) * 100);
     },
-    [openingId]
+    [openingId, allProgress]
   );
 
   return { progress, allProgress, saveProgress, getCompletionPercent };
