@@ -267,13 +267,13 @@ export default function AnalyzePage() {
                   <div
                     className="absolute pointer-events-none z-10"
                     style={{
-                      left: `${(badgeCol / 8) * 100 + 12.5 / 2}%`,
+                      left: `${(badgeCol / 8) * 100}%`,
                       top: `${(badgeRow / 8) * 100}%`,
-                      transform: "translate(-50%, -40%)",
+                      transform: "translate(-35%, -35%)",
                     }}
                   >
                     <div
-                      className={`${BADGE_STYLES[badgeClass]!.bg} ${BADGE_STYLES[badgeClass]!.text} rounded-full w-6 h-6 flex items-center justify-center text-xs font-black shadow-lg border-2 border-stone-900/50`}
+                      className={`${BADGE_STYLES[badgeClass]!.bg} ${BADGE_STYLES[badgeClass]!.text} rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-black shadow-lg border-2 border-stone-900/50`}
                     >
                       {BADGE_STYLES[badgeClass]!.symbol}
                     </div>
