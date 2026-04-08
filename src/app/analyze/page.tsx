@@ -446,12 +446,24 @@ export default function AnalyzePage() {
               </div>
             </div>
 
-            {/* Engine analysis */}
-            <EnginePanel
-              fen={currentFen}
-              turn={currentTurn}
-              onEval={(evaluation, mate) => setCurrentEval({ evaluation, mate })}
-            />
+            {/* Engine analysis — disabled while full-game analysis runs */}
+            {!analysis.analyzing && (
+              <EnginePanel
+                fen={currentFen}
+                turn={currentTurn}
+                onEval={(evaluation, mate) => setCurrentEval({ evaluation, mate })}
+              />
+            )}
+            {analysis.analyzing && (
+              <div className="bg-stone-800 rounded-xl border border-stone-700 p-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+                  <span className="text-sm text-stone-400">
+                    Engine busy analyzing full game...
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Save & back */}
             <div className="flex items-center gap-4 mt-4">
