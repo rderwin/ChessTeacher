@@ -22,6 +22,8 @@ export interface MoveClassification {
   evalAfter: number;
   /** Mate after this move from White's perspective, or null */
   mateAfter: number | null;
+  /** Engine's best move in UCI notation for the position before this move */
+  bestMoveUci: string;
 }
 
 export const MOVE_CLASS_COLORS: Record<MoveClass, string> = {

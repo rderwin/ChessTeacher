@@ -17,6 +17,7 @@ import {
   MOVE_CLASS_SYMBOLS,
   type MoveClass,
 } from "@/lib/classify-moves";
+import MoveExplanationPanel from "@/components/analysis/MoveExplanation";
 
 const SAMPLE_PGN = `[Event "Example Game"]
 [White "Player 1"]
@@ -435,6 +436,20 @@ export default function AnalyzePage() {
                 </span>
               </div>
             </div>
+
+            {/* Move explanation — shown when analysis complete and a move is selected */}
+            {analysis.complete && moveIndex >= 0 && analysis.moves[moveIndex] && game && (
+              <MoveExplanationPanel
+                fenBefore={
+                  moveIndex === 0
+                    ? game.startFen
+                    : game.moves[moveIndex - 1].fen
+                }
+                playedSan={game.moves[moveIndex].san}
+                classification={analysis.moves[moveIndex]}
+                moveColor={game.moves[moveIndex].color}
+              />
+            )}
 
             {/* Engine analysis — disabled while full-game analysis runs */}
             {!analysis.analyzing && (

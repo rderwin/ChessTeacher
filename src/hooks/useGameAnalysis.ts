@@ -66,7 +66,7 @@ export function useGameAnalysis() {
     // All positions: start + after each move
     const fens = [game.startFen, ...game.moves.map((m) => m.fen)];
     const totalPositions = fens.length;
-    const evals: { cp: number; mate: number | null }[] = [];
+    const evals: { cp: number; mate: number | null; bestMove: string }[] = [];
     let currentPos = 0;
 
     setAnalysis({
@@ -100,6 +100,7 @@ export function useGameAnalysis() {
               cpLoss,
               evalAfter: after.cp,
               mateAfter: after.mate,
+              bestMoveUci: before.bestMove,
             });
           }
 
@@ -119,6 +120,7 @@ export function useGameAnalysis() {
 
       let lastCp = 0;
       let lastMate: number | null = null;
+      let lastBestMove = "";
 
       const handler = (e: MessageEvent) => {
         const line: string =
@@ -127,22 +129,26 @@ export function useGameAnalysis() {
         if (line.startsWith("info") && line.includes(" score ")) {
           const cpMatch = line.match(/score cp (-?\d+)/);
           const mateMatch = line.match(/score mate (-?\d+)/);
+          const pvMatch = line.match(/ pv (\S+)/);
           if (cpMatch) {
             lastCp = parseInt(cpMatch[1]);
             lastMate = null;
           }
           if (mateMatch) lastMate = parseInt(mateMatch[1]);
+          if (pvMatch) lastBestMove = pvMatch[1];
         }
 
         if (line.startsWith("bestmove")) {
           worker.removeEventListener("message", handler);
+          const bm = line.split(" ")[1] ?? "";
+          if (bm) lastBestMove = bm;
 
           // Normalize to White's perspective
           const normalizedCp = turn === "b" ? -lastCp : lastCp;
           const normalizedMate =
             lastMate !== null ? (turn === "b" ? -lastMate : lastMate) : null;
 
-          evals.push({ cp: normalizedCp, mate: normalizedMate });
+          evals.push({ cp: normalizedCp, mate: normalizedMate, bestMove: lastBestMove });
           currentPos++;
 
           setAnalysis((prev) => ({
