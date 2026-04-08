@@ -95,7 +95,7 @@ export default function PracticeSession({ opening }: PracticeSessionProps) {
           <div className="bg-stone-800 rounded-xl p-5 border border-stone-700">
             <p className="text-stone-300">
               {currentMoveIndex === 0 && opening.playerColor === "white"
-                ? "Make your first move! Drag a piece on the board."
+                ? "Make your first move! Click a piece, then click its destination."
                 : "Your turn — make your next move."}
             </p>
           </div>
