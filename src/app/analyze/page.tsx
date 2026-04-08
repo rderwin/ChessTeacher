@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
+import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,6 +29,8 @@ const SAMPLE_PGN = `[Event "Example Game"]
 
 const HIGHLIGHT_FROM: React.CSSProperties = { backgroundColor: "rgba(255, 255, 0, 0.4)" };
 const HIGHLIGHT_TO: React.CSSProperties = { backgroundColor: "rgba(255, 255, 0, 0.4)" };
+const BEST_FROM: React.CSSProperties = { backgroundColor: "rgba(16, 185, 129, 0.45)" };
+const BEST_TO: React.CSSProperties = { backgroundColor: "rgba(16, 185, 129, 0.45)" };
 
 const BADGE_STYLES: Record<MoveClass, { bg: string; text: string; symbol: string } | null> = {
   brilliant: { bg: "bg-cyan-500", text: "text-white", symbol: "!!" },
@@ -58,6 +61,7 @@ export default function AnalyzePage() {
     mate: null,
   });
   const { analysis, analyzeGame, reset: resetAnalysis } = useGameAnalysis();
+  const [showingBest, setShowingBest] = useState(false);
 
   // Load saved games on mount
   useEffect(() => {
@@ -126,6 +130,7 @@ export default function AnalyzePage() {
   const goTo = useCallback(
     (index: number) => {
       if (!game) return;
+      setShowingBest(false);
       setMoveIndex(Math.max(-1, Math.min(index, game.moves.length - 1)));
     },
     [game]
@@ -138,17 +143,21 @@ export default function AnalyzePage() {
       if (e.target instanceof HTMLTextAreaElement) return;
       if (e.key === "ArrowLeft") {
         e.preventDefault();
+        setShowingBest(false);
         setMoveIndex((i) => Math.max(-1, i - 1));
       } else if (e.key === "ArrowRight") {
         e.preventDefault();
+        setShowingBest(false);
         setMoveIndex((i) =>
           game ? Math.min(game.moves.length - 1, i + 1) : i
         );
       } else if (e.key === "Home") {
         e.preventDefault();
+        setShowingBest(false);
         setMoveIndex(-1);
       } else if (e.key === "End") {
         e.preventDefault();
+        setShowingBest(false);
         setMoveIndex(game ? game.moves.length - 1 : -1);
       }
     }
@@ -160,8 +169,40 @@ export default function AnalyzePage() {
   const currentTurn: "w" | "b" =
     currentFen !== "start" && currentFen.split(" ")[1] === "b" ? "b" : "w";
 
+  // Compute best-move FEN + squares when showing best
+  const bestMoveUci = analysis.complete && moveIndex >= 0 && analysis.moves[moveIndex]
+    ? analysis.moves[moveIndex].bestMoveUci
+    : "";
+
+  const fenBefore = game
+    ? moveIndex === 0
+      ? game.startFen
+      : moveIndex > 0
+      ? game.moves[moveIndex - 1].fen
+      : game.startFen
+    : "";
+
+  const bestMoveData = useMemo(() => {
+    if (!showingBest || !fenBefore || !bestMoveUci || bestMoveUci.length < 4) return null;
+    try {
+      const chess = new Chess(fenBefore);
+      const from = bestMoveUci.slice(0, 2);
+      const to = bestMoveUci.slice(2, 4);
+      const promotion = bestMoveUci.length > 4 ? bestMoveUci[4] : undefined;
+      chess.move({ from, to, promotion } as Parameters<typeof chess.move>[0]);
+      return { fen: chess.fen(), from, to };
+    } catch {
+      return null;
+    }
+  }, [showingBest, fenBefore, bestMoveUci]);
+
+  const displayFen = bestMoveData ? bestMoveData.fen : currentFen;
+
   const squareStyles: Record<string, React.CSSProperties> = {};
-  if (currentMove) {
+  if (bestMoveData) {
+    squareStyles[bestMoveData.from] = BEST_FROM;
+    squareStyles[bestMoveData.to] = BEST_TO;
+  } else if (currentMove) {
     squareStyles[currentMove.from] = HIGHLIGHT_FROM;
     squareStyles[currentMove.to] = HIGHLIGHT_TO;
   }
@@ -248,7 +289,7 @@ export default function AnalyzePage() {
               >
                 <Chessboard
                   options={{
-                    position: currentFen,
+                    position: displayFen,
                     boardOrientation: orientation,
                     allowDragging: false,
                     squareStyles,
@@ -264,7 +305,7 @@ export default function AnalyzePage() {
                   }}
                 />
                 {/* Move classification badge overlay */}
-                {badgeClass && BADGE_STYLES[badgeClass] && (
+                {!showingBest && badgeClass && BADGE_STYLES[badgeClass] && (
                   <div
                     className="absolute pointer-events-none z-10"
                     style={{
@@ -335,6 +376,21 @@ export default function AnalyzePage() {
                 🔄
               </button>
             </div>
+
+            {/* Move explanation — below board */}
+            {analysis.complete && moveIndex >= 0 && analysis.moves[moveIndex] && game && (
+              <div className="mt-3">
+                <MoveExplanationPanel
+                  fenBefore={fenBefore}
+                  playedSan={game.moves[moveIndex].san}
+                  classification={analysis.moves[moveIndex]}
+                  moveColor={game.moves[moveIndex].color}
+                  showingBest={showingBest}
+                  onShowBest={() => setShowingBest(true)}
+                  onHideBest={() => setShowingBest(false)}
+                />
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -436,20 +492,6 @@ export default function AnalyzePage() {
                 </span>
               </div>
             </div>
-
-            {/* Move explanation — shown when analysis complete and a move is selected */}
-            {analysis.complete && moveIndex >= 0 && analysis.moves[moveIndex] && game && (
-              <MoveExplanationPanel
-                fenBefore={
-                  moveIndex === 0
-                    ? game.startFen
-                    : game.moves[moveIndex - 1].fen
-                }
-                playedSan={game.moves[moveIndex].san}
-                classification={analysis.moves[moveIndex]}
-                moveColor={game.moves[moveIndex].color}
-              />
-            )}
 
             {/* Engine analysis — disabled while full-game analysis runs */}
             {!analysis.analyzing && (
