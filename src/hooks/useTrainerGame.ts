@@ -4,16 +4,21 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { Chess, type Square } from "chess.js";
 import { classifyMove, computeCPLoss, mateToCP, type MoveClass } from "@/lib/classify-moves";
 
-export type Difficulty = "beginner" | "casual" | "intermediate" | "advanced" | "expert";
+export type Difficulty =
+  | "newborn" | "puppy" | "beginner"
+  | "casual" | "intermediate" | "advanced" | "expert";
 
-// UCI_LimitStrength + UCI_Elo = Stockfish plays at a calibrated ELO rating.
-// Minimum supported is ~1320. For "expert" we disable the limit entirely.
-const BOT_CONFIG: Record<Difficulty, { depth: number; elo: number | null }> = {
-  beginner: { depth: 4, elo: 1320 },    // ~1300 — lowest Stockfish can simulate
-  casual: { depth: 6, elo: 1600 },      // ~1600 — club beginner
-  intermediate: { depth: 8, elo: 1900 }, // ~1900 — solid club player
-  advanced: { depth: 10, elo: 2200 },   // ~2200 — expert / candidate master
-  expert: { depth: 14, elo: null },      // full strength — no limit
+// For weak bots: Stockfish MultiPV gives top N moves, then we pick randomly
+// among them. All moves are "reasonable" — just not always the best.
+// pickFrom = how many top moves to choose from (1 = always best).
+const BOT_CONFIG: Record<Difficulty, { depth: number; elo: number | null; pickFrom: number }> = {
+  newborn: { depth: 4, elo: 1320, pickFrom: 5 },    // ~400-600 — picks from top 5
+  puppy: { depth: 4, elo: 1320, pickFrom: 3 },      // ~800-1000 — picks from top 3
+  beginner: { depth: 4, elo: 1320, pickFrom: 1 },   // ~1300 — engine best at min ELO
+  casual: { depth: 6, elo: 1600, pickFrom: 1 },     // ~1600
+  intermediate: { depth: 8, elo: 1900, pickFrom: 1 }, // ~1900
+  advanced: { depth: 10, elo: 2200, pickFrom: 1 },  // ~2200
+  expert: { depth: 14, elo: null, pickFrom: 1 },    // full strength
 };
 
 // Depth for evaluating the player's moves (always the same)
@@ -95,18 +100,21 @@ export interface TrainerState {
 const INITIAL_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 /** Promise-based Stockfish evaluation: returns bestMove + eval.
- *  elo = target rating via UCI_LimitStrength, or null for full strength. */
+ *  elo = target rating via UCI_LimitStrength, or null for full strength.
+ *  multiPV = return top N candidate moves (for weaker bot variety). */
 function sfEval(
   worker: Worker,
   fen: string,
   depth: number,
-  elo: number | null = null
-): Promise<{ bestMove: string; cp: number; mate: number | null }> {
+  elo: number | null = null,
+  multiPV = 1
+): Promise<{ bestMove: string; cp: number; mate: number | null; alternatives: string[] }> {
   return new Promise((resolve) => {
     let lastCp = 0;
     let lastMate: number | null = null;
     let bestMove = "";
     let started = false;
+    const pvMoves = new Map<number, string>(); // multipv index → first move of that PV
 
     const handler = (e: MessageEvent) => {
       const line = typeof e.data === "string" ? e.data : String(e.data);
@@ -120,6 +128,7 @@ function sfEval(
           } else {
             worker.postMessage(`setoption name UCI_LimitStrength value false`);
           }
+          worker.postMessage(`setoption name MultiPV value ${multiPV}`);
           worker.postMessage(`position fen ${fen}`);
           worker.postMessage(`go depth ${depth}`);
         }
@@ -130,19 +139,37 @@ function sfEval(
         const cpMatch = line.match(/score cp (-?\d+)/);
         const mateMatch = line.match(/score mate (-?\d+)/);
         const pvMatch = line.match(/ pv (\S+)/);
-        if (cpMatch) {
-          lastCp = parseInt(cpMatch[1]);
-          lastMate = null;
+        const mpvMatch = line.match(/multipv (\d+)/);
+        const mpvIndex = mpvMatch ? parseInt(mpvMatch[1]) : 1;
+
+        if (mpvIndex === 1) {
+          if (cpMatch) { lastCp = parseInt(cpMatch[1]); lastMate = null; }
+          if (mateMatch) lastMate = parseInt(mateMatch[1]);
         }
-        if (mateMatch) lastMate = parseInt(mateMatch[1]);
-        if (pvMatch) bestMove = pvMatch[1];
+        if (pvMatch) {
+          if (mpvIndex === 1) bestMove = pvMatch[1];
+          pvMoves.set(mpvIndex, pvMatch[1]);
+        }
       }
 
       if (line.startsWith("bestmove")) {
         worker.removeEventListener("message", handler);
         const bm = line.split(" ")[1] ?? "";
         if (bm && bm !== "(none)") bestMove = bm;
-        resolve({ bestMove, cp: lastCp, mate: lastMate });
+
+        // Reset MultiPV to 1 for subsequent eval/hint calls
+        if (multiPV > 1) {
+          worker.postMessage(`setoption name MultiPV value 1`);
+        }
+
+        // Collect alternative moves (PV 2, 3, ... N)
+        const alternatives: string[] = [];
+        for (let i = 2; i <= multiPV; i++) {
+          const m = pvMoves.get(i);
+          if (m) alternatives.push(m);
+        }
+
+        resolve({ bestMove, cp: lastCp, mate: lastMate, alternatives });
       }
     };
 
@@ -246,18 +273,25 @@ export function useTrainerGame() {
     setState((s) => ({ ...s, botThinking: true }));
 
     const fen = chessRef.current.fen();
-    const { depth, elo } = BOT_CONFIG[difficultyRef.current];
+    const { depth, elo, pickFrom } = BOT_CONFIG[difficultyRef.current];
 
     try {
-      const result = await sfEval(worker, fen, depth, elo);
+      const result = await sfEval(worker, fen, depth, elo, pickFrom);
       if (!result.bestMove || result.bestMove === "(none)") {
         busyRef.current = false;
         return;
       }
 
-      const from = result.bestMove.slice(0, 2);
-      const to = result.bestMove.slice(2, 4);
-      const promotion = result.bestMove.length > 4 ? result.bestMove[4] : undefined;
+      // For weaker bots, randomly pick from top N engine moves
+      let chosenMove = result.bestMove;
+      if (pickFrom > 1 && result.alternatives.length > 0) {
+        const candidates = [result.bestMove, ...result.alternatives];
+        chosenMove = candidates[Math.floor(Math.random() * candidates.length)];
+      }
+
+      const from = chosenMove.slice(0, 2);
+      const to = chosenMove.slice(2, 4);
+      const promotion = chosenMove.length > 4 ? chosenMove[4] : undefined;
 
       const moveResult = chessRef.current.move({
         from,

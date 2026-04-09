@@ -9,9 +9,11 @@ import DogCoach, { type DogMood, classificationToMood } from "@/components/train
 import { MOVE_CLASS_COLORS, MOVE_CLASS_SYMBOLS } from "@/lib/classify-moves";
 
 const DIFFICULTIES: { id: Difficulty; label: string; desc: string }[] = [
-  { id: "beginner", label: "Puppy", desc: "~1300" },
-  { id: "casual", label: "Mutt", desc: "~1600" },
-  { id: "intermediate", label: "Good Boy", desc: "~1900" },
+  { id: "newborn", label: "Newborn", desc: "~400" },
+  { id: "puppy", label: "Puppy", desc: "~800" },
+  { id: "beginner", label: "Mutt", desc: "~1300" },
+  { id: "casual", label: "Good Boy", desc: "~1600" },
+  { id: "intermediate", label: "Retriever", desc: "~1900" },
   { id: "advanced", label: "Top Dog", desc: "~2200" },
   { id: "expert", label: "Alpha", desc: "Max" },
 ];
