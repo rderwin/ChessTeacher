@@ -11,7 +11,7 @@ export type Difficulty = "beginner" | "intermediate" | "advanced";
 const BOT_CONFIG: Record<Difficulty, { depth: number; skill: number }> = {
   beginner: { depth: 4, skill: 0 },     // ~800 — blunders pieces regularly
   intermediate: { depth: 8, skill: 10 }, // ~1400 — occasional inaccuracies
-  advanced: { depth: 12, skill: 20 },    // ~2000 — strong, near-full strength
+  advanced: { depth: 10, skill: 15 },   // ~2000 — strong but still human-like mistakes
 };
 
 // Depth for evaluating the player's moves (always the same)
