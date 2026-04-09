@@ -24,15 +24,15 @@ export const mateInOne: PuzzleSet = {
     },
     {
       id: "m1-002",
-      fen: "6k1/5pp1/8/8/8/8/8/4K2Q w - - 0 1",
+      fen: "6k1/5ppp/8/8/8/8/8/3QK3 w - - 0 1",
       playerColor: "white",
-      solution: ["Qh8#"],
+      solution: ["Qd8#"],
       themes: ["mate-in-1", "back-rank-mate"],
       rating: 600,
       difficulty: "beginner",
-      hint: "Use the open h-file to deliver a back rank mate.",
+      hint: "The d-file is wide open to the back rank.",
       explanation:
-        "Qh8# slides the queen along the h-file to the 8th rank. The black king on g8 is trapped: f8 and h8 are controlled by the queen on the 8th rank, and f7/g7 are blocked by its own pawns.",
+        "Qd8# slides the queen to the 8th rank. The black king on g8 is trapped behind its own pawns on f7, g7, and h7, with no escape from the queen controlling the entire back rank.",
       source: "handcrafted",
     },
     {
@@ -48,58 +48,58 @@ export const mateInOne: PuzzleSet = {
         "Qa8# places the queen on the 8th rank. The king on g8 cannot escape: every square on the 8th rank is controlled by the queen, and f7, g7, h7 are blocked by its own pawns.",
       source: "handcrafted",
     },
-    // --- Queen mates supported by king (4-6) ---
+    // --- Queen mates supported by king (4-5) ---
     {
       id: "m1-004",
-      fen: "k7/8/KQ6/8/8/8/8/8 w - - 0 1",
+      fen: "k7/8/1K6/8/8/8/8/6Q1 w - - 0 1",
       playerColor: "white",
-      solution: ["Qb8#"],
+      solution: ["Qg8#"],
       themes: ["mate-in-1"],
-      rating: 650,
+      rating: 700,
       difficulty: "beginner",
-      hint: "Use your queen to deliver check while the king cuts off escape.",
+      hint: "Use the queen to seal the back rank while your king cuts off escape.",
       explanation:
-        "Qb8# puts the king in check from b8. The white king on a6 controls a7 and b7, leaving the black king with no escape squares.",
+        "Qg8# delivers check on the 8th rank. The white king on b6 controls a7 and b7, and the queen controls the entire 8th rank including b8. The black king on a8 is completely trapped.",
       source: "handcrafted",
     },
     {
       id: "m1-005",
-      fen: "8/8/8/8/8/k7/8/KQ6 w - - 0 1",
+      fen: "Q7/8/8/8/8/6K1/6P1/7k w - - 0 1",
       playerColor: "white",
-      solution: ["Qb3#"],
+      solution: ["Qa1#"],
       themes: ["mate-in-1"],
       rating: 700,
       difficulty: "beginner",
-      hint: "The queen can cut off the king from all directions.",
+      hint: "Drive the queen to the back rank while your king and pawn block escape.",
       explanation:
-        "Qb3# delivers check along the b-file. The white king on a1 covers a2 and b2. The queen on b3 covers a3, a4, b4, leaving no escape for the black king.",
+        "Qa1# delivers check on the 1st rank. The white king on g3 covers g2 and h2. The pawn on g2 blocks that square. The queen controls the entire 1st rank, leaving the black king on h1 with no escape.",
       source: "handcrafted",
     },
+    // --- Rook mates with king support (6-9) ---
     {
       id: "m1-006",
-      fen: "8/8/8/8/8/8/1k6/KR6 w - - 0 1",
+      fen: "R7/8/8/8/8/6K1/8/7k w - - 0 1",
       playerColor: "white",
-      solution: ["Rb2#"],
-      themes: ["mate-in-1"],
-      rating: 700,
-      difficulty: "beginner",
-      hint: "Pin the enemy king against the edge with your rook.",
-      explanation:
-        "Rb2# delivers check along the 2nd rank. The black king on b2 is checked, but it is actually the rook moving to b2 giving check. The king on a1 prevents Ka2, and the rook controls the entire 2nd rank and b-file.",
-      source: "handcrafted",
-    },
-    // --- Rook mates with king support (7-9) ---
-    {
-      id: "m1-007",
-      fen: "1k6/8/1K6/8/8/8/8/R7 w - - 0 1",
-      playerColor: "white",
-      solution: ["Ra8#"],
+      solution: ["Ra1#"],
       themes: ["mate-in-1"],
       rating: 650,
       difficulty: "beginner",
-      hint: "The rook can reach the 8th rank in one move.",
+      hint: "Swing the rook down to the 1st rank.",
       explanation:
-        "Ra8# places the rook on the back rank with check. The white king on b6 covers a7, b7, and c7. The rook controls the entire 8th rank, including c8. The black king is completely trapped.",
+        "Ra1# delivers check along the 1st rank. The white king on g3 controls g2 and h2, and the rook controls the entire 1st rank, trapping the black king on h1.",
+      source: "handcrafted",
+    },
+    {
+      id: "m1-007",
+      fen: "k7/8/K7/8/8/8/8/7R w - - 0 1",
+      playerColor: "white",
+      solution: ["Rh8#"],
+      themes: ["mate-in-1"],
+      rating: 650,
+      difficulty: "beginner",
+      hint: "The rook can reach the 8th rank from the other side of the board.",
+      explanation:
+        "Rh8# delivers check on the 8th rank. The white king on a6 controls a7 and b7. The rook controls the entire 8th rank including b8. The black king on a8 has nowhere to go.",
       source: "handcrafted",
     },
     {
@@ -112,7 +112,7 @@ export const mateInOne: PuzzleSet = {
       difficulty: "beginner",
       hint: "Drive the rook to the back rank.",
       explanation:
-        "Rf8# delivers checkmate. The rook controls the entire 8th rank, and the white king on d6 covers c7, d7, and e7, leaving no escape for the black king.",
+        "Rf8# delivers checkmate. The rook controls the entire 8th rank, and the white king on d6 covers c7, d7, and e7, leaving no escape for the black king on d8.",
       source: "handcrafted",
     },
     {
@@ -128,18 +128,18 @@ export const mateInOne: PuzzleSet = {
         "Rg8# places the rook on the 8th rank with check. The white king on e6 covers d7, e7, and f7. The rook controls d8, f8, and the rest of the 8th rank. No escape for the black king.",
       source: "handcrafted",
     },
-    // --- Two-rook ladder mate (10) ---
+    // --- Bishop+queen battery: Scholar's Mate (10) ---
     {
       id: "m1-010",
-      fen: "k7/8/8/8/8/8/1R6/1R1K4 w - - 0 1",
+      fen: "rnbqkb1r/pppp1ppp/5n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1",
       playerColor: "white",
-      solution: ["Ra1#"],
+      solution: ["Qxf7#"],
       themes: ["mate-in-1"],
-      rating: 700,
+      rating: 800,
       difficulty: "beginner",
-      hint: "Use both rooks to create a barrier the king can't cross.",
+      hint: "The f7 pawn is only defended by the king. Can you exploit that?",
       explanation:
-        "Ra1# delivers check along the a-file. The rook on b2 controls the entire b-file (including b8 and b7), cutting off all escape. The black king on a8 has nowhere to go.",
+        "Qxf7# captures the f7 pawn with the queen, delivering check. The bishop on c4 protects the queen on f7. The black king cannot escape: e7 is covered by the queen, f8 is covered by the queen along the f-file, and d8 is blocked by the black queen.",
       source: "handcrafted",
     },
     // --- Rook back rank mate (11) ---
@@ -170,7 +170,7 @@ export const mateInOne: PuzzleSet = {
         "Nf7# is a classic smothered mate. The knight hops to f7, delivering check to the king on h8. The black king is smothered by its own pieces: the rook on g8 blocks g8, and the pawns on g7 and h7 block the remaining squares.",
       source: "handcrafted",
     },
-    // --- Pawn promotion mates (13-14) ---
+    // --- Pawn promotion to mate (13) ---
     {
       id: "m1-013",
       fen: "6k1/5PPp/8/8/8/8/8/4K3 w - - 0 1",
@@ -181,20 +181,21 @@ export const mateInOne: PuzzleSet = {
       difficulty: "beginner",
       hint: "One of your pawns can promote with check.",
       explanation:
-        "f8=Q# promotes the f-pawn to a queen on f8, delivering check. The new queen controls the entire 8th rank (including h8) and the f-file (including f7). With g7 occupied by a white pawn and h7 by a black pawn, the king has no escape.",
+        "f8=Q# promotes the f-pawn to a queen on f8, delivering check. The new queen controls the entire 8th rank (including h8) and the f-file. With g7 occupied by a white pawn and h7 by a black pawn, the king on g8 has no escape.",
       source: "handcrafted",
     },
+    // --- Knight-assisted queen mate (14) ---
     {
       id: "m1-014",
-      fen: "2k5/3P4/2K5/8/8/8/8/8 w - - 0 1",
+      fen: "6k1/7p/5Q2/6N1/8/8/8/4KR2 w - - 0 1",
       playerColor: "white",
-      solution: ["d8=Q#"],
+      solution: ["Qf8#"],
       themes: ["mate-in-1"],
-      rating: 800,
+      rating: 900,
       difficulty: "beginner",
-      hint: "Promote with check while the king has no room.",
+      hint: "The queen can deliver check while the knight and rook control key squares.",
       explanation:
-        "d8=Q# promotes the d-pawn to a queen, delivering check from d8. The white king on c6 controls b7 and d7. The new queen controls the entire 8th rank (including b8). The black king on c8 is completely boxed in.",
+        "Qf8# delivers check to the king on g8. The rook on f1 protects the queen via the f-file. The knight on g5 covers the key escape squares e6 and h7. The h7 pawn blocks its own square, leaving the black king completely trapped.",
       source: "handcrafted",
     },
     // --- Black to move: rook + king (15) ---
