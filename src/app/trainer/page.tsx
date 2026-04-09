@@ -272,7 +272,7 @@ export default function TrainerPage() {
                 </button>
                 <button
                   onClick={() => { undoMove(); setSelectedSquare(null); }}
-                  disabled={!state.isPlayerTurn || state.gameOver || state.moves.length === 0}
+                  disabled={state.moves.length === 0}
                   className="px-3 py-1.5 bg-stone-700 text-stone-300 rounded-lg hover:bg-stone-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm"
                 >
                   Undo
