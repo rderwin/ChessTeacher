@@ -38,11 +38,21 @@ export default function TrainerPage() {
       if (!square || !state.isPlayerTurn || state.gameOver) return;
 
       if (selectedSquare) {
-        // Second click — try to move
+        // Second click — deselect if same square
         if (selectedSquare === square) {
-          setSelectedSquare(null); // deselect
+          setSelectedSquare(null);
           return;
         }
+        // If clicking another friendly piece, re-select it instead
+        try {
+          const chess = new Chess(state.fen);
+          const piece = chess.get(square as Square);
+          if (piece && piece.color === state.playerColor) {
+            setSelectedSquare(square);
+            return;
+          }
+        } catch { /* ignore */ }
+        // Otherwise try to move
         makeMove(selectedSquare, square);
         setSelectedSquare(null);
       } else {

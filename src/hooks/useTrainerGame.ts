@@ -230,13 +230,17 @@ export function useTrainerGame() {
       const fenBefore = chess.fen();
       const turnBefore = chess.turn();
 
-      // Try to make the move
-      const moveResult = chess.move({
-        from,
-        to,
-        promotion: promotion || "q",
-      } as Parameters<typeof chess.move>[0]);
-
+      // Try to make the move — chess.js throws on invalid moves
+      let moveResult;
+      try {
+        moveResult = chess.move({
+          from,
+          to,
+          promotion: promotion || "q",
+        } as Parameters<typeof chess.move>[0]);
+      } catch {
+        return false;
+      }
       if (!moveResult) return false;
 
       busyRef.current = true;

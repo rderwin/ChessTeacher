@@ -212,7 +212,9 @@ interface DogCoachProps {
 }
 
 export default function DogCoach({ mood, commentKey = 0 }: DogCoachProps) {
-  const [comment, setComment] = useState(() => pickRandom(COMMENTS[mood]));
+  // Use first comment as stable initial value to avoid hydration mismatch
+  // (Math.random differs between server and client)
+  const [comment, setComment] = useState(COMMENTS[mood][0]);
 
   useEffect(() => {
     setComment(pickRandom(COMMENTS[mood]));
