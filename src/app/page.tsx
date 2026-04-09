@@ -8,6 +8,12 @@ const MODULES = [
     ready: true,
   },
   {
+    title: "Puzzles",
+    href: "/puzzles",
+    description: "Sharpen your tactical vision with themed puzzle sets — forks, pins, mates, and more.",
+    ready: true,
+  },
+  {
     title: "Openings",
     href: "/openings",
     description: "Master chess openings through interactive practice. Play the moves and understand why each one matters.",

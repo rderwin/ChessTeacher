@@ -36,6 +36,12 @@ export default function Navbar() {
             Coach
           </Link>
           <Link
+            href="/puzzles"
+            className="text-sm text-stone-400 hover:text-white transition-colors"
+          >
+            Puzzles
+          </Link>
+          <Link
             href="/openings"
             className="text-sm text-stone-400 hover:text-white transition-colors"
           >

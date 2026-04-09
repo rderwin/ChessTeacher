@@ -45,3 +45,55 @@ export interface OpeningLine {
   moves: MoveExplanation[];
   summary: string;
 }
+
+// --- Puzzles ---
+
+export type PuzzleTheme =
+  | "fork"
+  | "pin"
+  | "skewer"
+  | "discovered-attack"
+  | "back-rank-mate"
+  | "smothered-mate"
+  | "mate-in-1"
+  | "mate-in-2"
+  | "mate-in-3"
+  | "deflection"
+  | "decoy"
+  | "overloaded-piece"
+  | "trapped-piece"
+  | "zwischenzug"
+  | "endgame-tactic";
+
+export type PuzzleDifficulty = "beginner" | "intermediate" | "advanced" | "expert";
+
+export interface Puzzle {
+  id: string;
+  /** FEN of the starting position */
+  fen: string;
+  /** Which side the player controls */
+  playerColor: PieceColor;
+  /** Solution as alternating player/opponent moves in SAN */
+  solution: string[];
+  /** Theme tags */
+  themes: PuzzleTheme[];
+  /** Difficulty rating (600-2400 range) */
+  rating: number;
+  difficulty: PuzzleDifficulty;
+  /** Short hint shown on request */
+  hint: string;
+  /** Explanation shown after solving */
+  explanation: string;
+  /** Source attribution */
+  source: "handcrafted" | "lichess";
+}
+
+export interface PuzzleSet {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  themes: PuzzleTheme[];
+  difficulty: PuzzleDifficulty;
+  puzzles: Puzzle[];
+}
