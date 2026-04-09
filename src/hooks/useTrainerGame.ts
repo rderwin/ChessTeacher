@@ -508,16 +508,49 @@ export function useTrainerGame() {
       const { san } = hintDataRef.current;
       const hint = pickHint(HINT_L3, { san });
       setState((s) => ({ ...s, hint, hintLevel: 3, moveKey: s.moveKey + 1 }));
-    } else if (state.hintLevel === 3 && hintDataRef.current) {
-      // Level 4: just play it for me
+    }
+  }, [state.gameOver, state.playerColor, state.hintLevel]);
+
+  /** Auto-play the engine's best move for the player */
+  const playForMe = useCallback(async () => {
+    const worker = workerRef.current;
+    const chess = chessRef.current;
+    if (!worker || busyRef.current || state.gameOver) return;
+    if (chess.turn() !== state.playerColor) return;
+
+    // If we already have a hint evaluated, use it
+    if (hintDataRef.current) {
       const { bestMoveUci } = hintDataRef.current;
       const from = bestMoveUci.slice(0, 2);
       const to = bestMoveUci.slice(2, 4);
       const promotion = bestMoveUci.length > 4 ? bestMoveUci[4] : undefined;
       hintDataRef.current = null;
       await makeMove(from, to, promotion);
+      return;
     }
-  }, [state.gameOver, state.playerColor, state.hintLevel, makeMove]);
 
-  return { state, makeMove, startNewGame, undoMove, requestHint };
+    // Otherwise evaluate fresh
+    busyRef.current = true;
+    setState((s) => ({ ...s, evaluating: true }));
+
+    try {
+      const result = await sfEval(worker, chess.fen(), EVAL_DEPTH);
+      if (!result.bestMove || result.bestMove === "(none)") {
+        setState((s) => ({ ...s, evaluating: false }));
+        return;
+      }
+      setState((s) => ({ ...s, evaluating: false }));
+      busyRef.current = false;
+
+      const from = result.bestMove.slice(0, 2);
+      const to = result.bestMove.slice(2, 4);
+      const promotion = result.bestMove.length > 4 ? result.bestMove[4] : undefined;
+      await makeMove(from, to, promotion);
+    } catch {
+      busyRef.current = false;
+      setState((s) => ({ ...s, evaluating: false }));
+    }
+  }, [state.gameOver, state.playerColor, makeMove]);
+
+  return { state, makeMove, startNewGame, undoMove, requestHint, playForMe };
 }
