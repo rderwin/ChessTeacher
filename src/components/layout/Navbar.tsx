@@ -30,6 +30,12 @@ export default function Navbar() {
 
         <div className="flex items-center gap-6">
           <Link
+            href="/trainer"
+            className="text-sm text-stone-400 hover:text-white transition-colors"
+          >
+            Coach
+          </Link>
+          <Link
             href="/openings"
             className="text-sm text-stone-400 hover:text-white transition-colors"
           >

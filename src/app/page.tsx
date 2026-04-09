@@ -2,9 +2,21 @@ import Link from "next/link";
 
 const MODULES = [
   {
+    title: "Coach Mode 🐕",
+    href: "/trainer",
+    description: "Play against bots while a furry coach watches every move — and yells at you when you blunder.",
+    ready: true,
+  },
+  {
     title: "Openings",
     href: "/openings",
     description: "Master chess openings through interactive practice. Play the moves and understand why each one matters.",
+    ready: true,
+  },
+  {
+    title: "Analyze",
+    href: "/analyze",
+    description: "Paste a PGN to replay any game with Stockfish analysis, move classification, and explanations.",
     ready: true,
   },
   {
@@ -18,12 +30,6 @@ const MODULES = [
     href: "/draws",
     description: "Understand stalemate, threefold repetition, the 50-move rule, and other ways games end in draws.",
     ready: false,
-  },
-  {
-    title: "Analyze",
-    href: "/analyze",
-    description: "Paste a PGN to replay any game move by move on an interactive board with keyboard navigation.",
-    ready: true,
   },
 ];
 
