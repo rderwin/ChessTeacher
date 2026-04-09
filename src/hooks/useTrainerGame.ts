@@ -6,14 +6,14 @@ import { classifyMove, computeCPLoss, mateToCP, type MoveClass } from "@/lib/cla
 
 export type Difficulty = "beginner" | "casual" | "intermediate" | "advanced" | "expert";
 
-// Skill Level = Stockfish UCI option that introduces deliberate mistakes
-// Lower skill → bigger blunders (up to ~600cp worse at level 0)
-const BOT_CONFIG: Record<Difficulty, { depth: number; skill: number }> = {
-  beginner: { depth: 3, skill: 0 },     // ~600 — blunders constantly
-  casual: { depth: 5, skill: 5 },       // ~1000 — frequent mistakes
-  intermediate: { depth: 8, skill: 10 }, // ~1400 — occasional inaccuracies
-  advanced: { depth: 10, skill: 15 },   // ~1800 — strong, rare mistakes
-  expert: { depth: 12, skill: 20 },     // ~2200 — full strength engine
+// UCI_LimitStrength + UCI_Elo = Stockfish plays at a calibrated ELO rating.
+// Minimum supported is ~1320. For "expert" we disable the limit entirely.
+const BOT_CONFIG: Record<Difficulty, { depth: number; elo: number | null }> = {
+  beginner: { depth: 4, elo: 1320 },    // ~1300 — lowest Stockfish can simulate
+  casual: { depth: 6, elo: 1600 },      // ~1600 — club beginner
+  intermediate: { depth: 8, elo: 1900 }, // ~1900 — solid club player
+  advanced: { depth: 10, elo: 2200 },   // ~2200 — expert / candidate master
+  expert: { depth: 14, elo: null },      // full strength — no limit
 };
 
 // Depth for evaluating the player's moves (always the same)
@@ -95,12 +95,12 @@ export interface TrainerState {
 const INITIAL_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 /** Promise-based Stockfish evaluation: returns bestMove + eval.
- *  skillLevel (0-20) controls deliberate weakness — 20 = full strength. */
+ *  elo = target rating via UCI_LimitStrength, or null for full strength. */
 function sfEval(
   worker: Worker,
   fen: string,
   depth: number,
-  skillLevel = 20
+  elo: number | null = null
 ): Promise<{ bestMove: string; cp: number; mate: number | null }> {
   return new Promise((resolve) => {
     let lastCp = 0;
@@ -114,7 +114,12 @@ function sfEval(
       if (!started) {
         if (line === "readyok") {
           started = true;
-          worker.postMessage(`setoption name Skill Level value ${skillLevel}`);
+          if (elo !== null) {
+            worker.postMessage(`setoption name UCI_LimitStrength value true`);
+            worker.postMessage(`setoption name UCI_Elo value ${elo}`);
+          } else {
+            worker.postMessage(`setoption name UCI_LimitStrength value false`);
+          }
           worker.postMessage(`position fen ${fen}`);
           worker.postMessage(`go depth ${depth}`);
         }
@@ -241,10 +246,10 @@ export function useTrainerGame() {
     setState((s) => ({ ...s, botThinking: true }));
 
     const fen = chessRef.current.fen();
-    const { depth, skill } = BOT_CONFIG[difficultyRef.current];
+    const { depth, elo } = BOT_CONFIG[difficultyRef.current];
 
     try {
-      const result = await sfEval(worker, fen, depth, skill);
+      const result = await sfEval(worker, fen, depth, elo);
       if (!result.bestMove || result.bestMove === "(none)") {
         busyRef.current = false;
         return;
