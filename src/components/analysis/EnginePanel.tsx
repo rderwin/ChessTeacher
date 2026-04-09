@@ -65,7 +65,8 @@ export default function EnginePanel({ fen, turn, onEval }: EnginePanelProps) {
     fenRef.current = fen;
     if (!isReady) return;
 
-    setResult(null);
+    // Don't clear result — keep showing previous eval to avoid layout jump.
+    // The amber dot signals re-evaluation, and stale data is replaced in ~100ms.
 
     // Small debounce for rapid navigation
     const timer = setTimeout(() => {
