@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { usePreferences } from "@/contexts/PreferencesContext";
@@ -61,7 +61,31 @@ export default function AnalyzePage() {
     mate: null,
   });
   const { analysis, analyzeGame, reset: resetAnalysis } = useGameAnalysis();
-  const [showingBest, setShowingBest] = useState(false);
+  // 0 = showing played move, 1 = transitioning via fenBefore, 2 = showing best move
+  const [bestViewStep, setBestViewStep] = useState<0 | 1 | 2>(0);
+  const bestTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showingBest = bestViewStep === 2;
+
+  const handleShowBest = useCallback(() => {
+    if (bestTimerRef.current) clearTimeout(bestTimerRef.current);
+    setBestViewStep(1); // animate undo of played move
+    bestTimerRef.current = setTimeout(() => {
+      setBestViewStep(2); // then animate best move
+    }, 300);
+  }, []);
+
+  const handleHideBest = useCallback(() => {
+    if (bestTimerRef.current) clearTimeout(bestTimerRef.current);
+    setBestViewStep(1); // animate undo of best move
+    bestTimerRef.current = setTimeout(() => {
+      setBestViewStep(0); // then animate played move back
+    }, 300);
+  }, []);
+
+  const resetBestView = () => {
+    if (bestTimerRef.current) clearTimeout(bestTimerRef.current);
+    setBestViewStep(0);
+  };
 
   // Load saved games on mount
   useEffect(() => {
@@ -134,34 +158,37 @@ export default function AnalyzePage() {
   const goTo = useCallback(
     (index: number) => {
       if (!game) return;
-      setShowingBest(false);
+      if (bestTimerRef.current) clearTimeout(bestTimerRef.current);
+      setBestViewStep(0);
       setMoveIndex(Math.max(-1, Math.min(index, game.moves.length - 1)));
     },
     [game]
   );
 
   // Keyboard navigation
+  const resetBestRef = useRef(resetBestView);
+  resetBestRef.current = resetBestView;
   useEffect(() => {
-    if (!game) return;
     function handleKey(e: KeyboardEvent) {
+      if (!game) return;
       if (e.target instanceof HTMLTextAreaElement) return;
       if (e.key === "ArrowLeft") {
         e.preventDefault();
-        setShowingBest(false);
+        resetBestRef.current();
         setMoveIndex((i) => Math.max(-1, i - 1));
       } else if (e.key === "ArrowRight") {
         e.preventDefault();
-        setShowingBest(false);
+        resetBestRef.current();
         setMoveIndex((i) =>
           game ? Math.min(game.moves.length - 1, i + 1) : i
         );
       } else if (e.key === "Home") {
         e.preventDefault();
-        setShowingBest(false);
+        resetBestRef.current();
         setMoveIndex(-1);
       } else if (e.key === "End") {
         e.preventDefault();
-        setShowingBest(false);
+        resetBestRef.current();
         setMoveIndex(game ? game.moves.length - 1 : -1);
       }
     }
@@ -186,10 +213,9 @@ export default function AnalyzePage() {
       : game.startFen
     : "";
 
-  // When showing best, play the best move on the pre-move position
-  // and snap (no animation) to avoid confusing multi-piece slides
+  // Compute the best move result FEN (always available when we have data)
   const bestMoveData = useMemo(() => {
-    if (!showingBest || !fenBefore || !bestMoveUci || bestMoveUci.length < 4) return null;
+    if (!fenBefore || !bestMoveUci || bestMoveUci.length < 4) return null;
     try {
       const chess = new Chess(fenBefore);
       const from = bestMoveUci.slice(0, 2);
@@ -200,18 +226,28 @@ export default function AnalyzePage() {
     } catch {
       return null;
     }
-  }, [showingBest, fenBefore, bestMoveUci]);
+  }, [fenBefore, bestMoveUci]);
 
-  const displayFen = bestMoveData ? bestMoveData.fen : currentFen;
+  // Three-step board display:
+  // step 0 → played move (currentFen)
+  // step 1 → intermediate (fenBefore) — the position before the move
+  // step 2 → best move played on fenBefore
+  const displayFen =
+    bestViewStep === 2 && bestMoveData
+      ? bestMoveData.fen
+      : bestViewStep === 1 && fenBefore
+      ? fenBefore
+      : currentFen;
 
   const squareStyles: Record<string, React.CSSProperties> = {};
-  if (bestMoveData) {
+  if (bestViewStep === 2 && bestMoveData) {
     squareStyles[bestMoveData.from] = BEST_FROM;
     squareStyles[bestMoveData.to] = BEST_TO;
-  } else if (currentMove) {
+  } else if (bestViewStep === 0 && currentMove) {
     squareStyles[currentMove.from] = HIGHLIGHT_FROM;
     squareStyles[currentMove.to] = HIGHLIGHT_TO;
   }
+  // step 1 = no highlights (brief transition)
 
   // Badge overlay for move classification
   const badge = analysis.complete && moveIndex >= 0 && currentMove
@@ -299,7 +335,7 @@ export default function AnalyzePage() {
                     boardOrientation: orientation,
                     allowDragging: false,
                     squareStyles,
-                    animationDurationInMs: bestMoveData ? 0 : 200,
+                    animationDurationInMs: 200,
                     boardStyle: {
                       borderRadius: "4px",
                       boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
@@ -311,7 +347,7 @@ export default function AnalyzePage() {
                   }}
                 />
                 {/* Move classification badge overlay */}
-                {!showingBest && badgeClass && BADGE_STYLES[badgeClass] && (
+                {bestViewStep === 0 && badgeClass && BADGE_STYLES[badgeClass] && (
                   <div
                     className="absolute pointer-events-none z-10"
                     style={{
@@ -392,8 +428,8 @@ export default function AnalyzePage() {
                   classification={analysis.moves[moveIndex]}
                   moveColor={game.moves[moveIndex].color}
                   showingBest={showingBest}
-                  onShowBest={() => setShowingBest(true)}
-                  onHideBest={() => setShowingBest(false)}
+                  onShowBest={handleShowBest}
+                  onHideBest={handleHideBest}
                 />
               </div>
             )}
