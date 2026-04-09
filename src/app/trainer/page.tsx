@@ -240,9 +240,40 @@ export default function TrainerPage() {
 
           {/* Sidebar */}
           <div className="flex-1 min-w-0 flex flex-col gap-4">
-            {/* Dog Coach */}
+            {/* Dog Coach + action buttons */}
             <div className="bg-stone-800 rounded-xl border border-stone-700 p-5">
               <DogCoach mood={dogMood} commentKey={state.moveKey} hint={state.hint} />
+
+              {/* Action buttons — always rendered, disabled when not applicable */}
+              <div className="flex items-center justify-center gap-2 mt-4">
+                <button
+                  onClick={requestHint}
+                  disabled={!state.isPlayerTurn || state.gameOver || state.hintLevel >= 3 || state.evaluating}
+                  className="px-3 py-1.5 bg-amber-700 text-amber-100 rounded-lg hover:bg-amber-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm"
+                >
+                  {state.evaluating && state.isPlayerTurn
+                    ? "Sniffing... 🐕"
+                    : state.hintLevel === 0
+                    ? "Hint 💡"
+                    : state.hintLevel < 3
+                    ? "More help..."
+                    : "No more hints"}
+                </button>
+                <button
+                  onClick={playForMe}
+                  disabled={!state.isPlayerTurn || state.gameOver || state.evaluating || state.botThinking}
+                  className="px-3 py-1.5 bg-stone-700 text-stone-400 rounded-lg hover:bg-stone-600 hover:text-stone-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm"
+                >
+                  Play for me 🐾
+                </button>
+                <button
+                  onClick={() => { undoMove(); setSelectedSquare(null); }}
+                  disabled={!state.isPlayerTurn || state.gameOver || state.moves.length === 0}
+                  className="px-3 py-1.5 bg-stone-700 text-stone-300 rounded-lg hover:bg-stone-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm"
+                >
+                  Undo
+                </button>
+              </div>
             </div>
 
             {/* Move list */}
@@ -285,48 +316,14 @@ export default function TrainerPage() {
               </div>
             )}
 
-            {/* Game controls */}
+            {/* Navigation */}
             <div className="flex items-center gap-3">
               <button
-                onClick={() => {
-                  setGameStarted(false);
-                }}
+                onClick={() => setGameStarted(false)}
                 className="text-sm text-stone-500 hover:text-stone-300 transition-colors"
               >
                 ← New game
               </button>
-              {!state.gameOver && state.isPlayerTurn && (
-                <>
-                  <button
-                    onClick={requestHint}
-                    disabled={state.hintLevel >= 3 || state.evaluating}
-                    className="px-4 py-2 bg-amber-700 text-amber-100 rounded-lg hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm"
-                  >
-                    {state.evaluating
-                      ? "Sniffing... 🐕"
-                      : state.hintLevel === 0
-                      ? "Hint 💡"
-                      : state.hintLevel < 3
-                      ? "More help..."
-                      : "No more hints"}
-                  </button>
-                  <button
-                    onClick={playForMe}
-                    disabled={state.evaluating || state.botThinking}
-                    className="px-4 py-2 bg-stone-700 text-stone-400 rounded-lg hover:bg-stone-600 hover:text-stone-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm"
-                  >
-                    Play for me 🐾
-                  </button>
-                </>
-              )}
-              {!state.gameOver && state.moves.length > 0 && state.isPlayerTurn && (
-                <button
-                  onClick={() => { undoMove(); setSelectedSquare(null); }}
-                  className="px-4 py-2 bg-stone-700 text-stone-300 rounded-lg hover:bg-stone-600 transition-colors text-sm"
-                >
-                  Undo
-                </button>
-              )}
               {state.gameOver && (
                 <button
                   onClick={handleNewGame}
