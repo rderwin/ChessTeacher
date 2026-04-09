@@ -317,8 +317,16 @@ export default function AnalyzePage() {
           <div className="shrink-0">
             <div className="flex gap-2 items-stretch max-w-[520px]">
               <EvalBar
-                evaluation={currentEval.evaluation}
-                mate={currentEval.mate}
+                evaluation={
+                  bestViewStep === 2 && badge
+                    ? badge.evalBefore
+                    : currentEval.evaluation
+                }
+                mate={
+                  bestViewStep === 2 && badge
+                    ? badge.mateBefore
+                    : currentEval.mate
+                }
                 orientation={orientation}
               />
               <div
