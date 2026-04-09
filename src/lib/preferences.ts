@@ -36,12 +36,14 @@ export interface UserPreferences {
   boardTheme: string;
   pieceStyle: string;
   chessComUsername: string;
+  soundEnabled: boolean;
 }
 
 const DEFAULT_PREFS: UserPreferences = {
   boardTheme: "classic",
   pieceStyle: "default",
   chessComUsername: "",
+  soundEnabled: true,
 };
 
 const STORAGE_KEY = "chessteacher_preferences";

@@ -1,9 +1,13 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Puzzle, PuzzleSet } from "@/data/types";
 import InteractiveBoard from "@/components/board/InteractiveBoard";
 import { usePuzzleSession, type PuzzleStatus } from "@/hooks/usePuzzleSession";
+import { useSound } from "@/hooks/useSound";
+import { usePuzzleProgress, type PuzzleResultFeedback } from "@/hooks/usePuzzleProgress";
+import { getAchievement } from "@/data/achievements";
+import { getXPForNextLevel } from "@/lib/xp";
 
 interface Props {
   puzzleSet: PuzzleSet;
@@ -42,12 +46,55 @@ export default function PuzzleBoard({
     attemptsUsed,
     hintShown,
     playerMoveCount,
+    solveTimeMs,
     makeMove,
     retry,
     showHint,
     dismissHint,
     reset,
   } = usePuzzleSession(puzzle);
+
+  const { play: playFx } = useSound();
+  const { progress, recordPuzzleResult } = usePuzzleProgress();
+  const [lastResult, setLastResult] = useState<PuzzleResultFeedback | null>(null);
+  const resultRecordedRef = useRef(false);
+  const prevStatusRef = useRef<PuzzleStatus>(status);
+
+  // Reset result tracking when puzzle changes
+  useEffect(() => {
+    resultRecordedRef.current = false;
+    setLastResult(null);
+  }, [puzzleIndex]);
+
+  useEffect(() => {
+    const prev = prevStatusRef.current;
+    prevStatusRef.current = status;
+    if (prev === status) return;
+
+    if (status === "correct-move") playFx("correct");
+    else if (status === "wrong-move") playFx("wrong");
+    else if (status === "completed") {
+      playFx("complete");
+
+      // Record puzzle result
+      if (!resultRecordedRef.current) {
+        resultRecordedRef.current = true;
+        const isLastPuzzle = puzzleIndex === puzzleSet.puzzles.length - 1;
+        const perfectSet = isLastPuzzle && attemptsUsed === 0;
+
+        recordPuzzleResult(puzzle, true, attemptsUsed + 1, solveTimeMs ?? 0, {
+          perfectSet,
+        }).then((feedback) => {
+          setLastResult(feedback);
+          if (feedback.newAchievements.length > 0) {
+            playFx("achievement");
+          } else if (feedback.leveledUp) {
+            playFx("levelup");
+          }
+        });
+      }
+    }
+  }, [status, playFx, puzzle, attemptsUsed, solveTimeMs, puzzleIndex, puzzleSet.puzzles.length, recordPuzzleResult]);
 
   const orientation = puzzle.playerColor === "white" ? "white" : "black";
   const isInteractive =
@@ -83,7 +130,11 @@ export default function PuzzleBoard({
 
           <div className="flex items-center gap-3 text-sm text-stone-400 mb-3">
             <span>
-              Rating: <strong className="text-stone-300">{puzzle.rating}</strong>
+              Puzzle: <strong className="text-stone-300">{puzzle.rating}</strong>
+            </span>
+            <span className="text-stone-600">|</span>
+            <span>
+              You: <strong className="text-stone-300">{progress.rating}</strong>
             </span>
             <span className="text-stone-600">|</span>
             <span>
@@ -146,7 +197,87 @@ export default function PuzzleBoard({
             <p className="text-emerald-300 font-medium text-lg mb-2">
               Puzzle solved! 🎉
             </p>
-            <p className="text-sm text-stone-300 mb-4">{puzzle.explanation}</p>
+            <p className="text-sm text-stone-300 mb-3">{puzzle.explanation}</p>
+
+            {/* XP / Rating / Level feedback */}
+            {lastResult && (
+              <div className="mb-4 space-y-2">
+                <div className="flex flex-wrap items-center gap-3 text-sm">
+                  {lastResult.xpEarned > 0 && (
+                    <span className="px-2.5 py-1 bg-amber-900/40 border border-amber-700/50 rounded-lg text-amber-300 font-medium">
+                      +{lastResult.xpEarned} XP
+                    </span>
+                  )}
+                  <span
+                    className={`px-2.5 py-1 rounded-lg font-medium ${
+                      lastResult.ratingDelta >= 0
+                        ? "bg-emerald-900/40 border border-emerald-700/50 text-emerald-300"
+                        : "bg-red-900/40 border border-red-700/50 text-red-300"
+                    }`}
+                  >
+                    Rating: {lastResult.newRating}{" "}
+                    ({lastResult.ratingDelta >= 0 ? "+" : ""}
+                    {lastResult.ratingDelta})
+                  </span>
+                  {lastResult.leveledUp && (
+                    <span className="px-2.5 py-1 bg-purple-900/40 border border-purple-700/50 rounded-lg text-purple-300 font-medium">
+                      Level up! Lv.{lastResult.newLevel}
+                    </span>
+                  )}
+                </div>
+
+                {/* XP progress bar */}
+                {(() => {
+                  const { needed, total, currentLevelXP } = getXPForNextLevel(
+                    progress.xp,
+                  );
+                  const range = total - currentLevelXP;
+                  const filled = progress.xp - currentLevelXP;
+                  const pct = range > 0 ? Math.min(100, (filled / range) * 100) : 100;
+                  return (
+                    <div>
+                      <div className="flex items-center justify-between text-xs text-stone-500 mb-1">
+                        <span>Lv.{progress.level}</span>
+                        <span>{needed} XP to next level</span>
+                      </div>
+                      <div className="h-1.5 bg-stone-700 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-amber-500 rounded-full transition-all duration-500"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* New achievements */}
+                {lastResult.newAchievements.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {lastResult.newAchievements.map((id) => {
+                      const def = getAchievement(id);
+                      if (!def) return null;
+                      return (
+                        <div
+                          key={id}
+                          className="flex items-center gap-2 px-3 py-2 bg-yellow-900/30 border border-yellow-700/50 rounded-lg"
+                        >
+                          <span className="text-lg">{def.icon}</span>
+                          <div>
+                            <p className="text-yellow-300 font-medium text-sm">
+                              {def.name}
+                            </p>
+                            <p className="text-xs text-stone-400">
+                              {def.description}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="flex gap-3">
               {puzzleIndex < puzzleSet.puzzles.length - 1 ? (
                 <button

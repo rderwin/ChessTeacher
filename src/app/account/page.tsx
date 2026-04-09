@@ -94,6 +94,29 @@ export default function AccountPage() {
         />
       </section>
 
+      {/* Sound */}
+      <section className="bg-stone-800 rounded-xl p-6 border border-stone-700 mb-8">
+        <h2 className="text-lg font-semibold text-white mb-1">Sound</h2>
+        <p className="text-xs text-stone-500 mb-3">
+          Play sound effects for correct/wrong moves and achievements.
+        </p>
+        <button
+          onClick={() => updatePreferences({ soundEnabled: !prefs.soundEnabled })}
+          className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+            prefs.soundEnabled ? "bg-emerald-600" : "bg-stone-600"
+          }`}
+        >
+          <span
+            className={`inline-block h-5 w-5 rounded-full bg-white transition-transform ${
+              prefs.soundEnabled ? "translate-x-6" : "translate-x-1"
+            }`}
+          />
+        </button>
+        <span className="ml-3 text-sm text-stone-300">
+          {prefs.soundEnabled ? "On" : "Off"}
+        </span>
+      </section>
+
       {/* Board Preview */}
       <section className="bg-stone-800 rounded-xl p-6 border border-stone-700 mb-8">
         <h2 className="text-lg font-semibold text-white mb-4">Preview</h2>

@@ -97,3 +97,28 @@ export interface PuzzleSet {
   difficulty: PuzzleDifficulty;
   puzzles: Puzzle[];
 }
+
+// --- Puzzle Progress & Achievements ---
+
+export interface PuzzleProgressData {
+  rating: number;
+  xp: number;
+  level: number;
+  totalSolved: number;
+  totalAttempted: number;
+  correctFirstAttempt: number;
+  currentStreak: number;
+  bestStreak: number;
+  dailyStreak: number;
+  lastPuzzleDate: string;
+  lastDailyDate: string;
+  themeCounts: Partial<Record<PuzzleTheme, number>>;
+  totalTimeMs: number;
+  dailyActivity: Record<string, number>;
+  ratingHistory: Array<{ date: string; rating: number }>;
+}
+
+export interface UnlockedAchievement {
+  id: string;
+  unlockedAt: string;
+}
