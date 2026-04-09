@@ -6,6 +6,7 @@ import type { MoveClass } from "@/lib/classify-moves";
 export type DogMood =
   | "waiting"
   | "thinking"
+  | "hint"
   | "brilliant"
   | "best"
   | "excellent"
@@ -67,6 +68,12 @@ const COMMENTS: Record<DogMood, string[]> = {
     "I need therapy treats after this...",
     "Did you just— no— WHY?!",
     "My tail went between my legs!",
+  ],
+  hint: [
+    "*sniffing around* I might know something...",
+    "Need a nudge? I gotchu! 🐾",
+    "*wags tail helpfully*",
+    "Let me sniff this out for you...",
   ],
   waiting: [
     "*panting* Your move, human!",
@@ -174,7 +181,7 @@ function DogFace({ mood }: FaceProps) {
       : "rotate-12";
 
   // Head tilt for inaccuracy
-  const headTilt = mood === "inaccuracy" ? "rotate-12" : "";
+  const headTilt = mood === "inaccuracy" ? "rotate-12" : mood === "hint" ? "-rotate-6" : "";
 
   return (
     <div className={`${animClass} ${headTilt} transition-transform duration-300`}>
@@ -209,16 +216,20 @@ interface DogCoachProps {
   mood: DogMood;
   /** Force a new comment even when mood hasn't changed */
   commentKey?: number;
+  /** Override the speech bubble with a specific hint */
+  hint?: string | null;
 }
 
-export default function DogCoach({ mood, commentKey = 0 }: DogCoachProps) {
+export default function DogCoach({ mood, commentKey = 0, hint }: DogCoachProps) {
   // Use first comment as stable initial value to avoid hydration mismatch
   // (Math.random differs between server and client)
   const [comment, setComment] = useState(COMMENTS[mood][0]);
 
   useEffect(() => {
-    setComment(pickRandom(COMMENTS[mood]));
-  }, [mood, commentKey]);
+    if (!hint) {
+      setComment(pickRandom(COMMENTS[mood]));
+    }
+  }, [mood, commentKey, hint]);
 
   return (
     <div className="flex flex-col items-center gap-3">
@@ -227,7 +238,7 @@ export default function DogCoach({ mood, commentKey = 0 }: DogCoachProps) {
       <div className="relative bg-stone-700 rounded-xl px-4 py-3 max-w-[260px] w-full">
         <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-stone-700 rotate-45" />
         <p className="text-sm text-stone-200 text-center font-medium leading-snug">
-          {comment}
+          {hint || comment}
         </p>
       </div>
     </div>

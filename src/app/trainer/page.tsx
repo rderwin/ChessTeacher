@@ -9,14 +9,14 @@ import DogCoach, { type DogMood, classificationToMood } from "@/components/train
 import { MOVE_CLASS_COLORS, MOVE_CLASS_SYMBOLS } from "@/lib/classify-moves";
 
 const DIFFICULTIES: { id: Difficulty; label: string; desc: string }[] = [
-  { id: "beginner", label: "Puppy", desc: "~800 ELO" },
-  { id: "intermediate", label: "Good Boy", desc: "~1400 ELO" },
-  { id: "advanced", label: "Top Dog", desc: "~2000 ELO" },
+  { id: "beginner", label: "Puppy", desc: "Easy (~800)" },
+  { id: "intermediate", label: "Good Boy", desc: "Medium (~1400)" },
+  { id: "advanced", label: "Top Dog", desc: "Hard (~2000)" },
 ];
 
 export default function TrainerPage() {
   const { boardTheme, pieceStyle } = usePreferences();
-  const { state, makeMove, startNewGame, undoMove } = useTrainerGame();
+  const { state, makeMove, startNewGame, undoMove, requestHint } = useTrainerGame();
   const [difficulty, setDifficulty] = useState<Difficulty>("intermediate");
   const [playerColor, setPlayerColor] = useState<"w" | "b">("w");
   const [gameStarted, setGameStarted] = useState(false);
@@ -93,6 +93,8 @@ export default function TrainerPage() {
     dogMood = "thinking";
   } else if (state.evaluating) {
     dogMood = "thinking";
+  } else if (state.hint) {
+    dogMood = "hint";
   } else if (state.lastClassification) {
     dogMood = classificationToMood(state.lastClassification);
   }
@@ -166,7 +168,7 @@ export default function TrainerPage() {
             {/* Difficulty */}
             <div className="mb-6">
               <label className="text-sm text-stone-400 mb-2 block">
-                Difficulty
+                Opponent Strength
               </label>
               <div className="flex gap-2">
                 {DIFFICULTIES.map((d) => (
@@ -240,7 +242,7 @@ export default function TrainerPage() {
           <div className="flex-1 min-w-0 flex flex-col gap-4">
             {/* Dog Coach */}
             <div className="bg-stone-800 rounded-xl border border-stone-700 p-5">
-              <DogCoach mood={dogMood} commentKey={state.moveKey} />
+              <DogCoach mood={dogMood} commentKey={state.moveKey} hint={state.hint} />
             </div>
 
             {/* Move list */}
@@ -293,6 +295,21 @@ export default function TrainerPage() {
               >
                 ← New game
               </button>
+              {!state.gameOver && state.isPlayerTurn && (
+                <button
+                  onClick={requestHint}
+                  disabled={state.hintLevel >= 3 || state.evaluating}
+                  className="px-4 py-2 bg-amber-700 text-amber-100 rounded-lg hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm"
+                >
+                  {state.evaluating
+                    ? "Sniffing... 🐕"
+                    : state.hintLevel === 0
+                    ? "Hint 💡"
+                    : state.hintLevel < 3
+                    ? "More help..."
+                    : "No more hints"}
+                </button>
+              )}
               {!state.gameOver && state.moves.length > 0 && state.isPlayerTurn && (
                 <button
                   onClick={() => { undoMove(); setSelectedSquare(null); }}

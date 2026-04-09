@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Chess } from "chess.js";
+import { Chess, type Square } from "chess.js";
 import { classifyMove, computeCPLoss, mateToCP, type MoveClass } from "@/lib/classify-moves";
 
 export type Difficulty = "beginner" | "intermediate" | "advanced";
@@ -14,6 +14,55 @@ const BOT_DEPTH: Record<Difficulty, number> = {
 
 // Depth for evaluating the player's moves (always the same)
 const EVAL_DEPTH = 10;
+
+// --- Hint system helpers ---
+
+const PIECE_NAMES: Record<string, string> = {
+  p: "pawn", n: "knight", b: "bishop", r: "rook", q: "queen", k: "king",
+};
+
+function getAreaName(square: string): string {
+  const file = square.charCodeAt(0) - "a".charCodeAt(0);
+  if (file <= 2) return "queenside";
+  if (file >= 5) return "kingside";
+  return "center";
+}
+
+const HINT_L1 = [
+  "*sniff sniff* Something smells good on the {area}...",
+  "My nose is tingling! Check the {area}!",
+  "*ears perk up* The {area} has potential...",
+  "Woof! I sense opportunity on the {area}!",
+];
+
+const HINT_L2 = [
+  "Your {piece} on {square} wants to go somewhere! 🐾",
+  "*tail wag* What about that {piece}?",
+  "I keep sniffing around your {piece} on {square}... 👃",
+  "That {piece} looks eager to move!",
+];
+
+const HINT_L3 = [
+  "Play {san}! I dug it up for you! 🦴",
+  "The answer is {san}! My nose never lies! 👃",
+  "*drops {san} at your feet* Fetch!",
+  "It's {san}! Go go go! 🐕",
+];
+
+function pickHint(templates: string[], replacements: Record<string, string>): string {
+  let text = templates[Math.floor(Math.random() * templates.length)];
+  for (const [key, value] of Object.entries(replacements)) {
+    text = text.replaceAll(`{${key}}`, value);
+  }
+  return text;
+}
+
+interface HintData {
+  pieceName: string;
+  fromSquare: string;
+  san: string;
+  area: string;
+}
 
 export interface TrainerMove {
   san: string;
@@ -34,6 +83,8 @@ export interface TrainerState {
   gameResult: string | null;
   /** Incremented each move to trigger new dog comments */
   moveKey: number;
+  hint: string | null;
+  hintLevel: number;
 }
 
 const INITIAL_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -101,12 +152,15 @@ export function useTrainerGame() {
     gameOver: false,
     gameResult: null,
     moveKey: 0,
+    hint: null,
+    hintLevel: 0,
   });
 
   const chessRef = useRef(new Chess());
   const workerRef = useRef<Worker | null>(null);
   const busyRef = useRef(false);
   const difficultyRef = useRef<Difficulty>("intermediate");
+  const hintDataRef = useRef<HintData | null>(null);
 
   // Init worker
   useEffect(() => {
@@ -145,7 +199,11 @@ export function useTrainerGame() {
         gameOver: false,
         gameResult: null,
         moveKey: 0,
+        hint: null,
+        hintLevel: 0,
       });
+
+      hintDataRef.current = null;
 
       // If player is Black, bot needs to make the first move
       if (!isPlayerTurn) {
@@ -244,6 +302,7 @@ export function useTrainerGame() {
       if (!moveResult) return false;
 
       busyRef.current = true;
+      hintDataRef.current = null;
 
       // Update board immediately
       const fenAfter = chess.fen();
@@ -258,6 +317,8 @@ export function useTrainerGame() {
         gameOver: gameResult !== null,
         gameResult,
         moveCount: s.moveCount + 1,
+        hint: null,
+        hintLevel: 0,
       }));
 
       // Evaluate the player's move
@@ -348,6 +409,7 @@ export function useTrainerGame() {
   const undoMove = useCallback(() => {
     if (busyRef.current || state.moves.length === 0) return;
     const chess = chessRef.current;
+    hintDataRef.current = null;
 
     // Undo bot's response if it was the last move
     if (chess.turn() === state.playerColor && state.moves.length >= 2) {
@@ -362,6 +424,8 @@ export function useTrainerGame() {
         gameOver: false,
         gameResult: null,
         moveKey: s.moveKey + 1,
+        hint: null,
+        hintLevel: 0,
       }));
     } else if (chess.turn() !== state.playerColor && state.moves.length >= 1) {
       // Just undo the player's move (bot hasn't responded yet)
@@ -375,9 +439,71 @@ export function useTrainerGame() {
         gameOver: false,
         gameResult: null,
         moveKey: s.moveKey + 1,
+        hint: null,
+        hintLevel: 0,
       }));
     }
   }, [state.moves.length, state.playerColor]);
 
-  return { state, makeMove, startNewGame, undoMove };
+  /** Progressive hint: vague area → which piece → exact move */
+  const requestHint = useCallback(async () => {
+    const worker = workerRef.current;
+    const chess = chessRef.current;
+    if (!worker || busyRef.current || state.gameOver) return;
+    if (chess.turn() !== state.playerColor) return;
+
+    if (state.hintLevel === 0) {
+      // Level 1: evaluate position and give vague area hint
+      busyRef.current = true;
+      setState((s) => ({ ...s, evaluating: true }));
+
+      try {
+        const result = await sfEval(worker, chess.fen(), EVAL_DEPTH);
+        if (!result.bestMove || result.bestMove === "(none)") {
+          setState((s) => ({ ...s, evaluating: false }));
+          return;
+        }
+
+        const from = result.bestMove.slice(0, 2);
+        const to = result.bestMove.slice(2, 4);
+        const promotion = result.bestMove.length > 4 ? result.bestMove[4] : undefined;
+        const piece = chess.get(from as Square);
+        const pieceName = piece ? PIECE_NAMES[piece.type] || "piece" : "piece";
+        const area = getAreaName(to);
+
+        // Get SAN for level 3
+        const tempChess = new Chess(chess.fen());
+        let san = `${from}${to}`;
+        try {
+          const m = tempChess.move({ from, to, promotion } as Parameters<typeof tempChess.move>[0]);
+          if (m) san = m.san;
+        } catch { /* use UCI fallback */ }
+
+        hintDataRef.current = { pieceName, fromSquare: from, san, area };
+
+        const hint = pickHint(HINT_L1, { area });
+        setState((s) => ({
+          ...s,
+          evaluating: false,
+          hint,
+          hintLevel: 1,
+          moveKey: s.moveKey + 1,
+        }));
+      } finally {
+        busyRef.current = false;
+      }
+    } else if (state.hintLevel === 1 && hintDataRef.current) {
+      // Level 2: which piece
+      const { pieceName, fromSquare } = hintDataRef.current;
+      const hint = pickHint(HINT_L2, { piece: pieceName, square: fromSquare });
+      setState((s) => ({ ...s, hint, hintLevel: 2, moveKey: s.moveKey + 1 }));
+    } else if (state.hintLevel === 2 && hintDataRef.current) {
+      // Level 3: exact move
+      const { san } = hintDataRef.current;
+      const hint = pickHint(HINT_L3, { san });
+      setState((s) => ({ ...s, hint, hintLevel: 3, moveKey: s.moveKey + 1 }));
+    }
+  }, [state.gameOver, state.playerColor, state.hintLevel]);
+
+  return { state, makeMove, startNewGame, undoMove, requestHint };
 }
