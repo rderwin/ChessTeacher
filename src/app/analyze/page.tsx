@@ -504,7 +504,7 @@ export default function AnalyzePage() {
               />
             )}
             {analysis.analyzing && (
-              <div className="bg-stone-800 rounded-xl border border-stone-700 p-4">
+              <div className="bg-stone-800 rounded-xl border border-stone-700 p-4 min-h-[100px]">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
                   <span className="text-sm text-stone-400">

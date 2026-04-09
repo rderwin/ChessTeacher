@@ -84,7 +84,7 @@ export default function EnginePanel({ fen, turn, onEval }: EnginePanelProps) {
 
   if (!isReady) {
     return (
-      <div className="bg-stone-800 rounded-xl border border-stone-700 p-4">
+      <div className="bg-stone-800 rounded-xl border border-stone-700 p-4 min-h-[100px]">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
           <span className="text-sm text-stone-400">
@@ -98,7 +98,7 @@ export default function EnginePanel({ fen, turn, onEval }: EnginePanelProps) {
   const evalInfo = result ? classifyEval(result.evaluation, result.mate) : null;
 
   return (
-    <div className="bg-stone-800 rounded-xl border border-stone-700 p-4">
+    <div className="bg-stone-800 rounded-xl border border-stone-700 p-4 min-h-[100px]">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <div
