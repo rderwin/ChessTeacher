@@ -254,6 +254,26 @@ export default function AnalyzePage() {
     ? analysis.moves[moveIndex]
     : null;
   const badgeClass = badge ? badge.classification : null;
+
+  // Eval bar: use pre-computed analysis evals (instant) when available
+  const barEval = useMemo(() => {
+    // Showing best move → show what the eval would have been
+    if (bestViewStep === 2 && badge) {
+      return { evaluation: badge.evalBefore, mate: badge.mateBefore };
+    }
+    // Analysis complete → use stored evals for instant navigation
+    if (analysis.complete && analysis.moves.length > 0) {
+      if (moveIndex >= 0 && analysis.moves[moveIndex]) {
+        return { evaluation: analysis.moves[moveIndex].evalAfter, mate: analysis.moves[moveIndex].mateAfter };
+      }
+      // Starting position: use eval before first move
+      if (moveIndex === -1 && analysis.moves[0]) {
+        return { evaluation: analysis.moves[0].evalBefore, mate: analysis.moves[0].mateBefore };
+      }
+    }
+    // Fallback to live engine
+    return currentEval;
+  }, [bestViewStep, badge, analysis.complete, analysis.moves, moveIndex, currentEval]);
   // Compute badge position as grid coords (0-7) from the destination square
   const badgeSquare = currentMove?.to;
   let badgeCol = 0;
@@ -317,16 +337,8 @@ export default function AnalyzePage() {
           <div className="shrink-0">
             <div className="flex gap-2 items-stretch max-w-[520px]">
               <EvalBar
-                evaluation={
-                  bestViewStep === 2 && badge
-                    ? badge.evalBefore
-                    : currentEval.evaluation
-                }
-                mate={
-                  bestViewStep === 2 && badge
-                    ? badge.mateBefore
-                    : currentEval.mate
-                }
+                evaluation={barEval.evaluation}
+                mate={barEval.mate}
                 orientation={orientation}
               />
               <div
