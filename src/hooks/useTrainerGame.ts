@@ -340,5 +340,40 @@ export function useTrainerGame() {
     [state.gameOver, state.playerColor, checkGameOver, playBotMove]
   );
 
-  return { state, makeMove, startNewGame };
+  /** Undo the last move pair (player + bot response) */
+  const undoMove = useCallback(() => {
+    if (busyRef.current || state.moves.length === 0) return;
+    const chess = chessRef.current;
+
+    // Undo bot's response if it was the last move
+    if (chess.turn() === state.playerColor && state.moves.length >= 2) {
+      chess.undo(); // undo bot move
+      chess.undo(); // undo player move
+      setState((s) => ({
+        ...s,
+        fen: chess.fen(),
+        moves: s.moves.slice(0, -2),
+        isPlayerTurn: true,
+        lastClassification: null,
+        gameOver: false,
+        gameResult: null,
+        moveKey: s.moveKey + 1,
+      }));
+    } else if (chess.turn() !== state.playerColor && state.moves.length >= 1) {
+      // Just undo the player's move (bot hasn't responded yet)
+      chess.undo();
+      setState((s) => ({
+        ...s,
+        fen: chess.fen(),
+        moves: s.moves.slice(0, -1),
+        isPlayerTurn: true,
+        lastClassification: null,
+        gameOver: false,
+        gameResult: null,
+        moveKey: s.moveKey + 1,
+      }));
+    }
+  }, [state.moves.length, state.playerColor]);
+
+  return { state, makeMove, startNewGame, undoMove };
 }

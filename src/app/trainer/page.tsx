@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { Chess, type Square } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { useTrainerGame, type Difficulty } from "@/hooks/useTrainerGame";
 import DogCoach, { type DogMood, classificationToMood } from "@/components/trainer/DogCoach";
-import { MOVE_CLASS_COLORS, MOVE_CLASS_SYMBOLS, type MoveClass } from "@/lib/classify-moves";
+import { MOVE_CLASS_COLORS, MOVE_CLASS_SYMBOLS } from "@/lib/classify-moves";
 
 const DIFFICULTIES: { id: Difficulty; label: string; desc: string }[] = [
   { id: "beginner", label: "Puppy", desc: "~800 ELO" },
@@ -15,18 +16,49 @@ const DIFFICULTIES: { id: Difficulty; label: string; desc: string }[] = [
 
 export default function TrainerPage() {
   const { boardTheme, pieceStyle } = usePreferences();
-  const { state, makeMove, startNewGame } = useTrainerGame();
+  const { state, makeMove, startNewGame, undoMove } = useTrainerGame();
   const [difficulty, setDifficulty] = useState<Difficulty>("intermediate");
   const [playerColor, setPlayerColor] = useState<"w" | "b">("w");
   const [gameStarted, setGameStarted] = useState(false);
+  const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
 
   const handleDrop = useCallback(
     ({ sourceSquare, targetSquare }: { piece: unknown; sourceSquare: string; targetSquare: string | null }) => {
       if (!targetSquare) return false;
+      setSelectedSquare(null);
       makeMove(sourceSquare, targetSquare);
       return true;
     },
     [makeMove]
+  );
+
+  // Click-to-move: first click selects, second click moves
+  const handleSquareClick = useCallback(
+    ({ square }: { piece: unknown; square: string | null }) => {
+      if (!square || !state.isPlayerTurn || state.gameOver) return;
+
+      if (selectedSquare) {
+        // Second click — try to move
+        if (selectedSquare === square) {
+          setSelectedSquare(null); // deselect
+          return;
+        }
+        makeMove(selectedSquare, square);
+        setSelectedSquare(null);
+      } else {
+        // First click — select if it's the player's piece
+        try {
+          const chess = new Chess(state.fen);
+          const piece = chess.get(square as Square);
+          if (piece && piece.color === state.playerColor) {
+            setSelectedSquare(square);
+          }
+        } catch {
+          // invalid square
+        }
+      }
+    },
+    [selectedSquare, state.fen, state.isPlayerTurn, state.gameOver, state.playerColor, makeMove]
   );
 
   const handleNewGame = useCallback(() => {
@@ -60,6 +92,22 @@ export default function TrainerPage() {
   const pieceFilter = [pieceStyle.filter, pieceStyle.shadow]
     .filter((v) => v !== "none")
     .join(" ");
+
+  // Build square styles for click-to-move selection + legal move hints
+  const squareStyles: Record<string, React.CSSProperties> = {};
+  if (selectedSquare) {
+    squareStyles[selectedSquare] = { backgroundColor: "rgba(255, 255, 0, 0.4)" };
+    try {
+      const chess = new Chess(state.fen);
+      const legalMoves = chess.moves({ square: selectedSquare as Square, verbose: true });
+      for (const m of legalMoves) {
+        const hasTarget = chess.get(m.to as Square);
+        squareStyles[m.to] = hasTarget
+          ? { backgroundColor: "rgba(255, 255, 0, 0.3)" } // capture
+          : { background: "radial-gradient(circle, rgba(0,0,0,0.2) 20%, transparent 20%)" }; // dot
+      }
+    } catch { /* ignore */ }
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -158,6 +206,9 @@ export default function TrainerPage() {
                   position: state.fen,
                   boardOrientation: orientation,
                   onPieceDrop: handleDrop,
+                  onSquareClick: handleSquareClick,
+                  onPieceClick: handleSquareClick,
+                  squareStyles,
                   allowDragging: state.isPlayerTurn && !state.gameOver,
                   animationDurationInMs: 200,
                   boardStyle: {
@@ -232,6 +283,14 @@ export default function TrainerPage() {
               >
                 ← New game
               </button>
+              {!state.gameOver && state.moves.length > 0 && state.isPlayerTurn && (
+                <button
+                  onClick={() => { undoMove(); setSelectedSquare(null); }}
+                  className="px-4 py-2 bg-stone-700 text-stone-300 rounded-lg hover:bg-stone-600 transition-colors text-sm"
+                >
+                  Undo
+                </button>
+              )}
               {state.gameOver && (
                 <button
                   onClick={handleNewGame}
