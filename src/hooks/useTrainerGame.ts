@@ -6,10 +6,12 @@ import { classifyMove, computeCPLoss, mateToCP, type MoveClass } from "@/lib/cla
 
 export type Difficulty = "beginner" | "intermediate" | "advanced";
 
-const BOT_DEPTH: Record<Difficulty, number> = {
-  beginner: 2,
-  intermediate: 5,
-  advanced: 10,
+// Skill Level = Stockfish UCI option that introduces deliberate mistakes
+// Lower skill → bigger blunders (up to ~600cp worse at level 0)
+const BOT_CONFIG: Record<Difficulty, { depth: number; skill: number }> = {
+  beginner: { depth: 4, skill: 0 },     // ~800 — blunders pieces regularly
+  intermediate: { depth: 8, skill: 10 }, // ~1400 — occasional inaccuracies
+  advanced: { depth: 12, skill: 20 },    // ~2000 — strong, near-full strength
 };
 
 // Depth for evaluating the player's moves (always the same)
@@ -89,11 +91,13 @@ export interface TrainerState {
 
 const INITIAL_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-/** Promise-based Stockfish evaluation: returns bestMove + eval */
+/** Promise-based Stockfish evaluation: returns bestMove + eval.
+ *  skillLevel (0-20) controls deliberate weakness — 20 = full strength. */
 function sfEval(
   worker: Worker,
   fen: string,
-  depth: number
+  depth: number,
+  skillLevel = 20
 ): Promise<{ bestMove: string; cp: number; mate: number | null }> {
   return new Promise((resolve) => {
     let lastCp = 0;
@@ -107,6 +111,7 @@ function sfEval(
       if (!started) {
         if (line === "readyok") {
           started = true;
+          worker.postMessage(`setoption name Skill Level value ${skillLevel}`);
           worker.postMessage(`position fen ${fen}`);
           worker.postMessage(`go depth ${depth}`);
         }
@@ -233,10 +238,10 @@ export function useTrainerGame() {
     setState((s) => ({ ...s, botThinking: true }));
 
     const fen = chessRef.current.fen();
-    const depth = BOT_DEPTH[difficultyRef.current];
+    const { depth, skill } = BOT_CONFIG[difficultyRef.current];
 
     try {
-      const result = await sfEval(worker, fen, depth);
+      const result = await sfEval(worker, fen, depth, skill);
       if (!result.bestMove || result.bestMove === "(none)") {
         busyRef.current = false;
         return;
