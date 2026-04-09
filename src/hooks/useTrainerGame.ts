@@ -4,14 +4,16 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { Chess, type Square } from "chess.js";
 import { classifyMove, computeCPLoss, mateToCP, type MoveClass } from "@/lib/classify-moves";
 
-export type Difficulty = "beginner" | "intermediate" | "advanced";
+export type Difficulty = "beginner" | "casual" | "intermediate" | "advanced" | "expert";
 
 // Skill Level = Stockfish UCI option that introduces deliberate mistakes
 // Lower skill → bigger blunders (up to ~600cp worse at level 0)
 const BOT_CONFIG: Record<Difficulty, { depth: number; skill: number }> = {
-  beginner: { depth: 4, skill: 0 },     // ~800 — blunders pieces regularly
+  beginner: { depth: 3, skill: 0 },     // ~600 — blunders constantly
+  casual: { depth: 5, skill: 5 },       // ~1000 — frequent mistakes
   intermediate: { depth: 8, skill: 10 }, // ~1400 — occasional inaccuracies
-  advanced: { depth: 10, skill: 15 },   // ~2000 — strong but still human-like mistakes
+  advanced: { depth: 10, skill: 15 },   // ~1800 — strong, rare mistakes
+  expert: { depth: 12, skill: 20 },     // ~2200 — full strength engine
 };
 
 // Depth for evaluating the player's moves (always the same)
