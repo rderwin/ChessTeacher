@@ -234,8 +234,8 @@ export default function DogCoach({ mood, commentKey = 0, hint }: DogCoachProps) 
   return (
     <div className="flex flex-col items-center gap-3">
       <DogFace mood={mood} />
-      {/* Speech bubble */}
-      <div className="relative bg-stone-700 rounded-xl px-4 py-3 max-w-[260px] w-full">
+      {/* Speech bubble — fixed min-height so buttons below don't shift */}
+      <div className="relative bg-stone-700 rounded-xl px-4 py-3 max-w-[260px] w-full min-h-[3.5rem] flex items-center justify-center">
         <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-stone-700 rotate-45" />
         <p className="text-sm text-stone-200 text-center font-medium leading-snug">
           {hint || comment}
