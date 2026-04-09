@@ -60,6 +60,7 @@ function pickHint(templates: string[], replacements: Record<string, string>): st
 }
 
 interface HintData {
+  bestMoveUci: string;
   pieceName: string;
   fromSquare: string;
   san: string;
@@ -484,7 +485,7 @@ export function useTrainerGame() {
           if (m) san = m.san;
         } catch { /* use UCI fallback */ }
 
-        hintDataRef.current = { pieceName, fromSquare: from, san, area };
+        hintDataRef.current = { bestMoveUci: result.bestMove, pieceName, fromSquare: from, san, area };
 
         const hint = pickHint(HINT_L1, { area });
         setState((s) => ({
@@ -507,8 +508,16 @@ export function useTrainerGame() {
       const { san } = hintDataRef.current;
       const hint = pickHint(HINT_L3, { san });
       setState((s) => ({ ...s, hint, hintLevel: 3, moveKey: s.moveKey + 1 }));
+    } else if (state.hintLevel === 3 && hintDataRef.current) {
+      // Level 4: just play it for me
+      const { bestMoveUci } = hintDataRef.current;
+      const from = bestMoveUci.slice(0, 2);
+      const to = bestMoveUci.slice(2, 4);
+      const promotion = bestMoveUci.length > 4 ? bestMoveUci[4] : undefined;
+      hintDataRef.current = null;
+      await makeMove(from, to, promotion);
     }
-  }, [state.gameOver, state.playerColor, state.hintLevel]);
+  }, [state.gameOver, state.playerColor, state.hintLevel, makeMove]);
 
   return { state, makeMove, startNewGame, undoMove, requestHint };
 }

@@ -298,16 +298,18 @@ export default function TrainerPage() {
               {!state.gameOver && state.isPlayerTurn && (
                 <button
                   onClick={requestHint}
-                  disabled={state.hintLevel >= 3 || state.evaluating}
+                  disabled={state.evaluating}
                   className="px-4 py-2 bg-amber-700 text-amber-100 rounded-lg hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm"
                 >
                   {state.evaluating
                     ? "Sniffing... 🐕"
                     : state.hintLevel === 0
                     ? "Hint 💡"
-                    : state.hintLevel < 3
+                    : state.hintLevel === 1
                     ? "More help..."
-                    : "No more hints"}
+                    : state.hintLevel === 2
+                    ? "Just tell me!"
+                    : "Play it for me 🐾"}
                 </button>
               )}
               {!state.gameOver && state.moves.length > 0 && state.isPlayerTurn && (
