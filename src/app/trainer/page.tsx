@@ -133,7 +133,7 @@ export default function TrainerPage() {
       </p>
 
       {!gameStarted ? (
-        <div className="max-w-lg">
+        <div className="max-w-xl">
           {/* Setup screen */}
           <div className="bg-stone-800 rounded-xl border border-stone-700 p-6 mb-6">
             <h2 className="text-lg font-semibold text-white mb-4">
@@ -174,12 +174,12 @@ export default function TrainerPage() {
               <label className="text-sm text-stone-400 mb-2 block">
                 Opponent Strength
               </label>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 {DIFFICULTIES.map((d) => (
                   <button
                     key={d.id}
                     onClick={() => setDifficulty(d.id)}
-                    className={`flex-1 px-3 py-2.5 rounded-lg border transition-all text-center ${
+                    className={`px-3 py-2.5 rounded-lg border transition-all text-center ${
                       difficulty === d.id
                         ? "border-emerald-500 bg-emerald-950/30 text-white"
                         : "border-stone-600 text-stone-400 hover:border-stone-500"
