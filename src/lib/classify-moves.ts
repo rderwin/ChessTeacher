@@ -18,6 +18,10 @@ export interface MoveClassification {
   classification: MoveClass;
   /** Centipawn loss (0 = best move, positive = worse) */
   cpLoss: number;
+  /** Eval before this move from White's perspective (≈ after best move) */
+  evalBefore: number;
+  /** Mate before this move from White's perspective, or null */
+  mateBefore: number | null;
   /** Eval after this move from White's perspective */
   evalAfter: number;
   /** Mate after this move from White's perspective, or null */

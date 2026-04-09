@@ -8,6 +8,14 @@ import {
 } from "@/lib/classify-moves";
 import { explainMove, type MoveExplanation as Explanation } from "@/lib/move-explainer";
 
+function formatEval(cp: number, mate: number | null): string {
+  if (mate !== null) {
+    return mate > 0 ? `M${mate}` : `−M${Math.abs(mate)}`;
+  }
+  const pawns = cp / 100;
+  return pawns >= 0 ? `+${pawns.toFixed(1)}` : `${pawns.toFixed(1)}`;
+}
+
 const CLASS_LABELS: Record<MoveClass, string> = {
   brilliant: "Brilliant",
   best: "Best move",
@@ -119,6 +127,25 @@ export default function MoveExplanationPanel({
             </li>
           ))}
         </ul>
+      )}
+
+      {/* Eval comparison when showing best */}
+      {showingBest && hasBetter && (
+        <div className="mt-2.5 flex items-center gap-3 text-xs">
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-stone-700/60">
+            <span className="text-stone-500">Your move</span>
+            <span className="font-mono font-semibold text-stone-300">
+              {formatEval(classification.evalAfter, classification.mateAfter)}
+            </span>
+          </div>
+          <span className="text-stone-600">→</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-emerald-950/40">
+            <span className="text-stone-500">Best move</span>
+            <span className="font-mono font-semibold text-emerald-400">
+              {formatEval(classification.evalBefore, classification.mateBefore)}
+            </span>
+          </div>
+        </div>
       )}
     </div>
   );

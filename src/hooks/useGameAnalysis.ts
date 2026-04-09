@@ -99,6 +99,8 @@ export function useGameAnalysis() {
             classifications.push({
               classification: classifyMove(cpLoss),
               cpLoss,
+              evalBefore: before.cp,
+              mateBefore: before.mate,
               evalAfter: after.cp,
               mateAfter: after.mate,
               bestMoveUci: before.bestMove,
