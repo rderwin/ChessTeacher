@@ -2,11 +2,13 @@ import { OpeningLine } from "../types";
 import { italianGame } from "./italian-game";
 import { queensGambit } from "./queens-gambit";
 import { sicilianNajdorf } from "./sicilian-najdorf";
+import { ruyLopez } from "./ruy-lopez";
 import { slavDefense } from "./slav-defense";
 
 export const ALL_OPENINGS: OpeningLine[] = [
   italianGame,
   queensGambit,
+  ruyLopez,
   sicilianNajdorf,
   slavDefense,
 ];
