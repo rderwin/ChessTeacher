@@ -46,7 +46,7 @@ export default function PracticeSession({ opening }: PracticeSessionProps) {
     status === "completed";
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-[1100px] mx-auto">
+    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto">
       {/* Left: Board */}
       <div className="flex flex-col items-center">
         <div className="mb-4 text-center">

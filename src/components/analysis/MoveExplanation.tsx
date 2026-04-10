@@ -67,7 +67,7 @@ export default function MoveExplanationPanel({
   const symbol = MOVE_CLASS_SYMBOLS[cls];
 
   return (
-    <div className="bg-stone-800 rounded-xl border border-stone-700 p-3 max-w-[520px]">
+    <div className="bg-stone-800 rounded-xl border border-stone-700 p-3 max-w-full sm:max-w-[520px]">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className={`text-sm font-semibold ${MOVE_CLASS_COLORS[cls]}`}>

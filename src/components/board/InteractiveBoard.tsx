@@ -112,7 +112,7 @@ export default function InteractiveBoard({
 
   return (
     <div
-      className="w-full max-w-[560px] aspect-square"
+      className="w-full max-w-full sm:max-w-[560px] aspect-square"
       style={pieceFilter ? { filter: pieceFilter } as React.CSSProperties : undefined}
     >
       <Chessboard

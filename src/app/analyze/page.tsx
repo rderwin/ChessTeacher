@@ -335,7 +335,7 @@ export default function AnalyzePage() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Board + Eval Bar */}
           <div className="shrink-0">
-            <div className="flex gap-2 items-stretch max-w-[520px]">
+            <div className="flex gap-2 items-stretch w-full max-w-full sm:max-w-[520px]">
               <EvalBar
                 evaluation={barEval.evaluation}
                 mate={barEval.mate}

@@ -174,7 +174,7 @@ export default function TrainerPage() {
               <label className="text-sm text-stone-400 mb-2 block">
                 Opponent Strength
               </label>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {DIFFICULTIES.map((d) => (
                   <button
                     key={d.id}
@@ -210,7 +210,7 @@ export default function TrainerPage() {
           {/* Board */}
           <div className="shrink-0">
             <div
-              className="aspect-square max-w-[520px]"
+              className="aspect-square w-full max-w-full sm:max-w-[520px]"
               style={
                 pieceFilter
                   ? ({ filter: pieceFilter } as React.CSSProperties)

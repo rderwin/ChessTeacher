@@ -4,9 +4,17 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 
+const NAV_LINKS = [
+  { href: "/trainer", label: "Coach" },
+  { href: "/puzzles", label: "Puzzles" },
+  { href: "/openings", label: "Openings" },
+  { href: "/analyze", label: "Analyze" },
+];
+
 export default function Navbar() {
   const { user, loading, signInWithGoogle, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,43 +36,17 @@ export default function Navbar() {
           <span className="text-xl font-bold text-white">ChessTeacher</span>
         </Link>
 
-        <div className="flex items-center gap-6">
-          <Link
-            href="/trainer"
-            className="text-sm text-stone-400 hover:text-white transition-colors"
-          >
-            Coach
-          </Link>
-          <Link
-            href="/puzzles"
-            className="text-sm text-stone-400 hover:text-white transition-colors"
-          >
-            Puzzles
-          </Link>
-          <Link
-            href="/openings"
-            className="text-sm text-stone-400 hover:text-white transition-colors"
-          >
-            Openings
-          </Link>
-          <Link
-            href="/endgames"
-            className="text-sm text-stone-400 hover:text-white transition-colors"
-          >
-            Endgames
-          </Link>
-          <Link
-            href="/draws"
-            className="text-sm text-stone-400 hover:text-white transition-colors"
-          >
-            Draws
-          </Link>
-          <Link
-            href="/analyze"
-            className="text-sm text-stone-400 hover:text-white transition-colors"
-          >
-            Analyze
-          </Link>
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-6">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="text-sm text-stone-400 hover:text-white transition-colors"
+            >
+              {link.label}
+            </Link>
+          ))}
           {!loading && (
             <>
               {user ? (
@@ -81,7 +63,7 @@ export default function Navbar() {
                         referrerPolicy="no-referrer"
                       />
                     )}
-                    <span className="text-sm text-stone-300 hidden sm:inline">
+                    <span className="text-sm text-stone-300">
                       {user.displayName?.split(" ")[0]}
                     </span>
                   </button>
@@ -114,7 +96,79 @@ export default function Navbar() {
             </>
           )}
         </div>
+
+        {/* Mobile hamburger */}
+        <div className="flex items-center gap-3 md:hidden">
+          {!loading && user && user.photoURL && (
+            <Link href="/account">
+              <img
+                src={user.photoURL}
+                alt=""
+                className="w-7 h-7 rounded-full"
+                referrerPolicy="no-referrer"
+              />
+            </Link>
+          )}
+          <button
+            onClick={() => setMobileNavOpen((v) => !v)}
+            className="text-stone-400 hover:text-white transition-colors p-1"
+            aria-label="Menu"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileNavOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
+
+      {/* Mobile menu dropdown */}
+      {mobileNavOpen && (
+        <div className="md:hidden border-t border-stone-800 bg-stone-900">
+          <div className="px-4 py-3 space-y-1">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileNavOpen(false)}
+                className="block px-3 py-2.5 text-stone-300 hover:text-white hover:bg-stone-800 rounded-lg transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+            <div className="border-t border-stone-800 my-2" />
+            {!loading && (
+              user ? (
+                <>
+                  <Link
+                    href="/account"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="block px-3 py-2.5 text-stone-300 hover:text-white hover:bg-stone-800 rounded-lg transition-colors"
+                  >
+                    Account
+                  </Link>
+                  <button
+                    onClick={() => { setMobileNavOpen(false); signOut(); }}
+                    className="w-full text-left px-3 py-2.5 text-stone-400 hover:text-white hover:bg-stone-800 rounded-lg transition-colors"
+                  >
+                    Sign out
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => { setMobileNavOpen(false); signInWithGoogle(); }}
+                  className="w-full text-left px-3 py-2.5 text-stone-300 hover:text-white hover:bg-stone-800 rounded-lg transition-colors"
+                >
+                  Sign in with Google
+                </button>
+              )
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
