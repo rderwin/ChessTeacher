@@ -5,17 +5,17 @@ import { Chess, type Square } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { useTrainerGame, type Difficulty } from "@/hooks/useTrainerGame";
-import DogCoach, { type DogMood, classificationToMood } from "@/components/trainer/DogCoach";
+import DogCoach, { type DogMood, classificationToMood, getBreedForDifficulty } from "@/components/trainer/DogCoach";
 import { MOVE_CLASS_COLORS, MOVE_CLASS_SYMBOLS } from "@/lib/classify-moves";
 
-const DIFFICULTIES: { id: Difficulty; label: string; desc: string }[] = [
-  { id: "newborn", label: "Newborn", desc: "~400" },
-  { id: "puppy", label: "Puppy", desc: "~800" },
-  { id: "beginner", label: "Mutt", desc: "~1300" },
-  { id: "casual", label: "Good Boy", desc: "~1600" },
-  { id: "intermediate", label: "Retriever", desc: "~1900" },
-  { id: "advanced", label: "Top Dog", desc: "~2200" },
-  { id: "expert", label: "Alpha", desc: "Max" },
+const DIFFICULTIES: { id: Difficulty; label: string; desc: string; focus: string }[] = [
+  { id: "newborn", label: "Newborn", desc: "~400", focus: "Don't leave pieces hanging, capture free pieces" },
+  { id: "puppy", label: "Puppy", desc: "~800", focus: "Develop pieces, castle early, control the center" },
+  { id: "beginner", label: "Mutt", desc: "~1300", focus: "Basic tactics — forks, pins, simple combinations" },
+  { id: "casual", label: "Good Boy", desc: "~1600", focus: "Positional play — pawn structure, piece activity" },
+  { id: "intermediate", label: "Retriever", desc: "~1900", focus: "Deep tactics, planning, initiative" },
+  { id: "advanced", label: "Top Dog", desc: "~2200", focus: "Precise calculation, endgame technique" },
+  { id: "expert", label: "Alpha", desc: "Max", focus: "Engine-level accuracy — every centipawn counts" },
 ];
 
 export default function TrainerPage() {
@@ -196,6 +196,20 @@ export default function TrainerPage() {
                   </button>
                 ))}
               </div>
+
+              {/* Focus description for selected difficulty */}
+              <div className="mt-3 bg-stone-900/50 rounded-lg p-3 flex items-start gap-3">
+                <DogCoach mood="waiting" breed={getBreedForDifficulty(difficulty)} />
+                <div className="flex-1 min-w-0 pt-1">
+                  <p className="text-sm font-medium text-white mb-1">
+                    {DIFFICULTIES.find((d) => d.id === difficulty)?.label} Coach
+                  </p>
+                  <p className="text-xs text-stone-400 leading-relaxed">
+                    <span className="text-emerald-400 font-medium">Focus: </span>
+                    {DIFFICULTIES.find((d) => d.id === difficulty)?.focus}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <button
@@ -252,7 +266,7 @@ export default function TrainerPage() {
           <div className="flex-1 min-w-0 flex flex-col gap-4">
             {/* Dog Coach + action buttons */}
             <div className="bg-stone-800 rounded-xl border border-stone-700 p-5">
-              <DogCoach mood={dogMood} commentKey={state.moveKey} hint={state.coachFeedback || state.hint} />
+              <DogCoach mood={dogMood} commentKey={state.moveKey} hint={state.coachFeedback || state.hint} breed={getBreedForDifficulty(difficulty)} />
 
               {/* Action buttons — always rendered, disabled when not applicable */}
               <div className="flex items-center justify-center gap-2 mt-4">
