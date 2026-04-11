@@ -168,4 +168,123 @@ export const queensGambit: OpeningLine = {
   ],
   summary:
     "The Queen's Gambit teaches the art of patient, strategic pressure. White builds a strong pawn center with d4, uses c4 to challenge Black's hold on d5, and develops every piece to its ideal square before forcing concessions. The key lessons are: pile up pressure on a key square (d5) from multiple directions, develop with purpose rather than speed alone, place rooks on files that will open, and understand that slow preparation (e3, Rc1, Bd3) creates lasting advantages that quick attacks cannot. Black's challenge — the trapped light-squared bishop on c8 — illustrates why pawn structure decisions (like ...e6) carry long-term consequences.",
+  variants: [
+    {
+      id: "qga",
+      name: "Queen's Gambit Accepted",
+      description: "Black takes the pawn with dxc4 — accepting the gambit. White gets a free central majority but must win the pawn back.",
+      branchesAt: 3,
+      opponentMove: {
+        san: "dxc4",
+        color: "black",
+        why: "Black accepts the gambit pawn. This gives up central space (no more pawn on d5) but wins a pawn. White will easily recover it, so Black's real goal is to develop quickly while White spends time recapturing.",
+        concepts: ["center-control"],
+        controls: "Wins the c4 pawn, but concedes the center",
+      },
+      moves: [
+        {
+          san: "e4",
+          color: "white",
+          why: "Immediately seize the full center! With Black's d-pawn gone, e4 goes unchallenged. White now has the ideal d4+e4 pawn center — exactly what the gambit was designed to achieve. The c4 pawn will be recovered later.",
+          concepts: ["center-control", "space"],
+          controls: "d5, f5 — massive central influence",
+          commonMistakes: [
+            {
+              san: "e3",
+              whyBad: "e3 is too timid. With Black's d-pawn gone from d5, you should grab the full center with e4. Don't waste this opportunity for a passive pawn move.",
+            },
+          ],
+        },
+        {
+          san: "e5",
+          color: "black",
+          why: "Black tries to block the center and prevent White from steamrolling with e5 themselves. However, this weakens the d5 square since the e-pawn no longer controls it.",
+          concepts: ["center-control"],
+        },
+        {
+          san: "Bxc4",
+          color: "white",
+          why: "Recover the pawn while developing the bishop to an active diagonal aimed at f7. You now have the d4+e4 center AND all your pieces are coming out. This is why the QGA is considered slightly better for White.",
+          concepts: ["development", "attack"],
+          controls: "f7 square, a2-g8 diagonal",
+        },
+        {
+          san: "Nc6",
+          color: "black",
+          why: "Develop the knight to its natural square, defending e5 and putting pressure on d4. Black needs to catch up in development after spending a tempo capturing on c4.",
+          concepts: ["development", "center-control"],
+        },
+        {
+          san: "Nf3",
+          color: "white",
+          why: "Develop with a threat — the knight attacks e5 and supports d4. Classic opening principle: every move should develop AND create pressure.",
+          concepts: ["development", "attack"],
+        },
+        {
+          san: "Nf6",
+          color: "black",
+          why: "Counter-attacking e4. Black develops the knight and fights for the center, hoping to equalize despite having given up the d5 pawn earlier.",
+          concepts: ["development", "center-control"],
+        },
+      ],
+    },
+    {
+      id: "slav",
+      name: "Slav Defense Setup",
+      description: "Black plays c6 instead of e6 — defending d5 without locking in the light-squared bishop.",
+      branchesAt: 3,
+      opponentMove: {
+        san: "c6",
+        color: "black",
+        why: "The Slav Defense! Black defends d5 with the c-pawn instead of the e-pawn. The huge advantage: the light-squared bishop on c8 is NOT blocked. Black can develop it to f5 or g4, solving the main problem of the QGD (the 'bad bishop').",
+        concepts: ["center-control", "pawn-structure"],
+        controls: "d5 square — supported without blocking the bishop",
+      },
+      moves: [
+        {
+          san: "Nc3",
+          color: "white",
+          why: "Develop the knight and add more pressure to d5. With Black's pawn on c6, the c-file tension is slightly different — but the strategic goal is the same: challenge d5 and prepare e4.",
+          concepts: ["development", "center-control"],
+          commonMistakes: [
+            {
+              san: "cxd5",
+              whyBad: "Taking on d5 too early releases all the tension. After cxd5 cxd5, the position is symmetrical and drawish. Keep the tension with Nc3 — that's how White maintains the initiative.",
+            },
+          ],
+        },
+        {
+          san: "Nf6",
+          color: "black",
+          why: "Develop the knight and defend d5 a third time. Black's position is very solid — d5 is defended by c6, Nf6, and potentially the queen. The key difference from the QGD: the c8 bishop can still develop actively.",
+          concepts: ["development", "center-control"],
+        },
+        {
+          san: "Nf3",
+          color: "white",
+          why: "Continue natural development. The knight controls e5 and supports d4. White is building up slowly before deciding how to challenge Black's solid setup.",
+          concepts: ["development"],
+        },
+        {
+          san: "Bf5",
+          color: "black",
+          why: "This is the whole point of the Slav! The bishop develops OUTSIDE the pawn chain to f5, where it's active and not blocked by the e6 pawn. Compare this to the QGD where the bishop is stuck behind e6 — night and day difference.",
+          concepts: ["development", "piece-activity"],
+          controls: "Active on the a2-g8 diagonal, not trapped",
+        },
+        {
+          san: "cxd5",
+          color: "white",
+          why: "Now that Black has committed the bishop to f5, it's a good time to capture. After cxd5 cxd5, the c-file opens and White can plant a rook there. The bishop on f5 is good but Black's queenside is slightly weakened.",
+          concepts: ["center-control", "preparation"],
+        },
+        {
+          san: "cxd5",
+          color: "black",
+          why: "Recapture with the c-pawn, maintaining the central structure. The d5 pawn is solidly defended by the knight on f6 and the position is very playable for both sides.",
+          concepts: ["center-control", "pawn-structure"],
+        },
+      ],
+    },
+  ],
 };
