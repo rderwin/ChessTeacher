@@ -172,4 +172,119 @@ export const londonSystem: OpeningLine = {
   ],
   summary:
     "The London System teaches you to think in terms of a SETUP rather than memorized moves. The key principles are: develop the dark-squared bishop to f4 BEFORE playing e3 (or it gets locked in forever), build the unbreakable c3-d4-e3 pyramid, route the queenside knight through d2 (since c3 is taken by the pawn), and develop both bishops to active diagonals (Bf4 and Bd3). The London is ideal for learning because it shows how a coherent system of development — where every piece has a clear destination — can give you a solid, playable position against virtually any opponent.",
+  variants: [
+    {
+      id: "kings-indian-setup",
+      name: "King's Indian Setup",
+      description: "Black fianchettoes with g6 instead of playing d5 — aiming for a King's Indian structure against the London.",
+      branchesAt: 1,
+      opponentMove: {
+        san: "g6",
+        color: "black",
+        why: "Instead of contesting the center with d5, Black fianchettoes the kingside bishop. The idea: the bishop on g7 will be a powerful piece aimed at the center and queenside. Black delays central confrontation in favor of piece development.",
+        concepts: ["development", "piece-activity"],
+      },
+      moves: [
+        {
+          san: "Bf4",
+          color: "white",
+          why: "Same principle — get the bishop out before e3. Whether Black plays d5 or g6, the London setup is the same. That's the beauty of a system opening.",
+          concepts: ["development", "piece-activity"],
+        },
+        {
+          san: "Bg7",
+          color: "black",
+          why: "Complete the fianchetto. The bishop on g7 is a monster on the long diagonal, eyeing b2 and the queenside. Black's plan is to play d6, Nf6, O-O, and then challenge with c5 or e5.",
+          concepts: ["development", "piece-activity"],
+        },
+        {
+          san: "e3",
+          color: "white",
+          why: "The bishop is out, so e3 is safe now. Build the pyramid. Against the fianchetto, White doesn't need to rush — the London setup works against everything.",
+          concepts: ["center-control", "pawn-structure"],
+          commonMistakes: [
+            {
+              san: "c3",
+              whyBad: "c3 before e3 is premature here. You haven't secured the dark-squared bishop yet, and e3 is more important for the pawn pyramid. c3 comes later.",
+            },
+          ],
+        },
+        {
+          san: "d6",
+          color: "black",
+          why: "A flexible move supporting e5 while keeping the center fluid. Black prepares Nf6 and castling, planning to break with c5 or e5 later.",
+          concepts: ["center-control", "preparation"],
+        },
+        {
+          san: "Nf3",
+          color: "white",
+          why: "Develop the knight to its natural square. Controls e5 and supports d4. The London setup continues regardless of what Black does — that's its main selling point.",
+          concepts: ["development"],
+        },
+        {
+          san: "Nf6",
+          color: "black",
+          why: "Develop the knight, prepare to castle. Black's setup is very flexible and can transpose into many structures depending on how White continues.",
+          concepts: ["development", "king-safety"],
+        },
+      ],
+    },
+    {
+      id: "early-c5",
+      name: "Early ...c5 Challenge",
+      description: "Black plays c5 early to immediately challenge White's d4 center before the London setup is complete.",
+      branchesAt: 3,
+      opponentMove: {
+        san: "c5",
+        color: "black",
+        why: "An aggressive response! Black immediately challenges d4 before White can solidify with e3 and c3. This forces White to make a decision about the center right away.",
+        concepts: ["center-control", "attack"],
+        controls: "d4 pawn — direct challenge",
+      },
+      moves: [
+        {
+          san: "e3",
+          color: "white",
+          why: "Calmly reinforce d4. The London doesn't panic when challenged — you just build the pyramid. If Black takes on d4, you recapture with exd4 and have a solid center.",
+          concepts: ["center-control", "pawn-structure"],
+          commonMistakes: [
+            {
+              san: "dxc5",
+              whyBad: "Capturing on c5 gives up your central pawn for a flank pawn. You'd lose your strong d4 presence for nothing. Keep the tension — let Black decide whether to trade.",
+            },
+          ],
+        },
+        {
+          san: "Nc6",
+          color: "black",
+          why: "Develop the knight and add more pressure to d4. Black is building up force against the center before White can consolidate.",
+          concepts: ["development", "center-control"],
+        },
+        {
+          san: "c3",
+          color: "white",
+          why: "Extra support for d4 and the pyramid is complete: c3-d4-e3. This structure is nearly unbreakable. Even if Black plays cxd4, you recapture cxd4 or exd4 and maintain the center.",
+          concepts: ["center-control", "pawn-structure"],
+        },
+        {
+          san: "Qb6",
+          color: "black",
+          why: "The queen puts pressure on b2 and d4 simultaneously. This is a common idea in the London — Black targets the b2 pawn which can become weak in some lines.",
+          concepts: ["attack", "piece-activity"],
+        },
+        {
+          san: "Qb3",
+          color: "white",
+          why: "Meet the queen with the queen! Qb3 defends b2 and offers a queen trade. If Black trades, the b-file opens for your rook. If they decline, the queens stare each other down.",
+          concepts: ["prophylaxis", "development"],
+        },
+        {
+          san: "Nf6",
+          color: "black",
+          why: "Continue development. Black has created some pressure but White's position is solid. The battle will be about whether Black can crack the London pyramid.",
+          concepts: ["development"],
+        },
+      ],
+    },
+  ],
 };
