@@ -278,6 +278,13 @@ export default function PuzzleBoard({
               </div>
             )}
 
+            {/* Streak display */}
+            {progress.currentStreak >= 3 && (
+              <p className="text-sm text-amber-400 mb-2">
+                🔥 {progress.currentStreak} in a row! Keep it going!
+              </p>
+            )}
+
             <div className="flex gap-3">
               {puzzleIndex < puzzleSet.puzzles.length - 1 ? (
                 <button

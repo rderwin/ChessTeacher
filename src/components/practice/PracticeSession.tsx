@@ -138,11 +138,30 @@ export default function PracticeSession({ opening, startFen, progressKey }: Prac
         {status === "completed" && (
           <div className="bg-emerald-950/30 border border-emerald-800/50 rounded-xl p-6">
             <h2 className="text-xl font-bold text-emerald-300 mb-3">
-              Opening Complete!
+              Opening Complete! 🎉
             </h2>
             <p className="text-stone-300 leading-relaxed mb-4">
               {opening.summary}
             </p>
+
+            {/* What's next suggestions */}
+            <div className="bg-stone-800/50 rounded-lg p-4 mb-4">
+              <p className="text-sm font-medium text-stone-300 mb-2">What&apos;s next?</p>
+              <ul className="text-sm text-stone-400 space-y-1.5">
+                {opening.variants && opening.variants.length > 0 && (
+                  <li>
+                    → <span className="text-emerald-400">Explore variants</span> — learn what to do when your opponent plays something different
+                  </li>
+                )}
+                <li>
+                  → <Link href="/puzzles/mate-in-one" className="text-emerald-400 hover:underline">Try tactical puzzles</Link> — test your pattern recognition
+                </li>
+                <li>
+                  → <Link href="/trainer" className="text-emerald-400 hover:underline">Play a game</Link> — put what you learned into practice against a bot
+                </li>
+              </ul>
+            </div>
+
             <div className="flex gap-3">
               <button
                 onClick={reset}
