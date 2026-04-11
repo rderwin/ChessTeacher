@@ -6,6 +6,7 @@ import { italianGame } from "./italian-game";
 import { kingsIndian } from "./kings-indian";
 import { londonSystem } from "./london-system";
 import { nimzoIndian } from "./nimzo-indian";
+import { pircDefense } from "./pirc-defense";
 import { queensGambit } from "./queens-gambit";
 import { ruyLopez } from "./ruy-lopez";
 import { sicilianNajdorf } from "./sicilian-najdorf";
@@ -21,6 +22,7 @@ export const ALL_OPENINGS: OpeningLine[] = [
   kingsIndian,
   londonSystem,
   nimzoIndian,
+  pircDefense,
   queensGambit,
   ruyLopez,
   sicilianNajdorf,
