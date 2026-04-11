@@ -119,90 +119,21 @@ export function classificationToMood(cls: MoveClass): DogMood {
 
 export type DogBreed = "puppy" | "golden" | "beagle" | "husky" | "shepherd" | "collie" | "wolf";
 
-interface BreedStyle {
+interface BreedConfig {
   name: string;
-  headColor: string;
-  earColor: string;
-  snoutColor: string;
-  headSize: string;
-  eyeSize: string;
-  earStyle: "floppy" | "perky" | "pointed";
-  /** Extra CSS classes for the head */
-  headExtra?: string;
-  /** Accessories rendered on top */
-  accessory?: "none" | "collar" | "bowtie" | "glasses" | "crown";
+  emoji: string;
+  size: string; // text size class for the emoji
+  accessory?: string; // emoji accessory
 }
 
-const BREED_STYLES: Record<DogBreed, BreedStyle> = {
-  puppy: {
-    name: "Puppy",
-    headColor: "bg-amber-400",
-    earColor: "bg-amber-500",
-    snoutColor: "bg-amber-300",
-    headSize: "w-[72px] h-[72px]",
-    eyeSize: "w-5 h-5",
-    earStyle: "floppy",
-  },
-  golden: {
-    name: "Golden Retriever",
-    headColor: "bg-amber-500",
-    earColor: "bg-amber-600",
-    snoutColor: "bg-amber-400",
-    headSize: "w-20 h-20",
-    eyeSize: "w-4 h-4",
-    earStyle: "floppy",
-    accessory: "collar",
-  },
-  beagle: {
-    name: "Beagle",
-    headColor: "bg-amber-600",
-    earColor: "bg-amber-800",
-    snoutColor: "bg-amber-500",
-    headSize: "w-20 h-20",
-    eyeSize: "w-4 h-4",
-    earStyle: "floppy",
-    accessory: "collar",
-  },
-  husky: {
-    name: "Husky",
-    headColor: "bg-slate-400",
-    earColor: "bg-slate-500",
-    snoutColor: "bg-white",
-    headSize: "w-[84px] h-[84px]",
-    eyeSize: "w-4 h-4",
-    earStyle: "perky",
-    accessory: "bowtie",
-  },
-  shepherd: {
-    name: "German Shepherd",
-    headColor: "bg-amber-700",
-    earColor: "bg-amber-900",
-    snoutColor: "bg-amber-600",
-    headSize: "w-[88px] h-[84px]",
-    eyeSize: "w-4 h-4",
-    earStyle: "perky",
-    accessory: "glasses",
-  },
-  collie: {
-    name: "Border Collie",
-    headColor: "bg-stone-800",
-    earColor: "bg-stone-900",
-    snoutColor: "bg-white",
-    headSize: "w-[88px] h-[84px]",
-    eyeSize: "w-[18px] h-[18px]",
-    earStyle: "perky",
-    accessory: "glasses",
-  },
-  wolf: {
-    name: "Alpha Wolf",
-    headColor: "bg-slate-600",
-    earColor: "bg-slate-700",
-    snoutColor: "bg-slate-400",
-    headSize: "w-24 h-[92px]",
-    eyeSize: "w-[18px] h-[18px]",
-    earStyle: "pointed",
-    accessory: "crown",
-  },
+const BREEDS: Record<DogBreed, BreedConfig> = {
+  puppy:    { name: "Puppy",             emoji: "🐶", size: "text-6xl" },
+  golden:   { name: "Golden Retriever",  emoji: "🐕", size: "text-6xl", accessory: "🎾" },
+  beagle:   { name: "Beagle",           emoji: "🐕", size: "text-6xl" },
+  husky:    { name: "Husky",            emoji: "🐺", size: "text-6xl" },
+  shepherd: { name: "German Shepherd",   emoji: "🐕‍🦺", size: "text-6xl" },
+  collie:   { name: "Border Collie",     emoji: "🦮", size: "text-6xl", accessory: "🎓" },
+  wolf:     { name: "Alpha Wolf",        emoji: "🐺", size: "text-7xl", accessory: "👑" },
 };
 
 export function getBreedForDifficulty(difficulty: Difficulty): DogBreed {
@@ -217,7 +148,7 @@ export function getBreedForDifficulty(difficulty: Difficulty): DogBreed {
   }
 }
 
-// --- Dog face expressions ---
+// --- Dog face with emoji + mood effects ---
 
 interface FaceProps {
   mood: DogMood;
@@ -225,143 +156,73 @@ interface FaceProps {
 }
 
 function DogFace({ mood, breed = "golden" }: FaceProps) {
-  const style = BREED_STYLES[breed];
+  const config = BREEDS[breed];
 
-  // Animation class
+  // Animation
   let animClass = "";
   if (mood === "brilliant" || mood === "gameover-win") animClass = "animate-bounce";
   else if (mood === "blunder") animClass = "animate-shake";
   else if (mood === "mistake") animClass = "animate-pulse";
   else if (mood === "thinking") animClass = "animate-pulse";
 
-  // Eye style
-  let eyeContent: React.ReactNode;
+  // Head tilt
+  const tilt = mood === "inaccuracy" ? "rotate-12" : mood === "hint" ? "-rotate-6" : "";
+
+  // Mood overlay effect
+  let moodOverlay: React.ReactNode = null;
+  let glowClass = "";
+
   if (mood === "brilliant" || mood === "gameover-win") {
-    eyeContent = <span className="text-yellow-300 text-xs font-bold">★</span>;
-  } else if (mood === "blunder") {
-    eyeContent = <span className="text-red-400 text-[10px] font-bold">✕</span>;
-  } else if (mood === "mistake") {
-    eyeContent = (
-      <div className="w-2.5 h-2.5 bg-stone-900 rounded-full mt-0.5 ml-0.5" />
+    glowClass = "drop-shadow-[0_0_12px_rgba(250,204,21,0.6)]";
+    moodOverlay = (
+      <div className="absolute -top-1 -right-1 text-lg animate-bounce">✨</div>
     );
-  } else if (mood === "inaccuracy") {
-    eyeContent = (
-      <div className="w-2 h-2 bg-stone-900 rounded-full mt-1 ml-1" />
+  } else if (mood === "blunder") {
+    glowClass = "drop-shadow-[0_0_12px_rgba(239,68,68,0.5)]";
+    moodOverlay = (
+      <div className="absolute -top-1 -right-1 text-lg animate-bounce">💀</div>
+    );
+  } else if (mood === "mistake") {
+    glowClass = "drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]";
+    moodOverlay = (
+      <div className="absolute -top-1 -right-1 text-sm">😬</div>
+    );
+  } else if (mood === "best" || mood === "excellent") {
+    glowClass = "drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]";
+    moodOverlay = (
+      <div className="absolute -top-1 -right-1 text-sm">⭐</div>
     );
   } else if (mood === "gameover-lose") {
-    eyeContent = (
-      <div className="w-1 h-2.5 bg-stone-900 rounded-full mt-0.5 mx-auto" />
+    moodOverlay = (
+      <div className="absolute -top-1 -right-1 text-sm">😢</div>
     );
-  } else {
-    eyeContent = (
-      <div className="w-2.5 h-2.5 bg-stone-900 rounded-full mt-0.5 ml-0.5" />
-    );
-  }
-
-  // Mouth
-  let mouth: React.ReactNode;
-  if (mood === "brilliant" || mood === "best" || mood === "gameover-win") {
-    mouth = (
-      <div className="relative mt-0.5">
-        <div className="w-5 h-2.5 border-b-2 border-stone-900 rounded-b-full" />
-        <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-2 h-2 bg-pink-400 rounded-b-full" />
-      </div>
-    );
-  } else if (mood === "blunder") {
-    mouth = <div className="w-3 h-3 border-2 border-stone-900 rounded-full mt-0.5" />;
-  } else if (mood === "mistake" || mood === "gameover-lose") {
-    mouth = <div className="w-5 h-2.5 border-t-2 border-stone-900 rounded-t-full mt-1" />;
-  } else if (mood === "inaccuracy") {
-    mouth = <div className="w-5 h-0.5 bg-stone-900 mt-1 rounded-full rotate-6" />;
-  } else {
-    mouth = <div className="w-5 h-2.5 border-b-2 border-stone-900 rounded-b-full mt-0.5" />;
-  }
-
-  // Ear shape based on breed
-  const earBaseClass = "absolute -top-2.5 w-5 transition-transform duration-300";
-  let leftEarRotate: string;
-  let rightEarRotate: string;
-  let earHeight = "h-7";
-  let earRounding = "rounded-t-full";
-
-  if (mood === "mistake" || mood === "blunder" || mood === "gameover-lose") {
-    leftEarRotate = "rotate-[-30deg]";
-    rightEarRotate = "rotate-[30deg]";
-  } else if (style.earStyle === "floppy") {
-    leftEarRotate = "rotate-[-20deg]";
-    rightEarRotate = "rotate-[20deg]";
-    earHeight = "h-8";
-  } else if (style.earStyle === "pointed") {
-    leftEarRotate = "-rotate-6";
-    rightEarRotate = "rotate-6";
-    earHeight = "h-9";
-    earRounding = "rounded-t-[60%]";
-  } else {
-    // perky
-    leftEarRotate = "-rotate-12";
-    rightEarRotate = "rotate-12";
-  }
-
-  // Head tilt
-  const headTilt = mood === "inaccuracy" ? "rotate-12" : mood === "hint" ? "-rotate-6" : "";
-
-  // Accessory
-  let accessory: React.ReactNode = null;
-  if (style.accessory === "glasses") {
-    accessory = (
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[70%] flex items-center justify-center z-20 pointer-events-none">
-        <div className="flex items-center gap-0.5">
-          <div className="w-4 h-3 border border-stone-300 rounded-full" />
-          <div className="w-1.5 h-[1px] bg-stone-300" />
-          <div className="w-4 h-3 border border-stone-300 rounded-full" />
-        </div>
-      </div>
-    );
-  } else if (style.accessory === "crown") {
-    accessory = (
-      <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-20 pointer-events-none text-xl">
-        👑
-      </div>
-    );
-  } else if (style.accessory === "bowtie") {
-    accessory = (
-      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-20 pointer-events-none text-xs">
-        🎀
-      </div>
-    );
-  } else if (style.accessory === "collar") {
-    accessory = (
-      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-[60%] h-1.5 bg-red-500 rounded-full z-10" />
+  } else if (mood === "hint") {
+    moodOverlay = (
+      <div className="absolute -top-1 -right-1 text-sm">💡</div>
     );
   }
 
   return (
-    <div className={`${animClass} ${headTilt} transition-transform duration-300`}>
-      <div className={`${style.headSize} ${style.headColor} rounded-full relative mx-auto`}>
-        {/* Ears */}
-        <div
-          className={`${earBaseClass} left-1.5 ${earHeight} ${style.earColor} ${earRounding} ${leftEarRotate}`}
-        />
-        <div
-          className={`${earBaseClass} right-1.5 ${earHeight} ${style.earColor} ${earRounding} ${rightEarRotate}`}
-        />
-        {/* Eyes */}
-        <div className={`absolute top-5 left-3.5 ${style.eyeSize} bg-white rounded-full flex items-center justify-center overflow-hidden`}>
-          {eyeContent}
-        </div>
-        <div className={`absolute top-5 right-3.5 ${style.eyeSize} bg-white rounded-full flex items-center justify-center overflow-hidden`}>
-          {eyeContent}
-        </div>
-        {/* Snout */}
-        <div className={`absolute bottom-1.5 left-1/2 -translate-x-1/2 w-10 h-6 ${style.snoutColor} rounded-full flex flex-col items-center`}>
-          <div className="w-3 h-2 bg-stone-900 rounded-full mt-0.5" />
-          {mouth}
-        </div>
-        {/* Accessory */}
-        {accessory}
+    <div className={`${animClass} ${tilt} transition-transform duration-300`}>
+      <div className="relative inline-block mx-auto">
+        {/* Main emoji */}
+        <span className={`${config.size} ${glowClass} select-none transition-all duration-300`}>
+          {config.emoji}
+        </span>
+
+        {/* Accessory (graduation cap, crown, tennis ball) */}
+        {config.accessory && (
+          <span className="absolute -top-3 -right-2 text-xl select-none pointer-events-none">
+            {config.accessory}
+          </span>
+        )}
+
+        {/* Mood overlay */}
+        {moodOverlay}
       </div>
+
       {/* Breed label */}
-      <p className="text-[10px] text-stone-600 text-center mt-1">{style.name}</p>
+      <p className="text-[10px] text-stone-500 text-center mt-0.5">{config.name}</p>
     </div>
   );
 }
