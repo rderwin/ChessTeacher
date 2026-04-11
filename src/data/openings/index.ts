@@ -5,6 +5,7 @@ import { frenchDefense } from "./french-defense";
 import { italianGame } from "./italian-game";
 import { kingsIndian } from "./kings-indian";
 import { londonSystem } from "./london-system";
+import { nimzoIndian } from "./nimzo-indian";
 import { queensGambit } from "./queens-gambit";
 import { ruyLopez } from "./ruy-lopez";
 import { sicilianNajdorf } from "./sicilian-najdorf";
@@ -19,6 +20,7 @@ export const ALL_OPENINGS: OpeningLine[] = [
   frenchDefense,
   kingsIndian,
   londonSystem,
+  nimzoIndian,
   queensGambit,
   ruyLopez,
   sicilianNajdorf,
