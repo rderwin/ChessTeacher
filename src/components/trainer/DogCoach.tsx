@@ -253,10 +253,14 @@ function DogFace({ mood, breed = "golden" }: FaceProps) {
   else if (mood === "inaccuracy") { leftPupilX = 1; leftPupilY = 1; pupilSize = b.eyeSize * 0.45; }
   else if (mood === "hint") { leftPupilX = 2; leftPupilY = -1; }
 
-  // Mouth expression
+  // Mouth expression — computed after layout constants below
+  // (mx, my are set after cx/headY are defined)
+  const _headY = 18;
+  const _w = b.headW + 20;
+  const _cx = _w / 2;
   let mouthPath: string;
-  const mx = b.headW / 2;
-  const my = b.headH - 14;
+  const mx = _cx;
+  const my = _headY + b.headH - 14;
   if (mood === "brilliant" || mood === "best" || mood === "gameover-win") {
     mouthPath = `M${mx - 8},${my} Q${mx},${my + 10} ${mx + 8},${my}`; // big smile
   } else if (mood === "blunder") {
