@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BeginnerPath from "@/components/home/BeginnerPath";
 
 const MODULES = [
   {
@@ -26,15 +27,15 @@ const MODULES = [
     ready: true,
   },
   {
+    title: "Glossary",
+    href: "/glossary",
+    description: "Look up chess terms — forks, pins, fianchetto, en passant, and 20+ concepts explained simply.",
+    ready: true,
+  },
+  {
     title: "Endgames",
     href: "/endgames",
     description: "Learn essential checkmate techniques and recognize which endings are impossible to win.",
-    ready: false,
-  },
-  {
-    title: "Draw Rules",
-    href: "/draws",
-    description: "Understand stalemate, threefold repetition, the 50-move rule, and other ways games end in draws.",
     ready: false,
   },
 ];
@@ -50,6 +51,9 @@ export default function Home() {
           Master chess through interactive practice. Play the moves yourself,
           and understand <em>why</em> each move matters — not just what to play.
         </p>
+
+        {/* Beginner pathway — shows for new users, hides once they have progress */}
+        <BeginnerPath />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left mb-10">
           {MODULES.map((mod) => (
@@ -72,26 +76,6 @@ export default function Home() {
             </Link>
           ))}
         </div>
-
-        <Link
-          href="/openings"
-          className="inline-flex items-center gap-2 px-8 py-3.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-500 transition-colors text-lg font-medium"
-        >
-          Start Practicing
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 7l5 5m0 0l-5 5m5-5H6"
-            />
-          </svg>
-        </Link>
       </div>
     </div>
   );
