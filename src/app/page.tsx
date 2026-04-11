@@ -36,8 +36,8 @@ const MODULES = [
   {
     title: "Endgames",
     href: "/endgames",
-    description: "Learn essential checkmate techniques and recognize which endings are impossible to win.",
-    ready: false,
+    description: "Practice essential checkmates (K+Q, K+R, ladder mate) against Stockfish until you can do them every time.",
+    ready: true,
   },
 ];
 
