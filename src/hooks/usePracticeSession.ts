@@ -70,6 +70,22 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
     []
   );
 
+  /** Show a subtle guide glow on the piece to move and its destination */
+  const showMoveGuide = useCallback(
+    (moveIndex: number) => {
+      const expected = opening.moves[moveIndex];
+      if (!expected || expected.color !== opening.playerColor) return;
+      const squares = getSquaresForSan(expected.san, chessRef.current);
+      if (squares) {
+        setHighlightSquares({
+          [squares.from]: { backgroundColor: "rgba(66, 135, 245, 0.25)" },
+          [squares.to]: { backgroundColor: "rgba(66, 135, 245, 0.15)" },
+        });
+      }
+    },
+    [opening]
+  );
+
   // Play opponent's move automatically
   const playOpponentMove = useCallback(() => {
     const move = opening.moves[currentMoveIndex];
@@ -88,13 +104,15 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
     }, 600);
   }, [currentMoveIndex, opening]);
 
-  // Initialize: if the first move is opponent's, play it
+  // Initialize: if the first move is opponent's, play it; otherwise show guide
   useEffect(() => {
     if (
       currentMoveIndex === 0 &&
       opening.moves[0]?.color !== opening.playerColor
     ) {
       playOpponentMove();
+    } else if (currentMoveIndex === 0) {
+      showMoveGuide(0);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -174,14 +192,16 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
     } else {
       setStatus("waiting-for-user");
       saveProgress(nextIndex, totalMoves);
+      showMoveGuide(nextIndex);
     }
-  }, [currentMoveIndex, totalMoves, opening, clearHighlights, saveProgress]);
+  }, [currentMoveIndex, totalMoves, opening, clearHighlights, saveProgress, showMoveGuide]);
 
   const retry = useCallback(() => {
     setWrongMoveInfo(null);
     clearHighlights();
     setStatus("waiting-for-user");
-  }, [clearHighlights]);
+    showMoveGuide(currentMoveIndex);
+  }, [clearHighlights, showMoveGuide, currentMoveIndex]);
 
   const reset = useCallback(() => {
     chessRef.current = startFen ? new Chess(startFen) : new Chess();
