@@ -9,13 +9,13 @@ import DogCoach, { type DogMood, classificationToMood, getBreedForDifficulty } f
 import { MOVE_CLASS_COLORS, MOVE_CLASS_SYMBOLS } from "@/lib/classify-moves";
 
 const DIFFICULTIES: { id: Difficulty; label: string; desc: string; focus: string }[] = [
-  { id: "newborn", label: "Newborn", desc: "~400", focus: "Don't leave pieces hanging, capture free pieces" },
-  { id: "puppy", label: "Puppy", desc: "~800", focus: "Develop pieces, castle early, control the center" },
-  { id: "beginner", label: "Mutt", desc: "~1300", focus: "Basic tactics — forks, pins, simple combinations" },
-  { id: "casual", label: "Good Boy", desc: "~1600", focus: "Positional play — pawn structure, piece activity" },
-  { id: "intermediate", label: "Retriever", desc: "~1900", focus: "Deep tactics, planning, initiative" },
-  { id: "advanced", label: "Top Dog", desc: "~2200", focus: "Precise calculation, endgame technique" },
-  { id: "expert", label: "Alpha", desc: "Max", focus: "Engine-level accuracy — every centipawn counts" },
+  { id: "newborn", label: "Newborn", desc: "~400", focus: "Material awareness — coach flags hanging pieces and free captures you missed" },
+  { id: "puppy", label: "Puppy", desc: "~800", focus: "Build good habits — develop pieces, castle your king, fight for the center" },
+  { id: "beginner", label: "Mutt", desc: "~1300", focus: "Getting solid — coach pushes you on forks, pins, and simple tactics" },
+  { id: "casual", label: "Good Boy", desc: "~1600", focus: "Club strength — coach flags missed tactics and positional blunders" },
+  { id: "intermediate", label: "Retriever", desc: "~1900", focus: "Strong — full analysis, every move evaluated by the engine" },
+  { id: "advanced", label: "Top Dog", desc: "~2200", focus: "Expert level — precise calculation, no margin for error" },
+  { id: "expert", label: "Alpha", desc: "Max", focus: "Full engine — test yourself against peak Stockfish" },
 ];
 
 export default function TrainerPage() {

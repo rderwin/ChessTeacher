@@ -1,8 +1,27 @@
 /**
  * Level-aware coaching analysis for Coach Mode.
- * At low difficulties, focuses on fundamentals (hanging pieces, missed captures,
- * castling, development) instead of abstract centipawn-based classifications.
- * Returns specific, actionable feedback with board highlights.
+ *
+ * Based on chess pedagogy (Silman's "Reassess Your Chess", Dvoretsky,
+ * Seirawan's "Winning Chess" series), each rating range has specific
+ * skills to focus on:
+ *
+ * ~400 (Newborn): Pure material awareness — don't blunder pieces away,
+ *   capture undefended pieces. Nothing else matters yet.
+ *
+ * ~800 (Puppy): Material + fundamentals — castle your king, develop
+ *   all pieces before attacking, control the center, don't move the
+ *   same piece twice in the opening.
+ *
+ * ~1300 (Beginner): Fundamentals + basic tactics — recognize when
+ *   you've walked into a fork/pin, notice simple combinations.
+ *   Start caring about piece activity.
+ *
+ * ~1600 (Casual): Tactics + positional basics — pawn structure
+ *   awareness, don't trade active pieces for passive ones, think
+ *   about piece coordination.
+ *
+ * ~1900+ (Intermediate through Expert): Full centipawn analysis —
+ *   these players understand the basics. Just show the eval.
  */
 
 import { Chess, type Color, type PieceSymbol, type Square } from "chess.js";
@@ -12,17 +31,8 @@ import type { CSSProperties } from "react";
 
 // --- Types ---
 
-export type CoachIssueKind =
-  | "hanging-piece"
-  | "missed-capture"
-  | "castle-reminder"
-  | "undeveloped-pieces"
-  | "good-capture"
-  | "good-development"
-  | "good-castle";
-
 export interface CoachIssue {
-  kind: CoachIssueKind;
+  kind: string;
   severity: "critical" | "warning" | "info" | "praise";
   message: string;
   highlightSquares: string[];
@@ -40,33 +50,19 @@ export interface CoachAnalysisResult {
 // --- Constants ---
 
 const PIECE_NAMES: Record<PieceSymbol, string> = {
-  p: "pawn",
-  n: "knight",
-  b: "bishop",
-  r: "rook",
-  q: "queen",
-  k: "king",
+  p: "pawn", n: "knight", b: "bishop", r: "rook", q: "queen", k: "king",
 };
 
 const PIECE_VALUES: Record<PieceSymbol, number> = {
-  p: 1,
-  n: 3,
-  b: 3,
-  r: 5,
-  q: 9,
-  k: 0,
+  p: 1, n: 3, b: 3, r: 5, q: 9, k: 0,
 };
 
-const HIGHLIGHT_DANGER = "rgba(239, 68, 68, 0.5)";   // red — hanging piece
-const HIGHLIGHT_MISSED = "rgba(34, 197, 94, 0.45)";  // green — missed capture
-const HIGHLIGHT_INFO = "rgba(96, 165, 250, 0.35)";   // blue — development
+const HIGHLIGHT_DANGER = "rgba(239, 68, 68, 0.5)";
+const HIGHLIGHT_MISSED = "rgba(34, 197, 94, 0.45)";
+const HIGHLIGHT_INFO = "rgba(96, 165, 250, 0.35)";
 
-/** Which difficulties get fundamental coaching */
-const FUNDAMENTAL_LEVELS = new Set<Difficulty>(["newborn", "puppy", "beginner", "casual"]);
-
-/** Starting squares for minor pieces */
-const WHITE_MINORS: Square[] = ["b1", "c1", "f1", "g1"];
-const BLACK_MINORS: Square[] = ["b8", "c8", "f8", "g8"];
+const WHITE_HOME: Square[] = ["b1", "c1", "f1", "g1"];
+const BLACK_HOME: Square[] = ["b8", "c8", "f8", "g8"];
 
 const ALL_SQUARES: Square[] = [];
 for (const file of "abcdefgh") {
@@ -75,26 +71,33 @@ for (const file of "abcdefgh") {
   }
 }
 
-// --- Lenient classification thresholds for low levels ---
+function opp(c: Color): Color { return c === "w" ? "b" : "w"; }
+
+// --- Lenient thresholds per difficulty ---
 
 function classifyLenient(cpLoss: number, difficulty: Difficulty): MoveClass {
+  // At low levels, small inaccuracies don't matter — only big blunders do
   if (difficulty === "newborn") {
-    if (cpLoss <= 0) return "best";
-    if (cpLoss <= 20) return "excellent";
-    if (cpLoss <= 50) return "good";
-    if (cpLoss <= 100) return "inaccuracy";
-    if (cpLoss <= 200) return "mistake";
+    if (cpLoss <= 50) return "good";     // anything under half a pawn is fine
+    if (cpLoss <= 150) return "inaccuracy";
+    if (cpLoss <= 300) return "mistake";  // a full piece or more
     return "blunder";
   }
   if (difficulty === "puppy") {
-    if (cpLoss <= 0) return "best";
-    if (cpLoss <= 15) return "excellent";
-    if (cpLoss <= 40) return "good";
+    if (cpLoss <= 25) return "good";
     if (cpLoss <= 75) return "inaccuracy";
-    if (cpLoss <= 150) return "mistake";
+    if (cpLoss <= 200) return "mistake";
     return "blunder";
   }
   if (difficulty === "beginner") {
+    if (cpLoss <= 0) return "best";
+    if (cpLoss <= 15) return "excellent";
+    if (cpLoss <= 40) return "good";
+    if (cpLoss <= 80) return "inaccuracy";
+    if (cpLoss <= 150) return "mistake";
+    return "blunder";
+  }
+  if (difficulty === "casual") {
     if (cpLoss <= 0) return "best";
     if (cpLoss <= 12) return "excellent";
     if (cpLoss <= 30) return "good";
@@ -102,213 +105,228 @@ function classifyLenient(cpLoss: number, difficulty: Difficulty): MoveClass {
     if (cpLoss <= 120) return "mistake";
     return "blunder";
   }
-  // casual and above: standard thresholds
   return classifyMove(cpLoss);
 }
 
-// --- Detectors ---
+// ============================================================
+// DETECTORS — each returns a CoachIssue or null
+// ============================================================
 
-function oppositeColor(c: Color): Color {
-  return c === "w" ? "b" : "w";
-}
-
-/** Find player pieces that are attacked but not defended */
-function findHangingPieces(chess: Chess, playerColor: Color): CoachIssue | null {
-  const opp = oppositeColor(playerColor);
-  let worstSquare: string | null = null;
-  let worstValue = 0;
+/** Detect player pieces that are attacked but not defended */
+function detectHangingPieces(chess: Chess, playerColor: Color): CoachIssue | null {
+  const enemy = opp(playerColor);
+  let worstSq: string | null = null;
+  let worstVal = 0;
   let worstName = "";
 
   for (const sq of ALL_SQUARES) {
     const piece = chess.get(sq);
     if (!piece || piece.color !== playerColor || piece.type === "k") continue;
+    if (!chess.isAttacked(sq, enemy)) continue;
+    if (chess.isAttacked(sq, playerColor)) continue; // defended
 
-    const attacked = chess.isAttacked(sq, opp);
-    if (!attacked) continue;
-
-    // Check if defended
-    const defended = chess.isAttacked(sq, playerColor);
-    if (!defended && PIECE_VALUES[piece.type] > worstValue) {
-      worstValue = PIECE_VALUES[piece.type];
-      worstSquare = sq;
+    if (PIECE_VALUES[piece.type] > worstVal) {
+      worstVal = PIECE_VALUES[piece.type];
+      worstSq = sq;
       worstName = PIECE_NAMES[piece.type];
     }
   }
 
-  if (worstSquare && worstValue >= 3) {
+  if (!worstSq) return null;
+
+  if (worstVal >= 3) {
     return {
       kind: "hanging-piece",
       severity: "critical",
-      message: `Your ${worstName} on ${worstSquare} is hanging! They can take it for free!`,
-      highlightSquares: [worstSquare],
+      message: `Your ${worstName} on ${worstSq} is hanging! They can take it for free!`,
+      highlightSquares: [worstSq],
       highlightColor: HIGHLIGHT_DANGER,
     };
   }
-
-  // Also flag hanging pawns if nothing bigger
-  if (worstSquare && worstValue >= 1) {
+  if (worstVal >= 1) {
     return {
-      kind: "hanging-piece",
+      kind: "hanging-pawn",
       severity: "warning",
-      message: `Your ${worstName} on ${worstSquare} is undefended — watch out!`,
-      highlightSquares: [worstSquare],
+      message: `Your pawn on ${worstSq} is undefended — careful!`,
+      highlightSquares: [worstSq],
       highlightColor: HIGHLIGHT_DANGER,
     };
   }
-
   return null;
 }
 
-/** Find opponent pieces that were free to capture but the player didn't take them */
-function findMissedCaptures(
-  chessBefore: Chess,
-  playerColor: Color,
-  playerMoveTo: string
+/** Detect opponent pieces that were free but player didn't capture */
+function detectMissedCaptures(
+  chessBefore: Chess, playerColor: Color, playerMoveTo: string
 ): CoachIssue | null {
-  const opp = oppositeColor(playerColor);
-  let bestSquare: string | null = null;
-  let bestValue = 0;
+  const enemy = opp(playerColor);
+  let bestSq: string | null = null;
+  let bestVal = 0;
   let bestName = "";
 
   for (const sq of ALL_SQUARES) {
     const piece = chessBefore.get(sq);
-    if (!piece || piece.color !== opp || piece.type === "k") continue;
+    if (!piece || piece.color !== enemy || piece.type === "k") continue;
+    if (!chessBefore.isAttacked(sq, playerColor)) continue;
+    if (chessBefore.isAttacked(sq, enemy)) continue; // defended
 
-    // Is this piece attacked by the player?
-    const attacked = chessBefore.isAttacked(sq, playerColor);
-    if (!attacked) continue;
-
-    // Is this piece defended by the opponent?
-    const defended = chessBefore.isAttacked(sq, opp);
-    if (!defended && PIECE_VALUES[piece.type] > bestValue) {
-      bestValue = PIECE_VALUES[piece.type];
-      bestSquare = sq;
+    if (PIECE_VALUES[piece.type] > bestVal) {
+      bestVal = PIECE_VALUES[piece.type];
+      bestSq = sq;
       bestName = PIECE_NAMES[piece.type];
     }
   }
 
-  // Only flag if the player didn't capture it (moved somewhere else)
-  if (bestSquare && bestSquare !== playerMoveTo && bestValue >= 3) {
+  if (bestSq && bestSq !== playerMoveTo && bestVal >= 3) {
     return {
       kind: "missed-capture",
       severity: "warning",
-      message: `Their ${bestName} on ${bestSquare} was free — you could've grabbed it!`,
-      highlightSquares: [bestSquare],
+      message: `Their ${bestName} on ${bestSq} was free — you could've grabbed it!`,
+      highlightSquares: [bestSq],
       highlightColor: HIGHLIGHT_MISSED,
     };
   }
-
   return null;
 }
 
-/** Check if player should castle */
-function checkCastling(chess: Chess, playerColor: Color, moveCount: number): CoachIssue | null {
+/** Remind to castle if king is still in center after move 6 */
+function detectCastleNeeded(
+  chessBefore: Chess, playerColor: Color, moveCount: number, moveSan: string
+): CoachIssue | null {
   if (moveCount < 6) return null;
+  if (moveSan === "O-O" || moveSan === "O-O-O") return null;
 
-  const kingSquare = playerColor === "w" ? "e1" : "e8";
-  const king = chess.get(kingSquare as Square);
-
-  // King is still on starting square = hasn't castled
+  const kingSq = playerColor === "w" ? "e1" : "e8";
+  const king = chessBefore.get(kingSq as Square);
   if (!king || king.type !== "k" || king.color !== playerColor) return null;
 
-  // Check if castling is still possible in the moves
-  const moves = chess.moves();
-  const canCastle = moves.some((m) => m === "O-O" || m === "O-O-O");
-
-  if (!canCastle) return null;
+  const moves = chessBefore.moves();
+  if (!moves.some((m) => m === "O-O" || m === "O-O-O")) return null;
 
   return {
     kind: "castle-reminder",
     severity: "info",
-    message: "Don't forget to castle! Your king is safer behind the pawns.",
-    highlightSquares: [],
-    highlightColor: "",
+    message: moveCount >= 10
+      ? "Your king is still in the center! Castle as soon as you can — it's getting dangerous."
+      : "Don't forget to castle! Your king is safer tucked behind the pawns.",
+    highlightSquares: [kingSq],
+    highlightColor: HIGHLIGHT_INFO,
   };
 }
 
-/** Check if too many pieces are undeveloped */
-function checkDevelopment(chess: Chess, playerColor: Color, moveCount: number): CoachIssue | null {
+/** Flag undeveloped minor pieces past move 4 */
+function detectUndeveloped(
+  chess: Chess, playerColor: Color, moveCount: number
+): CoachIssue | null {
   if (moveCount < 4) return null;
 
-  const startingSquares = playerColor === "w" ? WHITE_MINORS : BLACK_MINORS;
-  const undeveloped: string[] = [];
+  const homeSquares = playerColor === "w" ? WHITE_HOME : BLACK_HOME;
+  const stuck: string[] = [];
 
-  for (const sq of startingSquares) {
+  for (const sq of homeSquares) {
     const piece = chess.get(sq);
     if (piece && piece.color === playerColor && (piece.type === "n" || piece.type === "b")) {
-      undeveloped.push(sq);
+      stuck.push(sq);
     }
   }
 
-  if (undeveloped.length >= 3) {
+  if (stuck.length >= 3) {
     return {
-      kind: "undeveloped-pieces",
+      kind: "undeveloped",
       severity: "info",
-      message: "Your knights and bishops are still on the back rank — get them into the game!",
-      highlightSquares: undeveloped,
+      message: "Your knights and bishops are still on the back rank — get them into the game before attacking!",
+      highlightSquares: stuck,
       highlightColor: HIGHLIGHT_INFO,
     };
   }
-
+  if (stuck.length >= 2 && moveCount >= 8) {
+    return {
+      kind: "undeveloped",
+      severity: "info",
+      message: `You still have ${stuck.length} pieces undeveloped. Try to get all your pieces active!`,
+      highlightSquares: stuck,
+      highlightColor: HIGHLIGHT_INFO,
+    };
+  }
   return null;
 }
 
-/** Positive reinforcement for good beginner moves */
-function checkPositiveMove(
-  chessBefore: Chess,
-  chessAfter: Chess,
-  playerColor: Color,
-  moveSan: string,
-  moveTo: string,
+/** Detect moving a piece to the edge (a/h file, rank 1/8) when center was available */
+function detectEdgeMove(
+  chessAfter: Chess, playerColor: Color, moveTo: string, moveCount: number
 ): CoachIssue | null {
-  // Castled this move
+  if (moveCount < 3 || moveCount > 15) return null; // only during opening/early middlegame
+
+  const file = moveTo[0];
+  const rank = moveTo[1];
+  const piece = chessAfter.get(moveTo as Square);
+  if (!piece || piece.color !== playerColor) return null;
+  if (piece.type === "r" || piece.type === "k" || piece.type === "p") return null; // rooks belong on edges
+
+  const isEdge = file === "a" || file === "h" || rank === "1" || rank === "8";
+  if (!isEdge) return null;
+
+  return {
+    kind: "edge-move",
+    severity: "info",
+    message: `A ${PIECE_NAMES[piece.type]} on the edge controls fewer squares. Pieces are stronger in the center!`,
+    highlightSquares: [moveTo],
+    highlightColor: HIGHLIGHT_INFO,
+  };
+}
+
+/** Positive reinforcement */
+function detectGoodMove(
+  chessBefore: Chess, chessAfter: Chess, playerColor: Color,
+  moveSan: string, moveTo: string, moveFrom: string
+): CoachIssue | null {
+  // Castled
   if (moveSan === "O-O" || moveSan === "O-O-O") {
-    return {
-      kind: "good-castle",
-      severity: "praise",
+    return { kind: "good-castle", severity: "praise",
       message: "Great castle! Your king is much safer now 🏰",
-      highlightSquares: [],
-      highlightColor: "",
-    };
+      highlightSquares: [], highlightColor: "" };
   }
 
   // Captured a hanging piece
-  const opp = oppositeColor(playerColor);
+  const enemy = opp(playerColor);
   const capturedPiece = chessBefore.get(moveTo as Square);
-  if (capturedPiece && capturedPiece.color === opp) {
-    const wasDefended = chessBefore.isAttacked(moveTo as Square, opp);
+  if (capturedPiece && capturedPiece.color === enemy) {
+    const wasDefended = chessBefore.isAttacked(moveTo as Square, enemy);
     if (!wasDefended && PIECE_VALUES[capturedPiece.type] >= 3) {
-      return {
-        kind: "good-capture",
-        severity: "praise",
-        message: `Nice! You grabbed their free ${PIECE_NAMES[capturedPiece.type]}! 🦴`,
-        highlightSquares: [],
-        highlightColor: "",
-      };
+      return { kind: "good-capture", severity: "praise",
+        message: `Nice! You grabbed their free ${PIECE_NAMES[capturedPiece.type]}! Free material is the best material 🦴`,
+        highlightSquares: [], highlightColor: "" };
     }
   }
 
-  // Developed a piece from back rank
-  const startingSquares = playerColor === "w" ? WHITE_MINORS : BLACK_MINORS;
-  if (startingSquares.includes(moveTo as Square) === false) {
-    // Check if a minor piece left a starting square
+  // Developed a piece from home rank
+  const homeSquares = playerColor === "w" ? WHITE_HOME : BLACK_HOME;
+  if (homeSquares.includes(moveFrom as Square)) {
     const movedPiece = chessAfter.get(moveTo as Square);
     if (movedPiece && (movedPiece.type === "n" || movedPiece.type === "b")) {
-      // This could be development — but only flag if we haven't found issues
-      return {
-        kind: "good-development",
-        severity: "praise",
-        message: `Good development! Getting pieces into the game is key 💪`,
-        highlightSquares: [],
-        highlightColor: "",
-      };
+      return { kind: "good-development", severity: "praise",
+        message: "Good development! Getting pieces off the back rank is key 💪",
+        highlightSquares: [], highlightColor: "" };
+    }
+  }
+
+  // Moved to center (d4/d5/e4/e5 area)
+  const centerSquares = ["d4", "d5", "e4", "e5", "c4", "c5", "f4", "f5"];
+  if (centerSquares.includes(moveTo)) {
+    const piece = chessAfter.get(moveTo as Square);
+    if (piece && piece.color === playerColor && piece.type !== "k") {
+      return { kind: "good-center", severity: "praise",
+        message: "Strong central placement! Pieces in the center control the most squares.",
+        highlightSquares: [], highlightColor: "" };
     }
   }
 
   return null;
 }
 
-// --- Main Analysis Function ---
+// ============================================================
+// MAIN ANALYSIS — selects detectors per difficulty level
+// ============================================================
 
 export interface CoachMoveInput {
   from: string;
@@ -326,45 +344,108 @@ export function analyzeForCoaching(
   rawClassification: MoveClass,
   difficulty: Difficulty
 ): CoachAnalysisResult {
-  // For high difficulties, return raw classification with no coaching overrides
-  if (!FUNDAMENTAL_LEVELS.has(difficulty)) {
+  // --- Intermediate and up: pure centipawn analysis, no coaching overlays ---
+  if (difficulty === "intermediate" || difficulty === "advanced" || difficulty === "expert") {
     return {
-      issues: [],
-      primaryIssue: null,
+      issues: [], primaryIssue: null,
       adjustedClassification: rawClassification,
-      coachFeedback: null,
-      coachHighlights: {},
+      coachFeedback: null, coachHighlights: {},
     };
   }
 
-  const adjustedClassification = classifyLenient(cpLoss, difficulty);
+  const adjusted = classifyLenient(cpLoss, difficulty);
   const issues: CoachIssue[] = [];
 
-  // Run detectors in priority order
-  const hanging = findHangingPieces(chessAfter, playerColor);
-  if (hanging) issues.push(hanging);
+  // === NEWBORN (~400): Only care about material ===
+  if (difficulty === "newborn") {
+    const hanging = detectHangingPieces(chessAfter, playerColor);
+    if (hanging) issues.push(hanging);
 
-  const missed = findMissedCaptures(chessBefore, playerColor, move.to);
-  if (missed) issues.push(missed);
+    const missed = detectMissedCaptures(chessBefore, playerColor, move.to);
+    if (missed) issues.push(missed);
 
-  // Castling check — use chessBefore since the player just moved
-  // (if they could have castled but didn't)
-  const castleCheck = checkCastling(chessBefore, playerColor, moveCount);
-  if (castleCheck && move.san !== "O-O" && move.san !== "O-O-O") {
-    issues.push(castleCheck);
+    // Praise for good captures
+    if (issues.length === 0) {
+      const good = detectGoodMove(chessBefore, chessAfter, playerColor, move.san, move.to, move.from);
+      if (good && (good.kind === "good-capture")) issues.push(good);
+    }
   }
 
-  const devCheck = checkDevelopment(chessAfter, playerColor, moveCount);
-  if (devCheck) issues.push(devCheck);
+  // === PUPPY (~800): Material + development + castling + center ===
+  else if (difficulty === "puppy") {
+    const hanging = detectHangingPieces(chessAfter, playerColor);
+    if (hanging) issues.push(hanging);
 
-  // Check for positive reinforcement (only if no warnings/critical issues)
-  const criticalIssues = issues.filter((i) => i.severity === "critical" || i.severity === "warning");
-  if (criticalIssues.length === 0) {
-    const positive = checkPositiveMove(chessBefore, chessAfter, playerColor, move.san, move.to);
-    if (positive) issues.push(positive);
+    const missed = detectMissedCaptures(chessBefore, playerColor, move.to);
+    if (missed) issues.push(missed);
+
+    const castle = detectCastleNeeded(chessBefore, playerColor, moveCount, move.san);
+    if (castle) issues.push(castle);
+
+    const dev = detectUndeveloped(chessAfter, playerColor, moveCount);
+    if (dev) issues.push(dev);
+
+    const edge = detectEdgeMove(chessAfter, playerColor, move.to, moveCount);
+    if (edge && issues.length === 0) issues.push(edge); // only if no bigger issues
+
+    // Praise
+    if (issues.filter(i => i.severity !== "info").length === 0) {
+      const good = detectGoodMove(chessBefore, chessAfter, playerColor, move.san, move.to, move.from);
+      if (good) issues.push(good);
+    }
   }
 
-  // Pick the primary issue (first by priority, which is the order they're pushed)
+  // === BEGINNER (~1300): All fundamentals + tactical awareness ===
+  else if (difficulty === "beginner") {
+    const hanging = detectHangingPieces(chessAfter, playerColor);
+    if (hanging) issues.push(hanging);
+
+    const missed = detectMissedCaptures(chessBefore, playerColor, move.to);
+    if (missed) issues.push(missed);
+
+    const castle = detectCastleNeeded(chessBefore, playerColor, moveCount, move.san);
+    if (castle) issues.push(castle);
+
+    const dev = detectUndeveloped(chessAfter, playerColor, moveCount);
+    if (dev) issues.push(dev);
+
+    // At this level, also flag when the engine says there's a much better move
+    // (they should be starting to see basic tactics)
+    if (issues.length === 0 && cpLoss >= 100) {
+      issues.push({
+        kind: "missed-tactic",
+        severity: "warning",
+        message: "There was a much stronger move here — look for tactics like forks and pins!",
+        highlightSquares: [],
+        highlightColor: "",
+      });
+    }
+
+    // Praise
+    if (issues.filter(i => i.severity !== "info").length === 0) {
+      const good = detectGoodMove(chessBefore, chessAfter, playerColor, move.san, move.to, move.from);
+      if (good) issues.push(good);
+    }
+  }
+
+  // === CASUAL (~1600): Lighter coaching, mostly tactics + some positional ===
+  else if (difficulty === "casual") {
+    // Only flag material blunders and missed tactics
+    const hanging = detectHangingPieces(chessAfter, playerColor);
+    if (hanging && hanging.severity === "critical") issues.push(hanging);
+
+    if (issues.length === 0 && cpLoss >= 150) {
+      issues.push({
+        kind: "missed-tactic",
+        severity: "warning",
+        message: "There was a stronger continuation — think about piece coordination and tactical threats.",
+        highlightSquares: [],
+        highlightColor: "",
+      });
+    }
+  }
+
+  // Pick primary issue
   const primaryIssue = issues.length > 0 ? issues[0] : null;
 
   // Build highlights
@@ -375,26 +456,22 @@ export function analyzeForCoaching(
     }
   }
 
-  // For praise messages on good moves, override the classification mood
-  // but keep it as a "good" or "best" classification
+  // Build feedback message
   let coachFeedback: string | null = null;
   if (primaryIssue) {
     if (primaryIssue.severity === "praise") {
-      // Only show praise if the move was actually decent (not a blunder that happened to capture)
-      if (adjustedClassification === "best" || adjustedClassification === "excellent" || adjustedClassification === "good") {
+      // Only show praise for decent moves
+      if (adjusted === "best" || adjusted === "excellent" || adjusted === "good") {
         coachFeedback = primaryIssue.message;
       }
     } else {
-      // Always show warnings/critical feedback
       coachFeedback = primaryIssue.message;
     }
   }
 
   return {
-    issues,
-    primaryIssue,
-    adjustedClassification,
-    coachFeedback,
-    coachHighlights,
+    issues, primaryIssue,
+    adjustedClassification: adjusted,
+    coachFeedback, coachHighlights,
   };
 }
