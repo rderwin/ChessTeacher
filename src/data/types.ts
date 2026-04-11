@@ -33,6 +33,18 @@ export interface OpeningHistory {
   famousPlayers: string[];
 }
 
+export interface OpeningVariant {
+  id: string;
+  name: string;
+  description: string;
+  /** Move index in the main line where this variant branches off */
+  branchesAt: number;
+  /** The opponent's alternative move at the branch point */
+  opponentMove: MoveExplanation;
+  /** Continuation moves from the branch point */
+  moves: MoveExplanation[];
+}
+
 export interface OpeningLine {
   id: string;
   name: string;
@@ -44,6 +56,8 @@ export interface OpeningLine {
   history: OpeningHistory;
   moves: MoveExplanation[];
   summary: string;
+  /** Optional variant lines that branch off the main line */
+  variants?: OpeningVariant[];
 }
 
 // --- Puzzles ---

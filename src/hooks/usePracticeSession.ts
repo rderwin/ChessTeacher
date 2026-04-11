@@ -24,8 +24,16 @@ interface WrongMoveInfo {
   specificFeedback?: string;
 }
 
-export function usePracticeSession(opening: OpeningLine) {
-  const chessRef = useRef(new Chess());
+interface PracticeOptions {
+  /** Start from a specific FEN instead of the initial position */
+  startFen?: string;
+  /** Override the progress key (e.g., for variants: "italian-game:two-knights") */
+  progressKey?: string;
+}
+
+export function usePracticeSession(opening: OpeningLine, options?: PracticeOptions) {
+  const startFen = options?.startFen;
+  const chessRef = useRef(startFen ? new Chess(startFen) : new Chess());
   const [fen, setFen] = useState(chessRef.current.fen());
   const [status, setStatus] = useState<PracticeStatus>("waiting-for-user");
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
@@ -38,7 +46,7 @@ export function usePracticeSession(opening: OpeningLine) {
     Record<string, React.CSSProperties>
   >({});
   const [arrows, setArrows] = useState<Arrow[]>([]);
-  const { saveProgress } = useProgress(opening.id);
+  const { saveProgress } = useProgress(options?.progressKey ?? opening.id);
 
   const totalMoves = opening.moves.length;
   const userMoveCount = getUserMoveCount(opening);
@@ -176,7 +184,7 @@ export function usePracticeSession(opening: OpeningLine) {
   }, [clearHighlights]);
 
   const reset = useCallback(() => {
-    chessRef.current.reset();
+    chessRef.current = startFen ? new Chess(startFen) : new Chess();
     setFen(chessRef.current.fen());
     setCurrentMoveIndex(0);
     setCurrentExplanation(null);
