@@ -371,8 +371,8 @@ function DogFace({ mood, breed = "golden" }: FaceProps) {
   if (b.accessory === "collar") {
     accessoryEl = (
       <g>
-        <ellipse cx={cx} cy={headY + b.headH - 4} rx={b.headW * 0.4} ry={5} fill={b.accessoryColor || "#dc2626"} />
-        <circle cx={cx} cy={headY + b.headH} r={3} fill="#fbbf24" />
+        <ellipse cx={cx} cy={headY + b.headH - 4} rx={b.headW * 0.28} ry={3} fill={b.accessoryColor || "#dc2626"} />
+        <circle cx={cx} cy={headY + b.headH - 2} r={2} fill="#fbbf24" />
       </g>
     );
   } else if (b.accessory === "bandana") {

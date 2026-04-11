@@ -438,7 +438,8 @@ export function useTrainerGame() {
             Math.ceil((state.moveCount + 1) / 2),
             cpLoss,
             rawClassification,
-            difficultyRef.current
+            difficultyRef.current,
+            evalResult.bestMove
           );
 
           const classification = coachResult.adjustedClassification;

@@ -261,24 +261,148 @@ function detectUndeveloped(
 function detectEdgeMove(
   chessAfter: Chess, playerColor: Color, moveTo: string, moveCount: number
 ): CoachIssue | null {
-  if (moveCount < 3 || moveCount > 15) return null; // only during opening/early middlegame
+  if (moveCount < 3 || moveCount > 15) return null;
 
   const file = moveTo[0];
   const rank = moveTo[1];
   const piece = chessAfter.get(moveTo as Square);
   if (!piece || piece.color !== playerColor) return null;
-  if (piece.type === "r" || piece.type === "k" || piece.type === "p") return null; // rooks belong on edges
+  if (piece.type === "r" || piece.type === "k" || piece.type === "p") return null;
 
   const isEdge = file === "a" || file === "h" || rank === "1" || rank === "8";
   if (!isEdge) return null;
 
   return {
-    kind: "edge-move",
-    severity: "info",
+    kind: "edge-move", severity: "info",
     message: `A ${PIECE_NAMES[piece.type]} on the edge controls fewer squares. Pieces are stronger in the center!`,
-    highlightSquares: [moveTo],
-    highlightColor: HIGHLIGHT_INFO,
+    highlightSquares: [moveTo], highlightColor: HIGHLIGHT_INFO,
   };
+}
+
+/** Detect if the player moved the same piece twice in the opening */
+function detectSamePieceTwice(
+  chessBefore: Chess, playerColor: Color, moveFrom: string,
+  moveCount: number, previousMoves: { san: string; color: string }[]
+): CoachIssue | null {
+  if (moveCount < 3 || moveCount > 12) return null; // only matters in the opening
+
+  const piece = chessBefore.get(moveFrom as Square);
+  if (!piece || piece.color !== playerColor) return null;
+  // Only care about minor/major pieces being moved twice, not pawns or king
+  if (piece.type !== "n" && piece.type !== "b" && piece.type !== "r" && piece.type !== "q") return null;
+
+  // Check if this piece's destination was also the source of the player's last move
+  // Look at the last 2 player moves to see if same piece moved
+  const playerMoves = previousMoves.filter(m => m.color === playerColor);
+  if (playerMoves.length < 1) return null;
+
+  // If the player's previous move went TO this square (moveFrom), they're moving the same piece again
+  // We can't perfectly track this without full move history, but the from-square check works
+  // for the common case (they moved a piece, now they're moving it again)
+
+  // Simple heuristic: check if we still have undeveloped pieces
+  const homeSquares = playerColor === "w"
+    ? (["b1", "c1", "f1", "g1"] as Square[])
+    : (["b8", "c8", "f8", "g8"] as Square[]);
+
+  let undeveloped = 0;
+  for (const sq of homeSquares) {
+    const p = chessBefore.get(sq);
+    if (p && p.color === playerColor && (p.type === "n" || p.type === "b")) undeveloped++;
+  }
+
+  if (undeveloped >= 2) {
+    // Moving a developed piece while others are still home
+    return {
+      kind: "same-piece-twice", severity: "info",
+      message: `You're moving your ${PIECE_NAMES[piece.type]} again — try developing a new piece first!`,
+      highlightSquares: homeSquares.filter(sq => {
+        const p = chessBefore.get(sq);
+        return p && p.color === playerColor && (p.type === "n" || p.type === "b");
+      }),
+      highlightColor: HIGHLIGHT_INFO,
+    };
+  }
+
+  return null;
+}
+
+/** Convert Stockfish best move (UCI) to SAN and return a readable description */
+function describeBestMove(
+  chessBefore: Chess, bestMoveUci: string, playerColor: Color
+): { san: string; description: string; from: string; to: string } | null {
+  if (!bestMoveUci || bestMoveUci === "(none)" || bestMoveUci.length < 4) return null;
+
+  const from = bestMoveUci.slice(0, 2);
+  const to = bestMoveUci.slice(2, 4);
+  const promotion = bestMoveUci.length > 4 ? bestMoveUci[4] : undefined;
+
+  const copy = new Chess(chessBefore.fen());
+  try {
+    const moveResult = copy.move({ from, to, promotion } as Parameters<typeof copy.move>[0]);
+    if (!moveResult) return null;
+
+    const piece = PIECE_NAMES[moveResult.piece] || "piece";
+    const captured = moveResult.captured ? PIECE_NAMES[moveResult.captured] : null;
+
+    let description: string;
+    if (moveResult.san === "O-O" || moveResult.san === "O-O-O") {
+      description = "castling";
+    } else if (captured) {
+      description = `${piece} takes ${captured} on ${to}`;
+    } else if (moveResult.san.includes("+")) {
+      description = `${piece} to ${to} with check`;
+    } else {
+      description = `${piece} to ${to}`;
+    }
+
+    return { san: moveResult.san, description, from, to };
+  } catch {
+    return null;
+  }
+}
+
+/** Detect if the best move was a fork (attacks 2+ valuable pieces) */
+function detectForkInBestMove(
+  chessBefore: Chess, bestMoveUci: string, playerColor: Color
+): CoachIssue | null {
+  if (!bestMoveUci || bestMoveUci.length < 4) return null;
+
+  const from = bestMoveUci.slice(0, 2);
+  const to = bestMoveUci.slice(2, 4);
+  const promotion = bestMoveUci.length > 4 ? bestMoveUci[4] : undefined;
+
+  const copy = new Chess(chessBefore.fen());
+  try {
+    copy.move({ from, to, promotion } as Parameters<typeof copy.move>[0]);
+  } catch { return null; }
+
+  // After the best move, how many enemy pieces does the moved piece attack?
+  const enemy = opp(playerColor);
+  const attackedPieces: { sq: string; type: string; value: number }[] = [];
+
+  for (const sq of ALL_SQUARES) {
+    const piece = copy.get(sq);
+    if (!piece || piece.color !== enemy) continue;
+    if (copy.isAttacked(sq, playerColor)) {
+      attackedPieces.push({ sq, type: PIECE_NAMES[piece.type], value: PIECE_VALUES[piece.type] });
+    }
+  }
+
+  // A fork attacks 2+ pieces worth ≥3 (knight/bishop/rook/queen) or king + something
+  const valuable = attackedPieces.filter(p => p.value >= 3 || p.type === "king");
+  if (valuable.length >= 2) {
+    const targets = valuable.slice(0, 2).map(p => p.type).join(" and ");
+    const bestSan = describeBestMove(chessBefore, bestMoveUci, playerColor);
+    return {
+      kind: "missed-fork", severity: "warning",
+      message: `You missed a fork! ${bestSan?.san ?? "The best move"} attacks the ${targets} at the same time.`,
+      highlightSquares: [to, ...valuable.map(p => p.sq)],
+      highlightColor: HIGHLIGHT_MISSED,
+    };
+  }
+
+  return null;
 }
 
 /** Positive reinforcement */
@@ -348,7 +472,8 @@ export function analyzeForCoaching(
   moveCount: number,
   cpLoss: number,
   rawClassification: MoveClass,
-  difficulty: Difficulty
+  difficulty: Difficulty,
+  bestMoveUci?: string
 ): CoachAnalysisResult {
   // --- Intermediate and up: pure centipawn analysis, no coaching overlays ---
   if (difficulty === "intermediate" || difficulty === "advanced" || difficulty === "expert") {
@@ -375,13 +500,21 @@ export function analyzeForCoaching(
     const missed = detectMissedCaptures(chessBefore, playerColor, move.to);
     if (missed) issues.push(missed);
 
-    // Flag big missed tactics (piece-level) — forks/pins taught from day 1
-    if (issues.length === 0 && cpLoss >= 250) {
-      issues.push({
-        kind: "missed-tactic", severity: "warning",
-        message: "There was a way to win material here — look for forks and pins!",
-        highlightSquares: [], highlightColor: "",
-      });
+    // Flag big missed tactics with specific best move
+    if (issues.length === 0 && cpLoss >= 250 && bestMoveUci) {
+      const fork = detectForkInBestMove(chessBefore, bestMoveUci, playerColor);
+      if (fork) {
+        issues.push(fork);
+      } else {
+        const best = describeBestMove(chessBefore, bestMoveUci, playerColor);
+        if (best) {
+          issues.push({
+            kind: "missed-tactic", severity: "warning",
+            message: `You missed ${best.san}! That ${best.description} was much stronger.`,
+            highlightSquares: [best.from, best.to], highlightColor: HIGHLIGHT_MISSED,
+          });
+        }
+      }
     }
 
     // Gentle center nudge
@@ -413,16 +546,28 @@ export function analyzeForCoaching(
     const dev = detectUndeveloped(chessAfter, playerColor, moveCount);
     if (dev) issues.push(dev);
 
+    // Don't move same piece twice when others need developing
+    const samePiece = detectSamePieceTwice(chessBefore, playerColor, move.from, moveCount, []);
+    if (samePiece && issues.filter(i => i.severity !== "info").length === 0) issues.push(samePiece);
+
     const edge = detectEdgeMove(chessAfter, playerColor, move.to, moveCount);
     if (edge && issues.length === 0) issues.push(edge);
 
-    // Flag big missed tactics (piece-level)
-    if (issues.length === 0 && cpLoss >= 200) {
-      issues.push({
-        kind: "missed-tactic", severity: "warning",
-        message: "There was a much better move — look for pieces you can win!",
-        highlightSquares: [], highlightColor: "",
-      });
+    // Flag big missed tactics with specific best move
+    if (issues.length === 0 && cpLoss >= 200 && bestMoveUci) {
+      const fork = detectForkInBestMove(chessBefore, bestMoveUci, playerColor);
+      if (fork) {
+        issues.push(fork);
+      } else {
+        const best = describeBestMove(chessBefore, bestMoveUci, playerColor);
+        if (best) {
+          issues.push({
+            kind: "missed-tactic", severity: "warning",
+            message: `You missed ${best.san}! That ${best.description} was stronger.`,
+            highlightSquares: [best.from, best.to], highlightColor: HIGHLIGHT_MISSED,
+          });
+        }
+      }
     }
 
     // Praise all good moves
@@ -450,16 +595,27 @@ export function analyzeForCoaching(
     const dev = detectUndeveloped(chessAfter, playerColor, moveCount);
     if (dev) issues.push(dev);
 
+    const samePiece = detectSamePieceTwice(chessBefore, playerColor, move.from, moveCount, []);
+    if (samePiece && issues.filter(i => i.severity !== "info").length === 0) issues.push(samePiece);
+
     const edge = detectEdgeMove(chessAfter, playerColor, move.to, moveCount);
     if (edge && issues.length === 0) issues.push(edge);
 
-    // At 800, should be solving daily tactics — flag missed combos
-    if (issues.length === 0 && cpLoss >= 150) {
-      issues.push({
-        kind: "missed-tactic", severity: "warning",
-        message: "You missed a tactic here — always check for forks, pins, and captures before moving!",
-        highlightSquares: [], highlightColor: "",
-      });
+    // At 800, should be solving daily tactics — flag missed combos with best move
+    if (issues.length === 0 && cpLoss >= 150 && bestMoveUci) {
+      const fork = detectForkInBestMove(chessBefore, bestMoveUci, playerColor);
+      if (fork) {
+        issues.push(fork);
+      } else {
+        const best = describeBestMove(chessBefore, bestMoveUci, playerColor);
+        if (best) {
+          issues.push({
+            kind: "missed-tactic", severity: "warning",
+            message: `The best move was ${best.san} (${best.description}). Always check for captures and threats before moving!`,
+            highlightSquares: [best.from, best.to], highlightColor: HIGHLIGHT_MISSED,
+          });
+        }
+      }
     }
 
     // Praise
@@ -487,13 +643,21 @@ export function analyzeForCoaching(
     const dev = detectUndeveloped(chessAfter, playerColor, moveCount);
     if (dev) issues.push(dev);
 
-    // Flag tactical misses — these players should see 2-move combinations
-    if (issues.length === 0 && cpLoss >= 100) {
-      issues.push({
-        kind: "missed-tactic", severity: "warning",
-        message: "There was a stronger move — think about what pieces you can attack with two moves in a row.",
-        highlightSquares: [], highlightColor: "",
-      });
+    // Flag tactical misses with the specific best move
+    if (issues.length === 0 && cpLoss >= 100 && bestMoveUci) {
+      const fork = detectForkInBestMove(chessBefore, bestMoveUci, playerColor);
+      if (fork) {
+        issues.push(fork);
+      } else {
+        const best = describeBestMove(chessBefore, bestMoveUci, playerColor);
+        if (best) {
+          issues.push({
+            kind: "missed-tactic", severity: "warning",
+            message: `Better was ${best.san} (${best.description}). Try to calculate 2 moves ahead!`,
+            highlightSquares: [best.from, best.to], highlightColor: HIGHLIGHT_MISSED,
+          });
+        }
+      }
     }
 
     // Praise
@@ -513,13 +677,16 @@ export function analyzeForCoaching(
     const hanging = detectHangingPieces(chessAfter, playerColor);
     if (hanging && hanging.severity === "critical") issues.push(hanging);
 
-    // Flag positional/tactical misses
-    if (issues.length === 0 && cpLoss >= 100) {
-      issues.push({
-        kind: "missed-tactic", severity: "warning",
-        message: "There was a stronger plan — consider pawn structure, piece coordination, and tactical threats.",
-        highlightSquares: [], highlightColor: "",
-      });
+    // Flag positional/tactical misses with the specific best move
+    if (issues.length === 0 && cpLoss >= 100 && bestMoveUci) {
+      const best = describeBestMove(chessBefore, bestMoveUci, playerColor);
+      if (best) {
+        issues.push({
+          kind: "missed-tactic", severity: "warning",
+          message: `Better was ${best.san} (${best.description}). Think about pawn structure and piece coordination.`,
+          highlightSquares: [best.from, best.to], highlightColor: HIGHLIGHT_MISSED,
+        });
+      }
     }
   }
 
