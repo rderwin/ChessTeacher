@@ -6,15 +6,16 @@ import { classifyMove, computeCPLoss, mateToCP, type MoveClass } from "@/lib/cla
 import { analyzeForCoaching } from "@/lib/coach-analysis";
 
 export type Difficulty =
-  | "newborn" | "puppy" | "beginner"
+  | "newborn" | "pup" | "puppy" | "beginner"
   | "casual" | "intermediate" | "advanced" | "expert";
 
 // For weak bots: Stockfish MultiPV gives top N moves, then we pick randomly
 // among them. All moves are "reasonable" — just not always the best.
 // pickFrom = how many top moves to choose from (1 = always best).
 const BOT_CONFIG: Record<Difficulty, { depth: number; elo: number | null; pickFrom: number }> = {
-  newborn: { depth: 4, elo: 1320, pickFrom: 5 },    // ~400-600 — picks from top 5
-  puppy: { depth: 4, elo: 1320, pickFrom: 3 },      // ~800-1000 — picks from top 3
+  newborn: { depth: 4, elo: 1320, pickFrom: 5 },    // ~400 — picks from top 5
+  pup: { depth: 4, elo: 1320, pickFrom: 4 },        // ~600 — picks from top 4
+  puppy: { depth: 4, elo: 1320, pickFrom: 3 },      // ~800 — picks from top 3
   beginner: { depth: 4, elo: 1320, pickFrom: 1 },   // ~1300 — engine best at min ELO
   casual: { depth: 6, elo: 1600, pickFrom: 1 },     // ~1600
   intermediate: { depth: 8, elo: 1900, pickFrom: 1 }, // ~1900

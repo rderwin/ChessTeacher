@@ -9,8 +9,9 @@ import DogCoach, { type DogMood, classificationToMood, getBreedForDifficulty } f
 import { MOVE_CLASS_COLORS, MOVE_CLASS_SYMBOLS } from "@/lib/classify-moves";
 
 const DIFFICULTIES: { id: Difficulty; label: string; desc: string; focus: string }[] = [
-  { id: "newborn", label: "Newborn", desc: "~400", focus: "Material awareness — coach flags hanging pieces and free captures you missed" },
-  { id: "puppy", label: "Puppy", desc: "~800", focus: "Build good habits — develop pieces, castle your king, fight for the center" },
+  { id: "newborn", label: "Newborn", desc: "~400", focus: "Material awareness — coach flags hanging pieces, free captures, and center basics" },
+  { id: "pup", label: "Pup", desc: "~600", focus: "Getting started — material + develop your pieces, castle, and spot simple threats" },
+  { id: "puppy", label: "Puppy", desc: "~800", focus: "Building habits — all fundamentals plus center control and not moving edge pieces" },
   { id: "beginner", label: "Mutt", desc: "~1300", focus: "Getting solid — coach pushes you on forks, pins, and simple tactics" },
   { id: "casual", label: "Good Boy", desc: "~1600", focus: "Club strength — coach flags missed tactics and positional blunders" },
   { id: "intermediate", label: "Retriever", desc: "~1900", focus: "Strong — full analysis, every move evaluated by the engine" },

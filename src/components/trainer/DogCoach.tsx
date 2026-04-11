@@ -117,7 +117,7 @@ export function classificationToMood(cls: MoveClass): DogMood {
 
 // --- Dog breed visual configs ---
 
-export type DogBreed = "puppy" | "golden" | "beagle" | "husky" | "shepherd" | "collie" | "wolf";
+export type DogBreed = "puppy" | "pup" | "golden" | "beagle" | "husky" | "shepherd" | "collie" | "wolf";
 
 interface BreedStyle {
   name: string;
@@ -153,6 +153,15 @@ const BREEDS: Record<DogBreed, BreedStyle> = {
     earW: 22, earH: 34, earColor: "#d4943a", earShape: "floppy",
     snoutW: 36, snoutH: 24, snoutColor: "#fde8c4", snoutRadius: "50%",
     eyeSize: 18, eyeSpacing: 14, eyeTop: 24,
+  },
+  pup: {
+    name: "Corgi", headW: 84, headH: 78, headColor: "#e8a83e", headGradient: "linear-gradient(180deg, #e8a83e 50%, #d4943a 100%)",
+    headRadius: "48% 48% 46% 46%",
+    facePatch: { color: "#fde8c4", w: 42, h: 38, bottom: 2, radius: "50% 50% 44% 44%" },
+    earW: 24, earH: 30, earColor: "#c17f2a", earShape: "perky", earInnerColor: "#d4943a",
+    snoutW: 38, snoutH: 24, snoutColor: "#fde8c4", snoutRadius: "50%",
+    eyeSize: 16, eyeSpacing: 14, eyeTop: 25,
+    accessory: "collar", accessoryColor: "#f59e0b",
   },
   golden: {
     name: "Golden Retriever", headW: 88, headH: 82, headColor: "#d4943a", headGradient: "linear-gradient(180deg, #d4943a 50%, #c17f2a 100%)",
@@ -213,6 +222,7 @@ const BREEDS: Record<DogBreed, BreedStyle> = {
 export function getBreedForDifficulty(difficulty: Difficulty): DogBreed {
   switch (difficulty) {
     case "newborn": return "puppy";
+    case "pup": return "pup";
     case "puppy": return "golden";
     case "beginner": return "beagle";
     case "casual": return "husky";

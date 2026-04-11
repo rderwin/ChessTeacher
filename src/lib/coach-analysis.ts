@@ -83,6 +83,12 @@ function classifyLenient(cpLoss: number, difficulty: Difficulty): MoveClass {
     if (cpLoss <= 300) return "mistake";  // a full piece or more
     return "blunder";
   }
+  if (difficulty === "pup") {
+    if (cpLoss <= 30) return "good";
+    if (cpLoss <= 100) return "inaccuracy";
+    if (cpLoss <= 200) return "mistake";
+    return "blunder";
+  }
   if (difficulty === "puppy") {
     if (cpLoss <= 25) return "good";
     if (cpLoss <= 75) return "inaccuracy";
@@ -356,7 +362,7 @@ export function analyzeForCoaching(
   const adjusted = classifyLenient(cpLoss, difficulty);
   const issues: CoachIssue[] = [];
 
-  // === NEWBORN (~400): Only care about material ===
+  // === NEWBORN (~400): Material awareness + center basics ===
   if (difficulty === "newborn") {
     const hanging = detectHangingPieces(chessAfter, playerColor);
     if (hanging) issues.push(hanging);
@@ -364,14 +370,50 @@ export function analyzeForCoaching(
     const missed = detectMissedCaptures(chessBefore, playerColor, move.to);
     if (missed) issues.push(missed);
 
+    // Gentle center nudge
+    const edge = detectEdgeMove(chessAfter, playerColor, move.to, moveCount);
+    if (edge && issues.length === 0) issues.push(edge);
+
     // Praise for good captures
     if (issues.length === 0) {
       const good = detectGoodMove(chessBefore, chessAfter, playerColor, move.san, move.to, move.from);
-      if (good && (good.kind === "good-capture")) issues.push(good);
+      if (good && (good.kind === "good-capture" || good.kind === "good-center")) issues.push(good);
     }
   }
 
-  // === PUPPY (~800): Material + development + castling + center ===
+  // === PUP (~600): Material + development + starting to see threats ===
+  else if (difficulty === "pup") {
+    const hanging = detectHangingPieces(chessAfter, playerColor);
+    if (hanging) issues.push(hanging);
+
+    const missed = detectMissedCaptures(chessBefore, playerColor, move.to);
+    if (missed) issues.push(missed);
+
+    const castle = detectCastleNeeded(chessBefore, playerColor, moveCount, move.san);
+    if (castle) issues.push(castle);
+
+    const dev = detectUndeveloped(chessAfter, playerColor, moveCount);
+    if (dev) issues.push(dev);
+
+    // At 600, start flagging really big missed tactics (piece-level blunders)
+    if (issues.length === 0 && cpLoss >= 200) {
+      issues.push({
+        kind: "missed-tactic",
+        severity: "warning",
+        message: "There was a much better move — look for pieces you can win!",
+        highlightSquares: [],
+        highlightColor: "",
+      });
+    }
+
+    // Praise
+    if (issues.filter(i => i.severity !== "info").length === 0) {
+      const good = detectGoodMove(chessBefore, chessAfter, playerColor, move.san, move.to, move.from);
+      if (good) issues.push(good);
+    }
+  }
+
+  // === PUPPY (~800): All fundamentals + center control ===
   else if (difficulty === "puppy") {
     const hanging = detectHangingPieces(chessAfter, playerColor);
     if (hanging) issues.push(hanging);
