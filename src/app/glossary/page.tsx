@@ -8,6 +8,7 @@ import {
   type GlossaryCategory,
   type GlossaryEntry,
 } from "@/data/glossary";
+import GlossaryQuiz from "@/components/glossary/GlossaryQuiz";
 
 const CATEGORY_INFO: Record<GlossaryCategory, { label: string; emoji: string; description: string }> = {
   tactics: { label: "Tactics", emoji: "⚔️", description: "Short-term combinations that win material or deliver checkmate." },
@@ -58,6 +59,7 @@ function EntryCard({ entry }: { entry: GlossaryEntry }) {
 }
 
 export default function GlossaryPage() {
+  const [mode, setMode] = useState<"reference" | "quiz">("reference");
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState<GlossaryCategory | "all">("all");
 
@@ -81,7 +83,7 @@ export default function GlossaryPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold text-white mb-2">Chess Glossary</h1>
         <p className="text-stone-400">
           Learn the key terms and concepts you&apos;ll encounter while playing
@@ -89,6 +91,39 @@ export default function GlossaryPage() {
         </p>
       </div>
 
+      {/* Mode toggle: Reference / Quiz */}
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => setMode("reference")}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            mode === "reference"
+              ? "bg-emerald-600 text-white"
+              : "bg-stone-800 text-stone-400 hover:text-white border border-stone-700"
+          }`}
+        >
+          📖 Reference
+        </button>
+        <button
+          onClick={() => setMode("quiz")}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            mode === "quiz"
+              ? "bg-emerald-600 text-white"
+              : "bg-stone-800 text-stone-400 hover:text-white border border-stone-700"
+          }`}
+        >
+          🧠 Quiz Me
+        </button>
+      </div>
+
+      {mode === "quiz" ? (
+        <div className="max-w-2xl">
+          <p className="text-sm text-stone-500 mb-4">
+            Read the scenario and identify the chess concept. 10 random questions each round.
+          </p>
+          <GlossaryQuiz />
+        </div>
+      ) : (
+      <>
       {/* Search + Filter */}
       <div className="flex flex-col sm:flex-row gap-3 mb-8">
         <input
@@ -156,6 +191,8 @@ export default function GlossaryPage() {
           Back to home
         </Link>
       </div>
+      </>
+      )}
     </div>
   );
 }
