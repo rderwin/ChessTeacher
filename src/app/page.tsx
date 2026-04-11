@@ -1,5 +1,6 @@
 import Link from "next/link";
 import BeginnerPath from "@/components/home/BeginnerPath";
+import DailyPuzzle from "@/components/home/DailyPuzzle";
 
 const MODULES = [
   {
@@ -54,6 +55,9 @@ export default function Home() {
 
         {/* Beginner pathway — shows for new users, hides once they have progress */}
         <BeginnerPath />
+
+        {/* Daily puzzle — a quick puzzle right on the home page */}
+        <DailyPuzzle />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left mb-10">
           {MODULES.map((mod) => (
