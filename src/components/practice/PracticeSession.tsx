@@ -13,9 +13,13 @@ import Link from "next/link";
 
 interface PracticeSessionProps {
   opening: OpeningLine;
+  /** Start from a specific FEN (for variants) */
+  startFen?: string;
+  /** Override the progress key (for variants) */
+  progressKey?: string;
 }
 
-export default function PracticeSession({ opening }: PracticeSessionProps) {
+export default function PracticeSession({ opening, startFen, progressKey }: PracticeSessionProps) {
   const {
     fen,
     status,
@@ -30,7 +34,7 @@ export default function PracticeSession({ opening }: PracticeSessionProps) {
     retry,
     reset,
     completionPercent,
-  } = usePracticeSession(opening);
+  } = usePracticeSession(opening, { startFen, progressKey });
 
   const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
     opening.playerColor
