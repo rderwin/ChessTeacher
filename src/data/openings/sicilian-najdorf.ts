@@ -198,4 +198,120 @@ export const sicilianNajdorf: OpeningLine = {
   ],
   summary:
     "The Sicilian Najdorf teaches the art of asymmetrical chess. From move one, Black avoids symmetry with 1...c5 to create an unbalanced pawn structure where both sides have distinct plans. The prophylactic ...a6 is the soul of the variation -- it prevents White's pieces from reaching b5 while preparing queenside expansion with ...b5 and the central strike ...e5. After the English Attack setup (Be3, f3, Qd2, O-O-O), the position becomes a fierce race: White storms the kingside with g4-g5 while Black counterattacks on the queenside with ...b5 and targets the exposed white king. The key strategic lesson is that preparation (prophylaxis with ...a6 before the ambitious ...e5) and piece coordination (Be7 for safety, Be6 for control of d5) allow Black to play aggressively without overextending. Understanding when to play ...d5 or ...b5 as a pawn break, and keeping the balance between defense and attack, is the essence of the Najdorf.",
+  variants: [
+    {
+      id: "bg5-najdorf",
+      name: "6.Bg5 (Main Line)",
+      description: "White plays the ultra-sharp Bg5 instead of Be3, pinning the knight and creating immediate tactical tension.",
+      branchesAt: 10,
+      opponentMove: {
+        san: "Bg5",
+        color: "white",
+        why: "The classical and most aggressive 6th move. Bg5 pins the knight on f6, which is the key defender of d5 and e4. White threatens to win the e-pawn if Black isn't careful, and the pin creates constant tactical tension. This leads to some of the sharpest positions in all of chess.",
+        concepts: ["attack", "piece-activity", "development"],
+        controls: "f6 knight pinned to queen, h4-d8 diagonal",
+      },
+      moves: [
+        {
+          san: "e6",
+          color: "black",
+          why: "Reinforcing d5 and breaking the pin's influence on f6 (the knight can now move since the queen is shielded). This is the Najdorf main line — solid and flexible. Black prepares to develop the bishop and castle.",
+          concepts: ["center-control", "prophylaxis"],
+          commonMistakes: [
+            {
+              san: "e5",
+              whyBad: "After e5 with the bishop on g5, the pin on f6 becomes very dangerous. Nf5 is a powerful response, and Black's knight is awkwardly pinned. e6 is more flexible here.",
+            },
+          ],
+        },
+        {
+          san: "f4",
+          color: "white",
+          why: "White plays aggressively, supporting e5 and preparing a kingside attack. The position is now a razor's edge — both sides must play precisely. This is the Poisoned Pawn variation territory.",
+          concepts: ["attack", "space"],
+        },
+        {
+          san: "Be7",
+          color: "black",
+          why: "Develop the bishop and prepare to castle. Be7 is the safest square — it unpins the knight and gets the king to safety. The alternative Qb6 (the Poisoned Pawn) grabs b2 but is extremely risky.",
+          concepts: ["development", "king-safety"],
+        },
+        {
+          san: "Qf3",
+          color: "white",
+          why: "The queen develops to f3, supporting e4 and preparing to potentially swing to h3 or g3 for a kingside attack. White's pieces are gathering for a storm.",
+          concepts: ["attack", "piece-activity"],
+        },
+        {
+          san: "Qc7",
+          color: "black",
+          why: "The queen goes to c7, supporting e5 and connecting the rooks. It also eyes the c-file, which is the highway for Black's counterplay after queenside castling by White.",
+          concepts: ["piece-activity", "preparation"],
+        },
+        {
+          san: "O-O-O",
+          color: "white",
+          why: "Opposite-side castling! White castles queenside, setting up the classic battle: White attacks the kingside with pawns (g4-g5), Black counterattacks on the queenside with b5. This is the most exciting type of chess position.",
+          concepts: ["king-safety", "attack"],
+        },
+      ],
+    },
+    {
+      id: "f3-najdorf",
+      name: "6.f3 (English Attack)",
+      description: "White plays f3 first — a flexible move preparing Be3 and a slow kingside buildup. Very popular at the top level.",
+      branchesAt: 10,
+      opponentMove: {
+        san: "f3",
+        color: "white",
+        why: "A modern favorite. f3 supports e4 rock-solidly and prepares Be3 followed by Qd2, O-O-O, and g4. It's less committal than Bg5 — White keeps all options open while building a slow but powerful attack.",
+        concepts: ["center-control", "preparation"],
+        controls: "e4 pawn — super-solid support",
+      },
+      moves: [
+        {
+          san: "e5",
+          color: "black",
+          why: "Strike immediately! With White spending a tempo on f3 (which doesn't develop a piece), Black seizes the chance to grab space in the center. The knight on d4 is challenged and must move.",
+          concepts: ["center-control", "space", "tempo"],
+          commonMistakes: [
+            {
+              san: "e6",
+              whyBad: "e6 is solid but passive against f3. Since White played f3 (a slow move), Black should punish it with the aggressive e5, grabbing space while White is still setting up.",
+            },
+          ],
+        },
+        {
+          san: "Nb3",
+          color: "white",
+          why: "The knight retreats to b3, a safe square where it supports d4 and eyes c5. From b3, the knight has a clear future: it can re-enter the game via c5 or d4 later.",
+          concepts: ["piece-activity"],
+        },
+        {
+          san: "Be6",
+          color: "black",
+          why: "Develop the bishop actively. Be6 controls d5, eyes a2, and prepares queenside castling or a b5 push. The bishop on e6 is a strong piece in the Najdorf.",
+          concepts: ["development", "piece-activity"],
+        },
+        {
+          san: "Be3",
+          color: "white",
+          why: "Now the bishop comes to e3 — the English Attack setup is taking shape. Be3, Qd2, O-O-O, and then the g4-g5 pawn storm. Classic Sicilian warfare.",
+          concepts: ["development", "preparation"],
+        },
+        {
+          san: "Be7",
+          color: "black",
+          why: "Prepare to castle kingside. Be7 is flexible — it can also reroute to f6 or g5 later if needed. Black is getting ready for the opposite-side castling battle.",
+          concepts: ["development", "king-safety"],
+        },
+        {
+          san: "Qd2",
+          color: "white",
+          why: "The queen goes to d2, connecting the rooks and preparing O-O-O. Once White castles queenside, the g-pawn and h-pawn will march forward for the kingside attack.",
+          concepts: ["development", "preparation", "attack"],
+        },
+      ],
+    },
+  ],
 };
