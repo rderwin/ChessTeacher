@@ -279,6 +279,170 @@ function detectEdgeMove(
   };
 }
 
+/** Detect if the player just walked INTO a fork (opponent's piece now attacks 2+ of ours) */
+function detectWalkedIntoFork(
+  chessAfter: Chess, playerColor: Color, moveTo: string
+): CoachIssue | null {
+  const enemy = opp(playerColor);
+
+  // Check if any enemy piece now attacks 2+ of our valuable pieces
+  for (const sq of ALL_SQUARES) {
+    const piece = chessAfter.get(sq);
+    if (!piece || piece.color !== enemy) continue;
+    if (piece.type === "p") continue; // pawn forks are rare to detect this way
+
+    // Count how many of our valuable pieces this enemy piece attacks
+    const attacked: { sq: string; name: string; value: number }[] = [];
+    for (const targetSq of ALL_SQUARES) {
+      const target = chessAfter.get(targetSq);
+      if (!target || target.color !== playerColor) continue;
+      if (PIECE_VALUES[target.type] < 3 && target.type !== "k") continue;
+
+      if (chessAfter.isAttacked(targetSq, enemy)) {
+        // Check if THIS specific piece attacks it (heuristic: the piece is on a line/knight-hop)
+        // For simplicity, just count attacked valuable pieces
+        attacked.push({ sq: targetSq, name: PIECE_NAMES[target.type], value: PIECE_VALUES[target.type] });
+      }
+    }
+
+    if (attacked.length >= 2 && attacked.some(a => a.sq === moveTo)) {
+      // The piece we just moved is one of the forked pieces
+      const attacker = PIECE_NAMES[piece.type];
+      const targets = attacked.slice(0, 2).map(a => a.name).join(" and ");
+      return {
+        kind: "walked-into-fork", severity: "critical",
+        message: `Careful! Their ${attacker} on ${sq} is forking your ${targets}!`,
+        highlightSquares: [sq, ...attacked.map(a => a.sq)],
+        highlightColor: HIGHLIGHT_DANGER,
+      };
+    }
+  }
+
+  return null;
+}
+
+/** Detect if the player's piece is now pinned to the king */
+function detectPinOnPlayer(
+  chessAfter: Chess, playerColor: Color
+): CoachIssue | null {
+  const enemy = opp(playerColor);
+
+  // Find the player's king
+  let kingSq: Square | null = null;
+  for (const sq of ALL_SQUARES) {
+    const p = chessAfter.get(sq);
+    if (p && p.color === playerColor && p.type === "k") { kingSq = sq; break; }
+  }
+  if (!kingSq) return null;
+
+  const kf = kingSq.charCodeAt(0) - 97; // 0-7
+  const kr = parseInt(kingSq[1]) - 1;   // 0-7
+
+  // Check all enemy sliding pieces (bishop, rook, queen)
+  for (const sq of ALL_SQUARES) {
+    const attacker = chessAfter.get(sq);
+    if (!attacker || attacker.color !== enemy) continue;
+
+    const af = sq.charCodeAt(0) - 97;
+    const ar = parseInt(sq[1]) - 1;
+
+    // Determine if attacker is on a line with the king
+    const df = kf - af;
+    const dr = kr - ar;
+
+    let isLine = false;
+    let stepF = 0, stepR = 0;
+
+    if (attacker.type === "r" || attacker.type === "q") {
+      if (df === 0 && dr !== 0) { isLine = true; stepR = dr > 0 ? 1 : -1; }
+      if (dr === 0 && df !== 0) { isLine = true; stepF = df > 0 ? 1 : -1; }
+    }
+    if (attacker.type === "b" || attacker.type === "q") {
+      if (Math.abs(df) === Math.abs(dr) && df !== 0) {
+        isLine = true; stepF = df > 0 ? 1 : -1; stepR = dr > 0 ? 1 : -1;
+      }
+    }
+
+    if (!isLine) continue;
+
+    // Walk from attacker toward king, looking for exactly one friendly piece in between
+    let cf = af + stepF;
+    let cr = ar + stepR;
+    let pinnedSq: string | null = null;
+    let pinnedPiece: string | null = null;
+    let pinnedValue = 0;
+    let blocked = false;
+
+    while (cf >= 0 && cf <= 7 && cr >= 0 && cr <= 7) {
+      if (cf === kf && cr === kr) break; // reached king
+
+      const checkSq = `${String.fromCharCode(97 + cf)}${cr + 1}` as Square;
+      const occupant = chessAfter.get(checkSq);
+
+      if (occupant) {
+        if (occupant.color === playerColor && !pinnedSq) {
+          // First friendly piece in the line — potential pin
+          pinnedSq = checkSq;
+          pinnedPiece = PIECE_NAMES[occupant.type];
+          pinnedValue = PIECE_VALUES[occupant.type];
+        } else {
+          // Second piece or enemy piece — blocks the pin
+          blocked = true;
+          break;
+        }
+      }
+
+      cf += stepF;
+      cr += stepR;
+    }
+
+    if (pinnedSq && !blocked && pinnedValue >= 3) {
+      // Reached the king with exactly one friendly piece in between — that's a pin!
+      return {
+        kind: "pinned-piece", severity: "warning",
+        message: `Your ${pinnedPiece} on ${pinnedSq} is pinned to your king by their ${PIECE_NAMES[attacker.type]} on ${sq}! It can't move safely.`,
+        highlightSquares: [sq, pinnedSq, kingSq],
+        highlightColor: HIGHLIGHT_DANGER,
+      };
+    }
+  }
+
+  return null;
+}
+
+/** Detect doubled pawns created by the player's move */
+function detectDoubledPawns(
+  chessBefore: Chess, chessAfter: Chess, playerColor: Color, moveSan: string
+): CoachIssue | null {
+  // Only fires if the move was a pawn capture that created doubled pawns
+  if (!moveSan.includes("x")) return null;
+
+  // Count pawns per file before and after
+  const countFile = (chess: Chess, file: string): number => {
+    let count = 0;
+    for (let r = 1; r <= 8; r++) {
+      const p = chess.get(`${file}${r}` as Square);
+      if (p && p.color === playerColor && p.type === "p") count++;
+    }
+    return count;
+  };
+
+  for (const file of "abcdefgh") {
+    const before = countFile(chessBefore, file);
+    const after = countFile(chessAfter, file);
+    if (after >= 2 && after > before) {
+      return {
+        kind: "doubled-pawns", severity: "info",
+        message: `You now have doubled pawns on the ${file}-file. That can be a long-term weakness — pawns can't defend each other when stacked.`,
+        highlightSquares: [],
+        highlightColor: "",
+      };
+    }
+  }
+
+  return null;
+}
+
 /** Detect if the player moved the same piece twice in the opening */
 function detectSamePieceTwice(
   chessBefore: Chess, playerColor: Color, moveFrom: string,
@@ -500,6 +664,16 @@ export function analyzeForCoaching(
     const missed = detectMissedCaptures(chessBefore, playerColor, move.to);
     if (missed) issues.push(missed);
 
+    // Did you just walk into a fork or pin?
+    if (issues.length === 0) {
+      const walkedFork = detectWalkedIntoFork(chessAfter, playerColor, move.to);
+      if (walkedFork) issues.push(walkedFork);
+    }
+    if (issues.length === 0) {
+      const pin = detectPinOnPlayer(chessAfter, playerColor);
+      if (pin) issues.push(pin);
+    }
+
     // Flag big missed tactics with specific best move
     if (issues.length === 0 && cpLoss >= 250 && bestMoveUci) {
       const fork = detectForkInBestMove(chessBefore, bestMoveUci, playerColor);
@@ -540,13 +714,22 @@ export function analyzeForCoaching(
     const missed = detectMissedCaptures(chessBefore, playerColor, move.to);
     if (missed) issues.push(missed);
 
+    // Walked into a fork or pin?
+    if (issues.length === 0) {
+      const walkedFork = detectWalkedIntoFork(chessAfter, playerColor, move.to);
+      if (walkedFork) issues.push(walkedFork);
+    }
+    if (issues.length === 0) {
+      const pin = detectPinOnPlayer(chessAfter, playerColor);
+      if (pin) issues.push(pin);
+    }
+
     const castle = detectCastleNeeded(chessBefore, playerColor, moveCount, move.san);
     if (castle) issues.push(castle);
 
     const dev = detectUndeveloped(chessAfter, playerColor, moveCount);
     if (dev) issues.push(dev);
 
-    // Don't move same piece twice when others need developing
     const samePiece = detectSamePieceTwice(chessBefore, playerColor, move.from, moveCount, []);
     if (samePiece && issues.filter(i => i.severity !== "info").length === 0) issues.push(samePiece);
 
@@ -588,6 +771,16 @@ export function analyzeForCoaching(
 
     const missed = detectMissedCaptures(chessBefore, playerColor, move.to);
     if (missed) issues.push(missed);
+
+    // Walked into a fork or pin?
+    if (issues.length === 0) {
+      const walkedFork = detectWalkedIntoFork(chessAfter, playerColor, move.to);
+      if (walkedFork) issues.push(walkedFork);
+    }
+    if (issues.length === 0) {
+      const pin = detectPinOnPlayer(chessAfter, playerColor);
+      if (pin) issues.push(pin);
+    }
 
     const castle = detectCastleNeeded(chessBefore, playerColor, moveCount, move.san);
     if (castle) issues.push(castle);
@@ -637,11 +830,25 @@ export function analyzeForCoaching(
     const missed = detectMissedCaptures(chessBefore, playerColor, move.to);
     if (missed) issues.push(missed);
 
+    // Fork/pin awareness
+    if (issues.length === 0) {
+      const walkedFork = detectWalkedIntoFork(chessAfter, playerColor, move.to);
+      if (walkedFork) issues.push(walkedFork);
+    }
+    if (issues.length === 0) {
+      const pin = detectPinOnPlayer(chessAfter, playerColor);
+      if (pin) issues.push(pin);
+    }
+
     const castle = detectCastleNeeded(chessBefore, playerColor, moveCount, move.san);
     if (castle) issues.push(castle);
 
     const dev = detectUndeveloped(chessAfter, playerColor, moveCount);
     if (dev) issues.push(dev);
+
+    // Pawn structure awareness starts here
+    const doubled = detectDoubledPawns(chessBefore, chessAfter, playerColor, move.san);
+    if (doubled && issues.filter(i => i.severity !== "info").length === 0) issues.push(doubled);
 
     // Flag tactical misses with the specific best move
     if (issues.length === 0 && cpLoss >= 100 && bestMoveUci) {
@@ -673,9 +880,19 @@ export function analyzeForCoaching(
   // repertoire, learn pawn structures, analyze your own games."
   // ================================================================
   else if (difficulty === "casual") {
-    // Only flag hanging pieces (shouldn't happen at 1600 but still)
+    // Hanging pieces (shouldn't happen at 1600 but still)
     const hanging = detectHangingPieces(chessAfter, playerColor);
     if (hanging && hanging.severity === "critical") issues.push(hanging);
+
+    // Pin awareness
+    if (issues.length === 0) {
+      const pin = detectPinOnPlayer(chessAfter, playerColor);
+      if (pin) issues.push(pin);
+    }
+
+    // Pawn structure
+    const doubled = detectDoubledPawns(chessBefore, chessAfter, playerColor, move.san);
+    if (doubled && issues.length === 0) issues.push(doubled);
 
     // Flag positional/tactical misses with the specific best move
     if (issues.length === 0 && cpLoss >= 100 && bestMoveUci) {
