@@ -168,4 +168,36 @@ export const frenchDefense: OpeningLine = {
   ],
   summary:
     "The French Defense Winawer teaches the critical strategic concept of attacking pawn chains at their base (...c5 against the d4-e5 chain). The Winawer variation adds another layer: trading a bishop for a knight to inflict permanent pawn structure damage, then exploiting those weaknesses with active piece play. Black sacrifices the g7 pawn to activate the rook on the g-file and seize the initiative. The key lessons are that pawn structure matters more than the bishop pair, tempo and activity can compensate for material, and every move should serve multiple purposes.",
+  variants: [
+    {
+      id: "tarrasch",
+      name: "Tarrasch Variation (3.Nd2)",
+      description: "White plays Nd2 instead of Nc3, avoiding the Winawer pin but blocking the dark-squared bishop.",
+      branchesAt: 4,
+      opponentMove: { san: "Nd2", color: "white", why: "The Tarrasch! White avoids the Winawer pin (Bb4) by playing Nd2 instead of Nc3. The knight still supports e4 but from a less active square. The downside: it blocks the dark-squared bishop and is less flexible.", concepts: ["development", "center-control", "prophylaxis"] },
+      moves: [
+        { san: "c5", color: "black", why: "Attack the base of White's pawn chain immediately. This is the key French idea — undermining d4 to break down the center.", concepts: ["center-control", "attack"], commonMistakes: [{ san: "Nf6", whyBad: "Nf6 is natural but after e5, the knight gets kicked. c5 first to challenge the center, then develop." }] },
+        { san: "e5", color: "white", why: "White advances, gaining space. The Advance French structure arises — White has more space but a fixed center Black can target.", concepts: ["space", "center-control"] },
+        { san: "Nc6", color: "black", why: "Develop and add pressure on d4. The knight eyes the key e5 and d4 squares.", concepts: ["development", "center-control"] },
+        { san: "Ndf3", color: "white", why: "The d2 knight moves to f3, supporting e5 and developing to a natural square.", concepts: ["development"] },
+        { san: "cxd4", color: "black", why: "Open the c-file and challenge the center. Black gets counterplay on the queenside.", concepts: ["center-control"] },
+        { san: "Nxd4", color: "white", why: "Recapture with the knight, centralizing it.", concepts: ["center-control", "piece-activity"] },
+      ],
+    },
+    {
+      id: "exchange-french",
+      name: "Exchange Variation (3.exd5)",
+      description: "White trades immediately, leading to a symmetrical but slightly favorable position. Simple but instructive.",
+      branchesAt: 4,
+      opponentMove: { san: "exd5", color: "white", why: "The Exchange French — White simplifies immediately. After exd5 exd5, the position is symmetrical. White has a tiny edge from the first-move advantage but it's very drawish. Many consider this 'boring' but it teaches endgame concepts well.", concepts: ["center-control"] },
+      moves: [
+        { san: "exd5", color: "black", why: "Recapture with the e-pawn. The position is now perfectly symmetrical — both sides have a d-pawn and open e-files.", concepts: ["center-control", "pawn-structure"] },
+        { san: "Bd3", color: "white", why: "Develop the bishop actively toward the kingside. White's small advantage comes from tempo.", concepts: ["development", "piece-activity"] },
+        { san: "Bd6", color: "black", why: "Mirror development. The bishop goes to an active diagonal. Notice: unlike the main Winawer, Black's light-squared bishop is NOT blocked because there's no pawn on e6 anymore!", concepts: ["development", "piece-activity"] },
+        { san: "Nf3", color: "white", why: "Natural development. White plans to castle and play for a small edge in a quiet position.", concepts: ["development"] },
+        { san: "Ne7", color: "black", why: "Develop the knight flexibly. From e7, it can go to f5 (active) or g6 (supporting the kingside).", concepts: ["development", "piece-activity"] },
+        { san: "O-O", color: "white", why: "Castle. The position is calm but White maintains a slight initiative.", concepts: ["king-safety"] },
+      ],
+    },
+  ],
 };
