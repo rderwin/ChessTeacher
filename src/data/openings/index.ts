@@ -1,4 +1,5 @@
 import { OpeningLine } from "../types";
+import { caroKann } from "./caro-kann";
 import { frenchDefense } from "./french-defense";
 import { italianGame } from "./italian-game";
 import { kingsIndian } from "./kings-indian";
@@ -9,6 +10,7 @@ import { sicilianNajdorf } from "./sicilian-najdorf";
 import { slavDefense } from "./slav-defense";
 
 export const ALL_OPENINGS: OpeningLine[] = [
+  caroKann,
   italianGame,
   frenchDefense,
   kingsIndian,
