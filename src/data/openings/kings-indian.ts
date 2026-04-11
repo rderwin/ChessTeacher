@@ -167,4 +167,36 @@ export const kingsIndian: OpeningLine = {
   ],
   summary:
     "The King's Indian Defense is a masterclass in dynamic counterplay and delayed gratification. Black deliberately allows White to build an imposing pawn center (c4-d4-e4), then systematically undermines it with ...e5 and later ...f5. The fianchettoed bishop on g7 is the soul of the position — once the center opens or closes, it becomes a devastating long-range weapon. After White plays d5 and the center locks, the game splits into a thrilling race: White attacks on the queenside (c5, b4, a4), while Black launches a kingside pawn storm (...f5, ...f4, ...g5). Understanding this opening teaches patience, the art of the counterattack, and why piece placement can be more important than raw space.",
+  variants: [
+    {
+      id: "samisch",
+      name: "Sämisch Variation (5.f3)",
+      description: "White plays f3 for rock-solid central control, preparing Be3 and Qd2 with a kingside or queenside attack.",
+      branchesAt: 8,
+      opponentMove: { san: "f3", color: "white", why: "The Sämisch! White bolts the e4 pawn in place with f3, creating an ultra-solid center. White plans Be3, Qd2, and either O-O-O with a kingside pawn storm or O-O with a slow squeeze. Black must time ...e5 and ...f5 perfectly.", concepts: ["center-control", "preparation"] },
+      moves: [
+        { san: "O-O", color: "black", why: "Castle first — you need the king safe before the fireworks start.", concepts: ["king-safety"] },
+        { san: "Be3", color: "white", why: "Develop the bishop and prepare Qd2. The Sämisch setup is taking shape.", concepts: ["development", "preparation"] },
+        { san: "e5", color: "black", why: "The key break! Challenge d4 even though White's center looks massive. Without ...e5, Black's position becomes too passive.", concepts: ["center-control", "attack"], commonMistakes: [{ san: "c5", whyBad: "c5 is the wrong break in the Sämisch. Black needs e5 to activate the g7 bishop and create kingside counterplay. c5 plays into White's hands." }] },
+        { san: "d5", color: "white", why: "Close the center. Now it's a race: White on the queenside (c5), Black on the kingside (f5, g5).", concepts: ["space", "center-control"] },
+        { san: "Nh5", color: "black", why: "The knight heads to f4 via h5, a powerful outpost. From f4, it attacks d3 and supports the ...f5 break.", concepts: ["piece-activity", "preparation"] },
+        { san: "Qd2", color: "white", why: "Connect the rooks and prepare O-O-O. The race is about to begin.", concepts: ["development", "attack"] },
+      ],
+    },
+    {
+      id: "four-pawns",
+      name: "Four Pawns Attack (5.f4)",
+      description: "White plays the ultra-aggressive f4, building four abreast center pawns. High risk, high reward for both sides.",
+      branchesAt: 8,
+      opponentMove: { san: "f4", color: "white", why: "The Four Pawns Attack — White goes ALL IN on the center with c4-d4-e4-f4! This is the most aggressive possible approach against the King's Indian. White has a massive space advantage but the center can become overextended.", concepts: ["center-control", "space", "attack"] },
+      moves: [
+        { san: "O-O", color: "black", why: "Castle immediately. With White's center so far advanced, the position could blow open at any moment — you need the king safe.", concepts: ["king-safety"] },
+        { san: "Nf3", color: "white", why: "Develop and support the center. White has four center pawns but needs pieces to hold them.", concepts: ["development"] },
+        { san: "c5", color: "black", why: "Strike at the center! c5 challenges d4 and d5, trying to undermine the four-pawn wall. This is the critical response — Black must counterattack before White consolidates.", concepts: ["center-control", "attack"], commonMistakes: [{ san: "e5", whyBad: "e5 runs into dxe5 dxe5 fxe5, and White's center is very strong. c5 first challenges the base of the chain." }] },
+        { san: "d5", color: "white", why: "White closes the center, committing to a kingside attack with the f-pawn and pieces.", concepts: ["space"] },
+        { san: "e6", color: "black", why: "Attack the d5 pawn from a different angle. Black wants to open lines against White's over-extended center.", concepts: ["center-control", "attack"] },
+        { san: "Be2", color: "white", why: "Develop and prepare to castle. White must play carefully — the four-pawn center is powerful but fragile.", concepts: ["development", "king-safety"] },
+      ],
+    },
+  ],
 };
