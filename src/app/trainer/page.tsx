@@ -9,14 +9,14 @@ import DogCoach, { type DogMood, classificationToMood, getBreedForDifficulty } f
 import { MOVE_CLASS_COLORS, MOVE_CLASS_SYMBOLS } from "@/lib/classify-moves";
 
 const DIFFICULTIES: { id: Difficulty; label: string; desc: string; focus: string }[] = [
-  { id: "newborn", label: "Newborn", desc: "~400", focus: "Material awareness — coach flags hanging pieces, free captures, and center basics" },
-  { id: "pup", label: "Pup", desc: "~600", focus: "Getting started — material + develop your pieces, castle, and spot simple threats" },
-  { id: "puppy", label: "Puppy", desc: "~800", focus: "Building habits — all fundamentals plus center control and not moving edge pieces" },
-  { id: "beginner", label: "Mutt", desc: "~1300", focus: "Getting solid — coach pushes you on forks, pins, and simple tactics" },
-  { id: "casual", label: "Good Boy", desc: "~1600", focus: "Club strength — coach flags missed tactics and positional blunders" },
-  { id: "intermediate", label: "Retriever", desc: "~1900", focus: "Strong — full analysis, every move evaluated by the engine" },
-  { id: "advanced", label: "Top Dog", desc: "~2200", focus: "Expert level — precise calculation, no margin for error" },
-  { id: "expert", label: "Alpha", desc: "Max", focus: "Full engine — test yourself against peak Stockfish" },
+  { id: "newborn", label: "Newborn", desc: "~400", focus: "Don't hang pieces, grab free material, learn basic forks and pins" },
+  { id: "pup", label: "Pup", desc: "~600", focus: "Develop pieces, castle early, spot one-move threats and simple tactics" },
+  { id: "puppy", label: "Puppy", desc: "~800", focus: "Board awareness — safety-check every move, control the center, coordinate pieces" },
+  { id: "beginner", label: "Mutt", desc: "~1300", focus: "Solid fundamentals — opening principles, daily tactics, piece activity" },
+  { id: "casual", label: "Good Boy", desc: "~1600", focus: "Club player — pawn structure, plans in the middlegame, deeper combinations" },
+  { id: "intermediate", label: "Retriever", desc: "~1900", focus: "Strong — full engine analysis, study strategic nuances" },
+  { id: "advanced", label: "Top Dog", desc: "~2200", focus: "Expert — precise calculation, endgame technique, no margin for error" },
+  { id: "expert", label: "Alpha", desc: "Max", focus: "Full engine strength — test yourself against peak Stockfish" },
 ];
 
 export default function TrainerPage() {

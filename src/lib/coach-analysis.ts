@@ -362,7 +362,7 @@ export function analyzeForCoaching(
   const adjusted = classifyLenient(cpLoss, difficulty);
   const issues: CoachIssue[] = [];
 
-  // === NEWBORN (~400): Material awareness + center basics ===
+  // === NEWBORN (~400): Material + basic tactics (forks/pins are taught from day 1) ===
   if (difficulty === "newborn") {
     const hanging = detectHangingPieces(chessAfter, playerColor);
     if (hanging) issues.push(hanging);
@@ -370,11 +370,22 @@ export function analyzeForCoaching(
     const missed = detectMissedCaptures(chessBefore, playerColor, move.to);
     if (missed) issues.push(missed);
 
+    // Even at 400, literature says to flag big missed tactics (piece-level)
+    if (issues.length === 0 && cpLoss >= 250) {
+      issues.push({
+        kind: "missed-tactic",
+        severity: "warning",
+        message: "There was a way to win material here — look for forks and pins!",
+        highlightSquares: [],
+        highlightColor: "",
+      });
+    }
+
     // Gentle center nudge
     const edge = detectEdgeMove(chessAfter, playerColor, move.to, moveCount);
     if (edge && issues.length === 0) issues.push(edge);
 
-    // Praise for good captures
+    // Praise for good captures or center play
     if (issues.length === 0) {
       const good = detectGoodMove(chessBefore, chessAfter, playerColor, move.san, move.to, move.from);
       if (good && (good.kind === "good-capture" || good.kind === "good-center")) issues.push(good);
