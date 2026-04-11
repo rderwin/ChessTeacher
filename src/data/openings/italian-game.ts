@@ -146,4 +146,162 @@ export const italianGame: OpeningLine = {
   ],
   summary:
     "The Italian Game teaches the most fundamental principles of chess openings: control the center with pawns, develop pieces to active squares that create threats, prepare pawn breaks before executing them (c3 then d4), and target weak points like f7. The key strategic idea is building a strong pawn center (e4 + d4) while keeping pieces active and aimed at the opponent's weaknesses.",
+  variants: [
+    {
+      id: "two-knights",
+      name: "Two Knights Defense",
+      description: "Black develops the knight to f6 instead of the bishop to c5 — a more aggressive, tactical response that invites sharp play.",
+      branchesAt: 5, // Index 5 = Black's 3rd move (main line: Bc5)
+      opponentMove: {
+        san: "Nf6",
+        color: "black",
+        why: "Instead of the quiet Bc5, Black immediately counterattacks the e4 pawn. This is more aggressive — Black dares White to go after f7 with Ng5, leading to sharp tactical play.",
+        concepts: ["development", "attack", "center-control"],
+        controls: "e4 pawn, d5 square",
+      },
+      moves: [
+        {
+          san: "Ng5",
+          color: "white",
+          why: "The most critical response — the knight lunges at f7, creating a double attack with the bishop on c4. Black must react precisely or face a devastating assault. This is the sharpest line against the Two Knights.",
+          concepts: ["attack"],
+          controls: "f7 square (double attack with Bc4)",
+          commonMistakes: [
+            {
+              san: "d3",
+              whyBad: "d3 is passive and lets Black equalize easily. Ng5 puts maximum pressure on f7 and tests Black's knowledge of the sharp theory.",
+            },
+          ],
+        },
+        {
+          san: "d5",
+          color: "black",
+          why: "The only good defense! Black counterattacks in the center, striking at both the bishop on c4 and the pawn on e4. This pawn sacrifice (after exd5) leads to open, dynamic play where Black gets active piece play for the material.",
+          concepts: ["center-control", "attack"],
+          controls: "Attacks Bc4 and e4 simultaneously",
+        },
+        {
+          san: "exd5",
+          color: "white",
+          why: "Accept the pawn. After exd5, you're up a pawn but Black will get rapid development and attacking chances. The key is to hold onto the extra material while weathering Black's initiative.",
+          concepts: ["center-control"],
+        },
+        {
+          san: "Na5",
+          color: "black",
+          why: "The Traxler-style Na5 attacks the bishop on c4, forcing it to move. Black wants to recapture on d5 and get active piece play. The knight on a5 looks offside but it serves a crucial purpose — eliminating the dangerous Italian bishop.",
+          concepts: ["attack", "piece-activity"],
+          controls: "Attacks Bc4",
+        },
+        {
+          san: "Bb5+",
+          color: "white",
+          why: "An important intermezzo (in-between move). Instead of retreating passively, you check the king first, gaining a tempo. After Black blocks, you can then retreat the bishop safely.",
+          concepts: ["tempo", "attack"],
+          commonMistakes: [
+            {
+              san: "Bd3",
+              whyBad: "Bd3 retreats without gaining anything. Bb5+ gains a crucial tempo by forcing Black to deal with check before continuing their attack.",
+            },
+          ],
+        },
+        {
+          san: "c6",
+          color: "black",
+          why: "Blocking the check with c6. This pawn move also attacks the bishop on b5 and prepares to recapture on d5 with the c-pawn, which would give Black a strong central pawn.",
+          concepts: ["development"],
+          controls: "Blocks check, attacks Bb5",
+        },
+        {
+          san: "dxc6",
+          color: "white",
+          why: "Take the pawn! After dxc6, you have two extra pawns. Black will recapture with bxc6 and have active piece play to compensate, but material is material.",
+          concepts: ["center-control"],
+        },
+        {
+          san: "bxc6",
+          color: "black",
+          why: "Recapturing with the b-pawn opens the b-file for Black's rook and gives Black a half-open file. Black now has excellent piece activity and open lines to compensate for the sacrificed pawns.",
+          concepts: ["piece-activity", "attack"],
+        },
+      ],
+    },
+    {
+      id: "evans-gambit",
+      name: "Evans Gambit",
+      description: "Instead of the quiet c3, White sacrifices a pawn with b4! to rip open the center with maximum aggression.",
+      branchesAt: 6, // Index 6 = White's 4th move (main line: c3)
+      opponentMove: {
+        san: "b4",
+        color: "white",
+        why: "The Evans Gambit! White sacrifices the b-pawn to lure Black's bishop away from c5, gaining a huge tempo advantage for rapid central expansion with c3 and d4. This is one of the most romantic gambits in chess — pure attacking chess.",
+        concepts: ["attack", "tempo", "center-control"],
+        controls: "Attacks Bc5, gains time for d4",
+      },
+      moves: [
+        {
+          san: "Bxb4",
+          color: "black",
+          why: "Black accepts the gambit. Declining with Bb6 is possible but passive — accepting is the principled response. Black now has an extra pawn but White will get rapid development.",
+          concepts: ["center-control"],
+        },
+        {
+          san: "c3",
+          color: "white",
+          why: "Immediately kicking the bishop and preparing the powerful d4. The whole point of the Evans Gambit — you sacrificed a pawn to play c3+d4 with maximum force, building an ideal pawn center while Black wastes time moving the bishop.",
+          concepts: ["center-control", "tempo"],
+          controls: "d4 square, attacks Bb4",
+          commonMistakes: [
+            {
+              san: "d4",
+              whyBad: "d4 immediately looks aggressive but after exd4, you can't recapture favorably. c3 first gains a tempo on the bishop AND prepares d4 with the c-pawn ready to recapture.",
+            },
+          ],
+        },
+        {
+          san: "Ba5",
+          color: "black",
+          why: "The bishop retreats to a5, staying on the a5-e1 diagonal to maintain some pressure. This is the main line — Ba5 keeps the bishop active rather than retreating to the passive e7 square.",
+          concepts: ["piece-activity"],
+        },
+        {
+          san: "d4",
+          color: "white",
+          why: "NOW d4! With c3 already played, if Black takes exd4, you recapture cxd4 with a perfect pawn center (e4+d4). This is the payoff of the Evans Gambit — a dominant center and rapid development, all for one pawn.",
+          concepts: ["center-control", "attack"],
+          controls: "Central domination with e4+d4",
+        },
+        {
+          san: "exd4",
+          color: "black",
+          why: "Black takes, opening the center. After cxd4, White has the ideal pawn center but Black has an extra pawn and can try to hold on defensively.",
+          concepts: ["center-control"],
+        },
+        {
+          san: "O-O",
+          color: "white",
+          why: "Castle immediately! Don't recapture on d4 yet. By castling, you get your king to safety and bring the rook to the center. The d4 pawn can be recaptured later — development and king safety come first in gambit play.",
+          concepts: ["king-safety", "development"],
+          commonMistakes: [
+            {
+              san: "cxd4",
+              whyBad: "Recapturing immediately is natural but misses the point. O-O develops with tempo — you'll pick up d4 later while your pieces pour into the center. In gambits, speed beats material.",
+            },
+          ],
+        },
+        {
+          san: "d6",
+          color: "black",
+          why: "Reinforcing the center and opening a diagonal for the bishop. Black aims for solid development rather than trying to hold the extra pawn at all costs.",
+          concepts: ["center-control", "development"],
+        },
+        {
+          san: "cxd4",
+          color: "white",
+          why: "Now recapture, establishing the powerful d4+e4 pawn center. With your king safely castled and rook on f1 ready to swing to the center, White has excellent attacking chances.",
+          concepts: ["center-control"],
+        },
+      ],
+    },
+  ],
 };
