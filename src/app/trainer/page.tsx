@@ -97,6 +97,9 @@ export default function TrainerPage() {
     dogMood = "thinking";
   } else if (state.evaluating) {
     dogMood = "thinking";
+  } else if (state.coachFeedback) {
+    // Coach gave specific feedback — use the classification mood but with the specific message
+    dogMood = state.lastClassification ? classificationToMood(state.lastClassification) : "waiting";
   } else if (state.hint) {
     dogMood = "hint";
   } else if (state.lastClassification) {
@@ -124,6 +127,9 @@ export default function TrainerPage() {
       }
     } catch { /* ignore */ }
   }
+
+  // Merge coach highlights (hanging pieces, missed captures, etc.)
+  const mergedSquareStyles = { ...squareStyles, ...state.coachHighlights };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -224,7 +230,7 @@ export default function TrainerPage() {
                   onPieceDrop: handleDrop,
                   onSquareClick: handleSquareClick,
                   onPieceClick: handleSquareClick,
-                  squareStyles,
+                  squareStyles: mergedSquareStyles,
                   allowDragging: state.isPlayerTurn && !state.gameOver,
                   animationDurationInMs: 200,
                   boardStyle: {
@@ -246,7 +252,7 @@ export default function TrainerPage() {
           <div className="flex-1 min-w-0 flex flex-col gap-4">
             {/* Dog Coach + action buttons */}
             <div className="bg-stone-800 rounded-xl border border-stone-700 p-5">
-              <DogCoach mood={dogMood} commentKey={state.moveKey} hint={state.hint} />
+              <DogCoach mood={dogMood} commentKey={state.moveKey} hint={state.coachFeedback || state.hint} />
 
               {/* Action buttons — always rendered, disabled when not applicable */}
               <div className="flex items-center justify-center gap-2 mt-4">

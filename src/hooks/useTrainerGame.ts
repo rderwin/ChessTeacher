@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, type CSSProperties } from "react";
 import { Chess, type Square } from "chess.js";
 import { classifyMove, computeCPLoss, mateToCP, type MoveClass } from "@/lib/classify-moves";
+import { analyzeForCoaching } from "@/lib/coach-analysis";
 
 export type Difficulty =
   | "newborn" | "puppy" | "beginner"
@@ -95,6 +96,10 @@ export interface TrainerState {
   moveKey: number;
   hint: string | null;
   hintLevel: number;
+  /** Specific coaching feedback message (overrides generic dog comment) */
+  coachFeedback: string | null;
+  /** Squares to highlight for coaching (e.g., hanging piece in red) */
+  coachHighlights: Record<string, CSSProperties>;
 }
 
 const INITIAL_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -194,6 +199,8 @@ export function useTrainerGame() {
     moveKey: 0,
     hint: null,
     hintLevel: 0,
+    coachFeedback: null,
+    coachHighlights: {},
   });
 
   const chessRef = useRef(new Chess());
@@ -241,6 +248,8 @@ export function useTrainerGame() {
         moveKey: 0,
         hint: null,
         hintLevel: 0,
+        coachFeedback: null,
+        coachHighlights: {},
       });
 
       hintDataRef.current = null;
@@ -366,6 +375,8 @@ export function useTrainerGame() {
         moveCount: s.moveCount + 1,
         hint: null,
         hintLevel: 0,
+        coachFeedback: null,
+        coachHighlights: {},
       }));
 
       // Evaluate the player's move
@@ -415,7 +426,21 @@ export function useTrainerGame() {
             turnBefore
           );
 
-          const classification = classifyMove(cpLoss);
+          const rawClassification = classifyMove(cpLoss);
+
+          // Run level-aware coaching analysis
+          const coachResult = analyzeForCoaching(
+            new Chess(fenBefore),
+            new Chess(fenAfter),
+            { from, to, san: moveResult.san },
+            turnBefore,
+            Math.ceil((state.moveCount + 1) / 2),
+            cpLoss,
+            rawClassification,
+            difficultyRef.current
+          );
+
+          const classification = coachResult.adjustedClassification;
 
           setState((s) => {
             const moves = [...s.moves];
@@ -432,6 +457,8 @@ export function useTrainerGame() {
               evaluating: false,
               lastClassification: classification,
               moveKey: s.moveKey + 1,
+              coachFeedback: coachResult.coachFeedback,
+              coachHighlights: coachResult.coachHighlights,
             };
           });
         } catch {
@@ -473,6 +500,8 @@ export function useTrainerGame() {
         moveKey: s.moveKey + 1,
         hint: null,
         hintLevel: 0,
+        coachFeedback: null,
+        coachHighlights: {},
       }));
     } else if (chess.turn() !== state.playerColor && state.moves.length >= 1) {
       // Just undo the player's move (bot hasn't responded yet)
@@ -488,6 +517,8 @@ export function useTrainerGame() {
         moveKey: s.moveKey + 1,
         hint: null,
         hintLevel: 0,
+        coachFeedback: null,
+        coachHighlights: {},
       }));
     }
   }, [state.moves.length, state.playerColor]);
