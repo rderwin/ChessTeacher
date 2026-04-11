@@ -3,16 +3,19 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePuzzleProgress } from "@/hooks/usePuzzleProgress";
 
 const NAV_LINKS = [
   { href: "/trainer", label: "Coach" },
   { href: "/puzzles", label: "Puzzles" },
   { href: "/openings", label: "Openings" },
   { href: "/analyze", label: "Analyze" },
+  { href: "/glossary", label: "Glossary" },
 ];
 
 export default function Navbar() {
   const { user, loading, signInWithGoogle, signOut } = useAuth();
+  const { progress } = usePuzzleProgress();
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -47,6 +50,15 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          {progress.level > 1 && (
+            <Link
+              href="/puzzles"
+              className="text-xs font-bold px-2 py-0.5 bg-emerald-900/50 text-emerald-400 border border-emerald-700/50 rounded-full hover:bg-emerald-800/50 transition-colors"
+              title={`Puzzle Rating: ${progress.rating}`}
+            >
+              Lv.{progress.level}
+            </Link>
+          )}
           {!loading && (
             <>
               {user ? (

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { PuzzleSet } from "@/data/types";
+import { getShortDefinition } from "@/data/glossary";
 
 const DIFF_STYLES = {
   beginner: "bg-green-600/20 text-green-300 border-green-500/30",
@@ -39,7 +40,8 @@ export default function PuzzleSetCard({ set }: Props) {
           {set.themes.map((theme) => (
             <span
               key={theme}
-              className="text-[10px] px-2 py-0.5 rounded-full bg-stone-700 text-stone-400"
+              title={getShortDefinition(theme)}
+              className="text-[10px] px-2 py-0.5 rounded-full bg-stone-700 text-stone-400 cursor-help"
             >
               {theme.replace(/-/g, " ")}
             </span>
