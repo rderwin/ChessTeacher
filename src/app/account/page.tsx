@@ -8,6 +8,9 @@ import { usePreferences } from "@/contexts/PreferencesContext";
 import { BOARD_THEMES, PIECE_STYLES, getBoardTheme, getPieceStyle } from "@/lib/preferences";
 import { getSavedGames, deleteGame } from "@/lib/saved-games";
 import type { SavedGame } from "@/lib/saved-games";
+import { usePuzzleProgress } from "@/hooks/usePuzzleProgress";
+import { getXPForNextLevel } from "@/lib/xp";
+import { ACHIEVEMENTS, getAchievement } from "@/data/achievements";
 
 const PREVIEW_FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4";
 
@@ -16,6 +19,7 @@ export default function AccountPage() {
   const { prefs, updatePreferences } = usePreferences();
   const [savedGames, setSavedGames] = useState<SavedGame[]>([]);
   const [loadingGames, setLoadingGames] = useState(true);
+  const { progress, achievements: unlockedAchievements } = usePuzzleProgress();
 
   useEffect(() => {
     setLoadingGames(true);
@@ -77,6 +81,101 @@ export default function AccountPage() {
             </button>
           </div>
         )}
+      </section>
+
+      {/* Your Progress */}
+      <section className="bg-stone-800 rounded-xl p-6 border border-stone-700 mb-8">
+        <h2 className="text-lg font-semibold text-white mb-4">Your Progress</h2>
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          <div className="bg-stone-900/50 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-white">{progress.level}</p>
+            <p className="text-xs text-stone-500">Level</p>
+          </div>
+          <div className="bg-stone-900/50 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-white">{progress.rating}</p>
+            <p className="text-xs text-stone-500">Puzzle Rating</p>
+          </div>
+          <div className="bg-stone-900/50 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-white">{progress.totalSolved}</p>
+            <p className="text-xs text-stone-500">Puzzles Solved</p>
+          </div>
+          <div className="bg-stone-900/50 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-white">
+              {progress.totalAttempted > 0
+                ? Math.round((progress.correctFirstAttempt / progress.totalAttempted) * 100)
+                : 0}%
+            </p>
+            <p className="text-xs text-stone-500">Accuracy</p>
+          </div>
+        </div>
+
+        {/* XP progress bar */}
+        {(() => {
+          const { needed, total, currentLevelXP } = getXPForNextLevel(progress.xp);
+          const range = total - currentLevelXP;
+          const filled = progress.xp - currentLevelXP;
+          const pct = range > 0 ? Math.min(100, (filled / range) * 100) : 100;
+          return (
+            <div className="mb-5">
+              <div className="flex items-center justify-between text-xs text-stone-500 mb-1">
+                <span>Lv.{progress.level} — {progress.xp} XP</span>
+                <span>{needed} XP to Lv.{progress.level + 1}</span>
+              </div>
+              <div className="h-2 bg-stone-700 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Streaks */}
+        <div className="flex items-center gap-4 mb-5 text-sm">
+          <div className="flex items-center gap-1.5">
+            <span>🔥</span>
+            <span className="text-stone-300">Streak: <strong>{progress.currentStreak}</strong></span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span>🏆</span>
+            <span className="text-stone-300">Best: <strong>{progress.bestStreak}</strong></span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span>📅</span>
+            <span className="text-stone-300">Daily: <strong>{progress.dailyStreak}</strong></span>
+          </div>
+        </div>
+
+        {/* Achievements */}
+        <div>
+          <h3 className="text-sm font-medium text-stone-400 mb-3">
+            Achievements ({unlockedAchievements.length} / {ACHIEVEMENTS.length})
+          </h3>
+          <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+            {ACHIEVEMENTS.map((def) => {
+              const unlocked = unlockedAchievements.some((a) => a.id === def.id);
+              return (
+                <div
+                  key={def.id}
+                  title={`${def.name}: ${def.description}${unlocked ? " ✓" : ""}`}
+                  className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-all ${
+                    unlocked
+                      ? "bg-amber-950/30 border-amber-700/50"
+                      : "bg-stone-900/30 border-stone-800 opacity-40"
+                  }`}
+                >
+                  <span className="text-xl">{def.icon}</span>
+                  <span className="text-[9px] text-stone-400 text-center leading-tight truncate w-full">
+                    {def.name}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </section>
 
       {/* Chess.com Username */}
