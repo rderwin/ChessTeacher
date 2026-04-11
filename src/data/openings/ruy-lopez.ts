@@ -186,4 +186,120 @@ export const ruyLopez: OpeningLine = {
   ],
   summary:
     "The Ruy Lopez teaches the art of long-term strategic pressure. Unlike openings that seek immediate tactical confrontation, here you learned to build an advantage gradually — pinning the knight with Bb5, maintaining tension rather than releasing it, retreating the bishop to better diagonals, and patiently preparing the d4 central break with c3. The key lesson is that the THREAT of action (capturing on c6, breaking with d4) is often more powerful than executing it prematurely. This is the foundation of positional chess.",
+  variants: [
+    {
+      id: "berlin",
+      name: "Berlin Defense",
+      description: "Black plays Nf6 instead of a6, inviting the famous 'Berlin Wall' endgame that frustrated even Kasparov.",
+      branchesAt: 5,
+      opponentMove: {
+        san: "Nf6",
+        color: "black",
+        why: "The Berlin Defense! Instead of asking the bishop 'where are you going?' with a6, Black immediately counter-attacks e4. This leads to a famous endgame variation where queens come off early — it's solid, drawish, and incredibly hard for White to break down.",
+        concepts: ["development", "center-control"],
+        controls: "e4 pawn — direct counter-attack",
+      },
+      moves: [
+        {
+          san: "O-O",
+          color: "white",
+          why: "Castle first before dealing with the e4 pressure. The king is safe and the rook comes to e1 to defend e4. A calm, classical response.",
+          concepts: ["king-safety", "development"],
+          commonMistakes: [
+            {
+              san: "Bxc6",
+              whyBad: "Taking on c6 immediately gives Black the bishop pair and a solid center. Better to castle first and keep the tension — the threat of Bxc6 is stronger than the execution.",
+            },
+          ],
+        },
+        {
+          san: "Nxe4",
+          color: "black",
+          why: "Black takes the e4 pawn! This looks bold, but it's perfectly sound. After White recaptures, the game heads into a famous endgame where Black is very solid, if slightly passive.",
+          concepts: ["center-control"],
+        },
+        {
+          san: "d4",
+          color: "white",
+          why: "Strike back in the center immediately. This opens lines and challenges Black's knight on e4. White aims to exploit the temporary awkwardness of Black's pieces.",
+          concepts: ["center-control", "attack"],
+        },
+        {
+          san: "Nd6",
+          color: "black",
+          why: "The knight retreats to d6, blocking the d-file but attacking the bishop on b5. This is the key move of the Berlin — it looks ugly but it's strategically correct.",
+          concepts: ["piece-activity"],
+        },
+        {
+          san: "Bxc6",
+          color: "white",
+          why: "Now is the right time to capture. After dxc6, Black has doubled pawns but active pieces. The ensuing endgame is the 'Berlin Wall' — extremely hard for White to win despite the structural advantage.",
+          concepts: ["pawn-structure"],
+        },
+        {
+          san: "dxc6",
+          color: "black",
+          why: "Recapture toward the center. Black now has doubled c-pawns but the bishop pair and an active position. Kramnik used this to dethrone Kasparov in 2000 — it's THAT solid.",
+          concepts: ["pawn-structure", "piece-activity"],
+        },
+      ],
+    },
+    {
+      id: "exchange",
+      name: "Exchange Variation",
+      description: "White captures Bxc6 immediately instead of retreating to a4 — the simplest and most direct approach.",
+      branchesAt: 6,
+      opponentMove: {
+        san: "Bxc6",
+        color: "white",
+        why: "The Exchange Variation! White gives up the bishop pair to damage Black's pawn structure immediately. After dxc6, Black has doubled c-pawns — a long-term weakness. Fischer loved this variation and won many games exploiting the structural advantage in the endgame.",
+        concepts: ["pawn-structure", "attack"],
+        controls: "Damages Black's queenside pawns permanently",
+      },
+      moves: [
+        {
+          san: "dxc6",
+          color: "black",
+          why: "Recapture toward the center. Black gets doubled c-pawns but keeps the bishop pair and central presence. The alternative bxc6 is also played but gives White an easier game.",
+          concepts: ["pawn-structure", "center-control"],
+        },
+        {
+          san: "d3",
+          color: "white",
+          why: "A quiet move that prepares to develop the bishop. White's plan is simple: trade pieces, reach an endgame, and exploit Black's doubled pawns. Fischer's approach — slow, patient, deadly.",
+          concepts: ["preparation", "development"],
+          commonMistakes: [
+            {
+              san: "d4",
+              whyBad: "d4 is too committal here. After exd4, the center opens and Black's bishops become very active. d3 is more flexible — White keeps options open and prepares a slow squeeze.",
+            },
+          ],
+        },
+        {
+          san: "f6",
+          color: "black",
+          why: "Securing the e5 pawn so it can't be challenged easily. Black prepares to develop the knight to e7 and the bishop to e6, building a solid position despite the structural weakness.",
+          concepts: ["center-control", "prophylaxis"],
+        },
+        {
+          san: "Be3",
+          color: "white",
+          why: "Develop the bishop actively. It eyes the a7 pawn and supports a potential c4-c5 advance later. White's plan is methodical: complete development, then exploit the pawn structure.",
+          concepts: ["development", "piece-activity"],
+        },
+        {
+          san: "Ne7",
+          color: "black",
+          why: "The knight goes to e7 rather than f6 (which would block the f-pawn). From e7 it can go to g6, supporting the kingside, or to d5 if the center opens.",
+          concepts: ["development", "piece-activity"],
+        },
+        {
+          san: "Nd2",
+          color: "white",
+          why: "Reroute the knight toward better squares (c4 or f1-g3). White methodically improves piece placement while Black struggles with the long-term pawn weakness.",
+          concepts: ["piece-activity", "preparation"],
+        },
+      ],
+    },
+  ],
 };
