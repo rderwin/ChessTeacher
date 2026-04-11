@@ -2,6 +2,7 @@
 
 ## Git
 - Auto-commit and push after completing changes — don't ask
+- Commit frequently — after each meaningful unit of work, not in big batches
 - No `Co-Authored-By` lines in commits
 - Write concise commit messages focused on what changed and why
 - Commit related changes together, not file-by-file
