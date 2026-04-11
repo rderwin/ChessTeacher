@@ -7,11 +7,13 @@ import { londonSystem } from "./london-system";
 import { queensGambit } from "./queens-gambit";
 import { ruyLopez } from "./ruy-lopez";
 import { sicilianNajdorf } from "./sicilian-najdorf";
+import { scotchGame } from "./scotch-game";
 import { slavDefense } from "./slav-defense";
 
 export const ALL_OPENINGS: OpeningLine[] = [
   caroKann,
   italianGame,
+  scotchGame,
   frenchDefense,
   kingsIndian,
   londonSystem,

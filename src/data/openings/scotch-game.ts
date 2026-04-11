@@ -1,0 +1,118 @@
+import { OpeningLine } from "../types";
+
+export const scotchGame: OpeningLine = {
+  id: "scotch-game",
+  name: "Scotch Game",
+  fullName: "Scotch Game",
+  eco: "C45",
+  playerColor: "white",
+  level: "beginner",
+  description:
+    "An aggressive alternative to the Italian and Ruy Lopez. White strikes the center immediately with 3.d4, opening the position for rapid piece play.",
+  history: {
+    origin: "First recorded in a correspondence match between Edinburgh and London in 1824. Fell out of favor for over a century before Garry Kasparov dramatically revived it in his 1990 World Championship match against Karpov.",
+    nameExplanation: "Named after its first recorded use in a match involving Scottish players. The Edinburgh Chess Club helped popularize it in the early 19th century.",
+    popularity: "Gained huge popularity after Kasparov's revival. It's now a common weapon at all levels — straightforward, aggressive, and leads to open positions where both sides have chances.",
+    bestFor: "Players who want open, tactical positions without memorizing deep theory. The Scotch teaches you to play actively in open positions and exploit a lead in development.",
+    famousPlayers: ["Garry Kasparov", "Fabiano Caruana", "Ian Nepomniachtchi", "Magnus Carlsen"],
+  },
+  moves: [
+    { san: "e4", color: "white", why: "Occupy the center and open lines for development.", concepts: ["center-control", "development"], controls: "d5, f5" },
+    { san: "e5", color: "black", why: "Black mirrors, claiming equal central space.", concepts: ["center-control"] },
+    { san: "Nf3", color: "white", why: "Develop and attack e5.", concepts: ["development", "attack"] },
+    { san: "Nc6", color: "black", why: "Defend e5 with a developing move.", concepts: ["development", "center-control"] },
+    {
+      san: "d4",
+      color: "white",
+      why: "The Scotch! White strikes immediately in the center instead of the slow Italian (Bc4) or Ruy Lopez (Bb5). After exd4 Nxd4, White gets a centralized knight and open lines for all pieces. The position opens up fast.",
+      concepts: ["center-control", "attack", "space"],
+      controls: "Opens the position immediately",
+      commonMistakes: [
+        { san: "Bc4", whyBad: "Bc4 is the Italian Game — a fine opening but different from the Scotch. 3.d4 is more direct and leads to open positions faster." },
+      ],
+    },
+    { san: "exd4", color: "black", why: "Virtually forced — Black must capture or lose central ground. The center opens up, which generally favors the side with better development (White, for now).", concepts: ["center-control"] },
+    {
+      san: "Nxd4",
+      color: "white",
+      why: "Recapture with the knight, which lands on a powerful central square. The knight on d4 attacks c6, e6, b5, f5 — it's a monster. White has completed the opening of the center and leads in development.",
+      concepts: ["development", "center-control", "piece-activity"],
+      controls: "c6, e6, b5, f5",
+    },
+    {
+      san: "Bc5",
+      color: "black",
+      why: "Black develops aggressively, targeting f2 and pressuring the knight on d4. The bishop is very active on c5 and discourages White from getting too comfortable.",
+      concepts: ["development", "piece-activity", "attack"],
+    },
+    {
+      san: "Nxc6",
+      color: "white",
+      why: "White trades the knight for Black's important defender. After bxc6, Black's pawn structure is damaged but they get the two bishops and open b-file. This is a classic strategic trade — structure for activity.",
+      concepts: ["pawn-structure"],
+      commonMistakes: [
+        { san: "Be3", whyBad: "Be3 is playable but allows Black to equalize easily. Nxc6 is more critical — it forces Black to decide how to recapture, creating imbalances White can exploit." },
+      ],
+    },
+    { san: "bxc6", color: "black", why: "Recapture toward the center. Black now has doubled c-pawns but the bishop pair and an open b-file for the rook. The position is dynamically balanced.", concepts: ["pawn-structure", "center-control"] },
+    {
+      san: "Bd3",
+      color: "white",
+      why: "Develop the bishop to an active diagonal pointing at the kingside. Bd3 also prepares castling. White's plan: castle, develop naturally, and exploit the structural advantage in the long term.",
+      concepts: ["development", "piece-activity"],
+    },
+    { san: "d6", color: "black", why: "Solidify the center and open a path for the dark-squared bishop. Black's position is flexible with the two bishops as compensation for the doubled pawns.", concepts: ["center-control", "development"] },
+    { san: "O-O", color: "white", why: "Castle immediately — king safety first. The rook also comes to e1 to support the e4 pawn and contest the e-file.", concepts: ["king-safety", "development"] },
+    { san: "Ne7", color: "black", why: "The knight develops to e7 (not f6, which would block the f-pawn). From e7, it can go to g6 to support the kingside or to f5 for active play.", concepts: ["development", "piece-activity"] },
+    {
+      san: "Nc3",
+      color: "white",
+      why: "Develop the last minor piece. The knight on c3 supports e4 and controls d5. White now has all pieces developed and a harmonious position.",
+      concepts: ["development", "center-control"],
+    },
+    { san: "O-O", color: "black", why: "Black castles, completing basic development. Both sides are now developed with roughly equal chances — White has the better structure, Black has the bishops.", concepts: ["king-safety"] },
+  ],
+  summary: "The Scotch Game teaches aggressive central play. Instead of maneuvering slowly (Italian/Ruy Lopez), White blows the center open with 3.d4 and gets active pieces immediately. The key trade — Nxc6 bxc6 — creates an imbalance: White gets a better pawn structure while Black gets the two bishops. Learning to play both sides of this imbalance is a fundamental chess skill.",
+  variants: [
+    {
+      id: "scotch-gambit",
+      name: "Scotch Gambit",
+      description: "White plays Bc4 instead of Nxd4, sacrificing a pawn for rapid development and attacking chances.",
+      branchesAt: 6,
+      opponentMove: {
+        san: "Bc4",
+        color: "white",
+        why: "The Scotch Gambit! Instead of recapturing the d4 pawn, White develops the bishop with a threat against f7. Black can take on d4 or develop, but White gets very active piece play. It's a true gambit — a pawn for initiative.",
+        concepts: ["development", "attack", "tempo"],
+      },
+      moves: [
+        { san: "Nf6", color: "black", why: "Develop and counter-attack e4. Black ignores the gambit and fights for the center.", concepts: ["development", "attack"] },
+        { san: "e5", color: "white", why: "Push the pawn, gaining space and attacking the knight. White is playing aggressively — every move creates a threat.", concepts: ["space", "attack"], commonMistakes: [{ san: "Nxd4", whyBad: "Taking back on d4 defeats the purpose of the gambit. e5 gains space and tempo — that's what you sacrificed the pawn for!" }] },
+        { san: "d5", color: "black", why: "Counter in the center! Black strikes back immediately rather than retreating.", concepts: ["center-control", "attack"] },
+        { san: "Bb5", color: "white", why: "Pin the knight or force a response. White keeps the pressure up with every move.", concepts: ["attack", "piece-activity"] },
+        { san: "Ne4", color: "black", why: "The knight jumps to a powerful central outpost. Black is fighting back actively.", concepts: ["center-control", "piece-activity"] },
+        { san: "Nxd4", color: "white", why: "Recover the pawn while maintaining the initiative. White has caught up on material and still has active pieces.", concepts: ["center-control"] },
+      ],
+    },
+    {
+      id: "classical-scotch",
+      name: "Classical (4...Nf6)",
+      description: "Black plays Nf6 instead of Bc5, counter-attacking e4 immediately.",
+      branchesAt: 7,
+      opponentMove: {
+        san: "Nf6",
+        color: "black",
+        why: "The Classical response — Black immediately attacks e4 instead of developing the bishop. This puts pressure on White to defend or advance the e-pawn, leading to different types of positions than the Bc5 line.",
+        concepts: ["development", "attack", "center-control"],
+      },
+      moves: [
+        { san: "Nxc6", color: "white", why: "Trade and open the position. After bxc6, White plans to target the weakened pawn structure.", concepts: ["pawn-structure"] },
+        { san: "bxc6", color: "black", why: "Recapture toward the center, same structural trade as the main line.", concepts: ["pawn-structure", "center-control"] },
+        { san: "e5", color: "white", why: "Push the pawn, gaining space and forcing the knight to retreat. White seizes the initiative.", concepts: ["space", "attack"] },
+        { san: "Qe7", color: "black", why: "The queen blocks the check and prepares to recapture if White plays exf6. Unusual but theoretically sound.", concepts: ["prophylaxis"] },
+        { san: "Qe2", color: "white", why: "Counter the queen by blocking with your own. This leads to complex middlegame positions.", concepts: ["piece-activity"] },
+        { san: "Nd5", color: "black", why: "The knight jumps to a powerful central outpost. Black has active play despite the structural damage.", concepts: ["center-control", "piece-activity"] },
+      ],
+    },
+  ],
+};
