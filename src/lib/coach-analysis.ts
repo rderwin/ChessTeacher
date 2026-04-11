@@ -362,7 +362,12 @@ export function analyzeForCoaching(
   const adjusted = classifyLenient(cpLoss, difficulty);
   const issues: CoachIssue[] = [];
 
-  // === NEWBORN (~400): Material + basic tactics (forks/pins are taught from day 1) ===
+  // ================================================================
+  // ~400 NEWBORN: Material awareness + basic forks/pins
+  // Per Heisman & chess.com: "avoid hanging pieces, basic forks,
+  // pins, skewers, center basics." Focus is reactive — point out
+  // what went wrong with material, not positional stuff.
+  // ================================================================
   if (difficulty === "newborn") {
     const hanging = detectHangingPieces(chessAfter, playerColor);
     if (hanging) issues.push(hanging);
@@ -370,14 +375,12 @@ export function analyzeForCoaching(
     const missed = detectMissedCaptures(chessBefore, playerColor, move.to);
     if (missed) issues.push(missed);
 
-    // Even at 400, literature says to flag big missed tactics (piece-level)
+    // Flag big missed tactics (piece-level) — forks/pins taught from day 1
     if (issues.length === 0 && cpLoss >= 250) {
       issues.push({
-        kind: "missed-tactic",
-        severity: "warning",
+        kind: "missed-tactic", severity: "warning",
         message: "There was a way to win material here — look for forks and pins!",
-        highlightSquares: [],
-        highlightColor: "",
+        highlightSquares: [], highlightColor: "",
       });
     }
 
@@ -385,14 +388,18 @@ export function analyzeForCoaching(
     const edge = detectEdgeMove(chessAfter, playerColor, move.to, moveCount);
     if (edge && issues.length === 0) issues.push(edge);
 
-    // Praise for good captures or center play
+    // Praise captures, center play, AND development (they need to learn all of it)
     if (issues.length === 0) {
       const good = detectGoodMove(chessBefore, chessAfter, playerColor, move.san, move.to, move.from);
-      if (good && (good.kind === "good-capture" || good.kind === "good-center")) issues.push(good);
+      if (good) issues.push(good);
     }
   }
 
-  // === PUP (~600): Material + development + starting to see threats ===
+  // ================================================================
+  // ~600 PUP: Material + development + castling + one-move threats
+  // Per chess.com: "stop material loss, one-move threats, basic
+  // forks/pins, opening principles, basic mates." Building habits.
+  // ================================================================
   else if (difficulty === "pup") {
     const hanging = detectHangingPieces(chessAfter, playerColor);
     if (hanging) issues.push(hanging);
@@ -406,25 +413,30 @@ export function analyzeForCoaching(
     const dev = detectUndeveloped(chessAfter, playerColor, moveCount);
     if (dev) issues.push(dev);
 
-    // At 600, start flagging really big missed tactics (piece-level blunders)
+    const edge = detectEdgeMove(chessAfter, playerColor, move.to, moveCount);
+    if (edge && issues.length === 0) issues.push(edge);
+
+    // Flag big missed tactics (piece-level)
     if (issues.length === 0 && cpLoss >= 200) {
       issues.push({
-        kind: "missed-tactic",
-        severity: "warning",
+        kind: "missed-tactic", severity: "warning",
         message: "There was a much better move — look for pieces you can win!",
-        highlightSquares: [],
-        highlightColor: "",
+        highlightSquares: [], highlightColor: "",
       });
     }
 
-    // Praise
+    // Praise all good moves
     if (issues.filter(i => i.severity !== "info").length === 0) {
       const good = detectGoodMove(chessBefore, chessAfter, playerColor, move.san, move.to, move.from);
       if (good) issues.push(good);
     }
   }
 
-  // === PUPPY (~800): All fundamentals + center control ===
+  // ================================================================
+  // ~800 PUPPY: Board awareness — safety-check every move
+  // Per Heisman: "ensure selected move is safe by checking for
+  // opponent's tactics." Daily tactics, coordinate pieces.
+  // ================================================================
   else if (difficulty === "puppy") {
     const hanging = detectHangingPieces(chessAfter, playerColor);
     if (hanging) issues.push(hanging);
@@ -439,7 +451,16 @@ export function analyzeForCoaching(
     if (dev) issues.push(dev);
 
     const edge = detectEdgeMove(chessAfter, playerColor, move.to, moveCount);
-    if (edge && issues.length === 0) issues.push(edge); // only if no bigger issues
+    if (edge && issues.length === 0) issues.push(edge);
+
+    // At 800, should be solving daily tactics — flag missed combos
+    if (issues.length === 0 && cpLoss >= 150) {
+      issues.push({
+        kind: "missed-tactic", severity: "warning",
+        message: "You missed a tactic here — always check for forks, pins, and captures before moving!",
+        highlightSquares: [], highlightColor: "",
+      });
+    }
 
     // Praise
     if (issues.filter(i => i.severity !== "info").length === 0) {
@@ -448,7 +469,11 @@ export function analyzeForCoaching(
     }
   }
 
-  // === BEGINNER (~1300): All fundamentals + tactical awareness ===
+  // ================================================================
+  // ~1300 BEGINNER: Opening principles, daily tactics, piece activity
+  // Per chess.com/Heisman: "controlling center, developing pieces,
+  // king safety, practice tactics daily." Solid fundamentals.
+  // ================================================================
   else if (difficulty === "beginner") {
     const hanging = detectHangingPieces(chessAfter, playerColor);
     if (hanging) issues.push(hanging);
@@ -462,15 +487,12 @@ export function analyzeForCoaching(
     const dev = detectUndeveloped(chessAfter, playerColor, moveCount);
     if (dev) issues.push(dev);
 
-    // At this level, also flag when the engine says there's a much better move
-    // (they should be starting to see basic tactics)
+    // Flag tactical misses — these players should see 2-move combinations
     if (issues.length === 0 && cpLoss >= 100) {
       issues.push({
-        kind: "missed-tactic",
-        severity: "warning",
-        message: "There was a much stronger move here — look for tactics like forks and pins!",
-        highlightSquares: [],
-        highlightColor: "",
+        kind: "missed-tactic", severity: "warning",
+        message: "There was a stronger move — think about what pieces you can attack with two moves in a row.",
+        highlightSquares: [], highlightColor: "",
       });
     }
 
@@ -481,19 +503,22 @@ export function analyzeForCoaching(
     }
   }
 
-  // === CASUAL (~1600): Lighter coaching, mostly tactics + some positional ===
+  // ================================================================
+  // ~1600 CASUAL: Pawn structure, middlegame plans, deeper combos
+  // Per Silman: "understand imbalances." Per chess.com: "build a
+  // repertoire, learn pawn structures, analyze your own games."
+  // ================================================================
   else if (difficulty === "casual") {
-    // Only flag material blunders and missed tactics
+    // Only flag hanging pieces (shouldn't happen at 1600 but still)
     const hanging = detectHangingPieces(chessAfter, playerColor);
     if (hanging && hanging.severity === "critical") issues.push(hanging);
 
-    if (issues.length === 0 && cpLoss >= 150) {
+    // Flag positional/tactical misses
+    if (issues.length === 0 && cpLoss >= 100) {
       issues.push({
-        kind: "missed-tactic",
-        severity: "warning",
-        message: "There was a stronger continuation — think about piece coordination and tactical threats.",
-        highlightSquares: [],
-        highlightColor: "",
+        kind: "missed-tactic", severity: "warning",
+        message: "There was a stronger plan — consider pawn structure, piece coordination, and tactical threats.",
+        highlightSquares: [], highlightColor: "",
       });
     }
   }
