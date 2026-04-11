@@ -1,5 +1,5 @@
 import { Chess } from "chess.js";
-import { OpeningLine, MoveExplanation } from "@/data/types";
+import { OpeningLine, OpeningVariant, MoveExplanation } from "@/data/types";
 
 export interface MoveValidationResult {
   correct: boolean;
@@ -71,4 +71,43 @@ export function getMoveNumber(moveIndex: number): string {
   const fullMoveNumber = Math.floor(moveIndex / 2) + 1;
   const isWhite = moveIndex % 2 === 0;
   return isWhite ? `${fullMoveNumber}.` : `${fullMoveNumber}...`;
+}
+
+/**
+ * Build the data needed to practice a variant.
+ * Replays the main line up to `branchesAt` to compute the starting FEN,
+ * then returns the variant moves as a synthetic OpeningLine.
+ */
+export function buildVariantSession(
+  opening: OpeningLine,
+  variant: OpeningVariant
+): { startFen: string; line: OpeningLine } {
+  const chess = new Chess();
+
+  // Replay main line up to the branch point
+  for (let i = 0; i < variant.branchesAt; i++) {
+    const move = opening.moves[i];
+    if (!move) break;
+    try {
+      chess.move(move.san);
+    } catch {
+      break;
+    }
+  }
+
+  const startFen = chess.fen();
+
+  // Build a synthetic OpeningLine with the variant's moves
+  const line: OpeningLine = {
+    ...opening,
+    id: `${opening.id}:${variant.id}`,
+    name: variant.name,
+    fullName: `${opening.name} — ${variant.name}`,
+    description: variant.description,
+    moves: [variant.opponentMove, ...variant.moves],
+    summary: "",
+    variants: undefined,
+  };
+
+  return { startFen, line };
 }
