@@ -301,6 +301,71 @@ export default function TrainerPage() {
               </div>
             </div>
 
+            {/* Game summary — shown when game is over */}
+            {state.gameOver && state.moves.length > 0 && (() => {
+              const playerMoves = state.moves.filter(m => m.color === state.playerColor);
+              const classified = playerMoves.filter(m => m.classification);
+              const counts: Record<string, number> = {};
+              for (const m of classified) {
+                const c = m.classification!;
+                counts[c] = (counts[c] || 0) + 1;
+              }
+              const totalPlayer = classified.length;
+              const goodMoves = (counts["best"] || 0) + (counts["excellent"] || 0) + (counts["good"] || 0);
+              const accuracy = totalPlayer > 0 ? Math.round((goodMoves / totalPlayer) * 100) : 0;
+
+              return (
+                <div className="bg-stone-800 rounded-xl border border-stone-700 p-4">
+                  <h3 className="text-sm font-medium text-stone-400 mb-3">Game Summary</h3>
+
+                  {/* Accuracy bar */}
+                  <div className="mb-3">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-stone-500">Accuracy</span>
+                      <span className={`font-bold ${accuracy >= 70 ? "text-emerald-400" : accuracy >= 40 ? "text-yellow-400" : "text-red-400"}`}>
+                        {accuracy}%
+                      </span>
+                    </div>
+                    <div className="h-2 bg-stone-700 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${accuracy >= 70 ? "bg-emerald-500" : accuracy >= 40 ? "bg-yellow-500" : "bg-red-500"}`}
+                        style={{ width: `${accuracy}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Move classification breakdown */}
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {(["best", "excellent", "good", "inaccuracy", "mistake", "blunder"] as const).map(cls => {
+                      const count = counts[cls] || 0;
+                      if (count === 0) return null;
+                      return (
+                        <span key={cls} className={`text-xs px-2 py-1 rounded ${MOVE_CLASS_COLORS[cls]} bg-stone-700/50`}>
+                          {MOVE_CLASS_SYMBOLS[cls] || "✓"} {cls}: {count}
+                        </span>
+                      );
+                    })}
+                  </div>
+
+                  {/* Tips based on common issues */}
+                  <div className="text-xs text-stone-400 space-y-1">
+                    {(counts["blunder"] || 0) >= 2 && (
+                      <p>💡 <span className="text-stone-300">Multiple blunders</span> — try slowing down and checking if your pieces are safe before each move.</p>
+                    )}
+                    {(counts["mistake"] || 0) >= 3 && (
+                      <p>💡 <span className="text-stone-300">Several mistakes</span> — practice tactical puzzles to spot forks and pins faster.</p>
+                    )}
+                    {accuracy >= 80 && (
+                      <p>🌟 <span className="text-emerald-300">Great accuracy!</span> Try a harder opponent next time.</p>
+                    )}
+                    {totalPlayer > 0 && (counts["best"] || 0) >= totalPlayer * 0.3 && (
+                      <p>⭐ <span className="text-stone-300">{counts["best"]} best moves!</span> You're finding the engine's top choices.</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Move list */}
             {state.moves.length > 0 && (
               <div className="bg-stone-800 rounded-xl border border-stone-700 p-4">
