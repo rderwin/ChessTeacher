@@ -32,14 +32,16 @@ export default function OpeningPage({ opening }: OpeningPageProps) {
       <div className="px-4 py-8">
         <OpeningIntro opening={opening} onStart={() => setMode({ type: "main-line" })} />
 
-        {/* Variants section — shown if variants exist and main line is complete */}
-        {mainLineComplete && opening.variants && opening.variants.length > 0 && (
+        {/* Variants section — always shown if variants exist */}
+        {opening.variants && opening.variants.length > 0 && (
           <div className="max-w-2xl mx-auto mt-10">
             <h2 className="text-xl font-bold text-white mb-2">
               Variants
             </h2>
             <p className="text-sm text-stone-400 mb-4">
-              You&apos;ve mastered the main line. Now learn what to do when your opponent deviates.
+              {mainLineComplete
+                ? "You've mastered the main line. Now learn what to do when your opponent deviates."
+                : "What if your opponent plays something different? Practice these common alternatives."}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {opening.variants.map((v) => (
