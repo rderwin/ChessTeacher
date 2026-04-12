@@ -150,6 +150,12 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
         setWrongMoveInfo(null);
         clearHighlights();
         setStatus("showing-explanation");
+
+        // Auto-advance after a brief pause so the player sees the explanation
+        setTimeout(() => {
+          advance();
+        }, 1200);
+
         return true;
       } else {
         // Wrong move
@@ -170,6 +176,7 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
       opening,
       clearHighlights,
       highlightMove,
+      advance,
     ]
   );
 
