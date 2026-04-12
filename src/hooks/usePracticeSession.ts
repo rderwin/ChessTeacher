@@ -56,6 +56,7 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
   >({});
   const [arrows, setArrows] = useState<Arrow[]>([]);
   const { saveProgress } = useProgress(options?.progressKey ?? opening.id);
+  const advanceRef = useRef<() => void>(() => {});
 
   const totalMoves = opening.moves.length;
   const userMoveCount = getUserMoveCount(opening);
@@ -151,10 +152,10 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
         clearHighlights();
         setStatus("showing-explanation");
 
-        // Auto-advance after a brief pause so the player sees the explanation
+        // Auto-advance after a pause so the player reads the explanation
         setTimeout(() => {
-          advance();
-        }, 1200);
+          advanceRef.current();
+        }, 2000);
 
         return true;
       } else {
@@ -176,7 +177,6 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
       opening,
       clearHighlights,
       highlightMove,
-      advance,
     ]
   );
 
@@ -207,6 +207,22 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
         }
         setCurrentExplanation(nextMove);
         setStatus("showing-explanation");
+
+        // Auto-advance after opponent's explanation shows
+        setTimeout(() => {
+          const nextNext = nextIndex + 1;
+          if (nextNext >= totalMoves) {
+            setStatus("completed");
+            saveProgress(totalMoves, totalMoves);
+          } else {
+            setCurrentMoveIndex(nextNext);
+            setCurrentExplanation(null);
+            clearHighlights();
+            setStatus("waiting-for-user");
+            saveProgress(nextNext, totalMoves);
+            showMoveGuide(nextNext);
+          }
+        }, 2000);
       }, 600);
     } else {
       setStatus("waiting-for-user");
@@ -214,6 +230,8 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
       showMoveGuide(nextIndex);
     }
   }, [currentMoveIndex, totalMoves, opening, clearHighlights, saveProgress, showMoveGuide]);
+
+  advanceRef.current = advance;
 
   const retry = useCallback(() => {
     setWrongMoveInfo(null);
