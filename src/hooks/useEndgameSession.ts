@@ -3,6 +3,15 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Chess } from "chess.js";
 import type { EndgameLesson } from "@/data/endgames";
+import { playSound, getMoveSound } from "@/lib/sounds";
+
+function isSoundEnabled(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    const prefs = JSON.parse(localStorage.getItem("chessteacher_prefs") || "{}");
+    return prefs.soundEnabled !== false;
+  } catch { return true; }
+}
 
 export type EndgameStatus =
   | "ready"         // explanation shown, not started
@@ -80,7 +89,8 @@ export function useEndgameSession(lesson: EndgameLesson) {
             const to = bestMove.slice(2, 4);
             const promotion = bestMove.length > 4 ? bestMove[4] : undefined;
             try {
-              chess.move({ from, to, promotion } as Parameters<typeof chess.move>[0]);
+              const oppResult = chess.move({ from, to, promotion } as Parameters<typeof chess.move>[0]);
+              if (oppResult) playSound(getMoveSound(oppResult.san), isSoundEnabled());
             } catch { /* invalid */ }
           }
 
@@ -112,17 +122,22 @@ export function useEndgameSession(lesson: EndgameLesson) {
     const chess = chessRef.current;
     if (state.status !== "playing" || busyRef.current) return false;
 
+    let moveSan: string;
     try {
       const result = chess.move({ from, to, promotion: "q" } as Parameters<typeof chess.move>[0]);
       if (!result) return false;
+      moveSan = result.san;
     } catch {
       return false;
     }
+
+    playSound(getMoveSound(moveSan), isSoundEnabled());
 
     const newMoveCount = state.moveCount + 1;
 
     // Check terminal
     if (chess.isCheckmate()) {
+      playSound("complete", isSoundEnabled());
       setState((s) => ({
         ...s, fen: chess.fen(), moveCount: newMoveCount, status: "checkmate",
         tipIndex: Math.min(s.tipIndex + 1, lesson.tips.length - 1),

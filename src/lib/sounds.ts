@@ -4,7 +4,12 @@ export type SoundEffect =
   | "complete"
   | "streak"
   | "achievement"
-  | "levelup";
+  | "levelup"
+  | "move"
+  | "capture"
+  | "check"
+  | "castle"
+  | "gameover";
 
 let audioCtx: AudioContext | null = null;
 
@@ -78,6 +83,75 @@ function playLevelUp(ctx: AudioContext) {
   });
 }
 
+// --- Chess move sounds ---
+
+function playNoise(ctx: AudioContext, startTime: number, duration: number, gain: number) {
+  const bufferSize = Math.floor(ctx.sampleRate * duration);
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * 0.5;
+  }
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(gain, startTime);
+  g.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+  // Bandpass filter to shape the noise
+  const filter = ctx.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.value = 800;
+  filter.Q.value = 1;
+
+  source.connect(filter);
+  filter.connect(g);
+  g.connect(ctx.destination);
+  source.start(startTime);
+  source.stop(startTime + duration);
+}
+
+function playMove(ctx: AudioContext) {
+  // Soft wooden "tap" — filtered noise burst + low thud
+  const t = ctx.currentTime;
+  playNoise(ctx, t, 0.06, 0.15);
+  playTone(ctx, 150, t, 0.05, "sine", 0.08);
+}
+
+function playCapture(ctx: AudioContext) {
+  // Sharper "thwack" — louder noise + mid tone
+  const t = ctx.currentTime;
+  playNoise(ctx, t, 0.08, 0.25);
+  playTone(ctx, 200, t, 0.06, "triangle", 0.12);
+  playTone(ctx, 120, t + 0.02, 0.06, "sine", 0.06);
+}
+
+function playCheck(ctx: AudioContext) {
+  // Alert ping after the move sound
+  const t = ctx.currentTime;
+  playNoise(ctx, t, 0.05, 0.15);
+  playTone(ctx, 880, t + 0.05, 0.15, "sine", 0.1);
+  playTone(ctx, 660, t + 0.12, 0.1, "sine", 0.06);
+}
+
+function playCastle(ctx: AudioContext) {
+  // Two taps (king + rook moving)
+  const t = ctx.currentTime;
+  playNoise(ctx, t, 0.05, 0.12);
+  playTone(ctx, 160, t, 0.05, "sine", 0.08);
+  playNoise(ctx, t + 0.12, 0.05, 0.12);
+  playTone(ctx, 180, t + 0.12, 0.05, "sine", 0.08);
+}
+
+function playGameover(ctx: AudioContext) {
+  // Low descending tone
+  const t = ctx.currentTime;
+  playTone(ctx, 300, t, 0.3, "sine", 0.1);
+  playTone(ctx, 220, t + 0.15, 0.3, "sine", 0.08);
+  playTone(ctx, 150, t + 0.3, 0.4, "sine", 0.06);
+}
+
 const SOUND_MAP: Record<SoundEffect, (ctx: AudioContext) => void> = {
   correct: playCorrect,
   wrong: playWrong,
@@ -85,7 +159,20 @@ const SOUND_MAP: Record<SoundEffect, (ctx: AudioContext) => void> = {
   streak: playStreak,
   achievement: playAchievement,
   levelup: playLevelUp,
+  move: playMove,
+  capture: playCapture,
+  check: playCheck,
+  castle: playCastle,
+  gameover: playGameover,
 };
+
+/** Determine the right chess sound for a move SAN */
+export function getMoveSound(san: string): SoundEffect {
+  if (san === "O-O" || san === "O-O-O") return "castle";
+  if (san.includes("+") || san.includes("#")) return "check";
+  if (san.includes("x")) return "capture";
+  return "move";
+}
 
 export function playSound(effect: SoundEffect, enabled: boolean): void {
   if (!enabled) return;

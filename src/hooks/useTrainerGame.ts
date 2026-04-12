@@ -4,6 +4,16 @@ import { useState, useCallback, useRef, useEffect, type CSSProperties } from "re
 import { Chess, type Square } from "chess.js";
 import { classifyMove, computeCPLoss, mateToCP, type MoveClass } from "@/lib/classify-moves";
 import { analyzeForCoaching } from "@/lib/coach-analysis";
+import { playSound, getMoveSound } from "@/lib/sounds";
+
+/** Read sound preference without needing React context */
+function isSoundEnabled(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    const prefs = JSON.parse(localStorage.getItem("chessteacher_prefs") || "{}");
+    return prefs.soundEnabled !== false;
+  } catch { return true; }
+}
 
 export type Difficulty =
   | "newborn" | "pup" | "puppy" | "beginner"
@@ -314,7 +324,15 @@ export function useTrainerGame() {
         return;
       }
 
+      // Play bot move sound
+      playSound(getMoveSound(moveResult.san), isSoundEnabled());
+
       const gameResult = checkGameOver();
+
+      // Game over sound
+      if (gameResult) {
+        setTimeout(() => playSound("gameover", isSoundEnabled()), 300);
+      }
 
       setState((s) => ({
         ...s,
@@ -357,6 +375,9 @@ export function useTrainerGame() {
         return false;
       }
       if (!moveResult) return false;
+
+      // Play move sound
+      playSound(getMoveSound(moveResult.san), isSoundEnabled());
 
       busyRef.current = true;
       hintDataRef.current = null;

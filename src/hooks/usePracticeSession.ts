@@ -4,6 +4,15 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { Chess } from "chess.js";
 import type { Arrow } from "react-chessboard";
 import { OpeningLine, MoveExplanation } from "@/data/types";
+import { playSound, getMoveSound } from "@/lib/sounds";
+
+function isSoundEnabled(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    const prefs = JSON.parse(localStorage.getItem("chessteacher_prefs") || "{}");
+    return prefs.soundEnabled !== false;
+  } catch { return true; }
+}
 import {
   validateMoveAgainstLine,
   getSquaresForSan,
@@ -95,6 +104,7 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
     setTimeout(() => {
       try {
         chessRef.current.move(move.san);
+        playSound(getMoveSound(move.san), isSoundEnabled());
         setFen(chessRef.current.fen());
       } catch {
         // Move failed — data issue
@@ -134,6 +144,7 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
       if (validation.correct) {
         // Apply the correct move
         chessRef.current.move({ from, to, promotion: "q" });
+        playSound(getMoveSound(validation.expectedSan), isSoundEnabled());
         setFen(chessRef.current.fen());
         setCurrentExplanation(validation.explanation);
         setWrongMoveInfo(null);
@@ -182,6 +193,7 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
       setTimeout(() => {
         try {
           chessRef.current.move(nextMove.san);
+          playSound(getMoveSound(nextMove.san), isSoundEnabled());
           setFen(chessRef.current.fen());
         } catch {
           // Move failed
