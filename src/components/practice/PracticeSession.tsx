@@ -17,9 +17,11 @@ interface PracticeSessionProps {
   startFen?: string;
   /** Override the progress key (for variants) */
   progressKey?: string;
+  /** Navigate to variant selection */
+  onShowVariants?: () => void;
 }
 
-export default function PracticeSession({ opening, startFen, progressKey }: PracticeSessionProps) {
+export default function PracticeSession({ opening, startFen, progressKey, onShowVariants }: PracticeSessionProps) {
   const {
     fen,
     status,
@@ -148,9 +150,9 @@ export default function PracticeSession({ opening, startFen, progressKey }: Prac
             <div className="bg-stone-800/50 rounded-lg p-4 mb-4">
               <p className="text-sm font-medium text-stone-300 mb-2">What&apos;s next?</p>
               <ul className="text-sm text-stone-400 space-y-1.5">
-                {opening.variants && opening.variants.length > 0 && (
+                {opening.variants && opening.variants.length > 0 && onShowVariants && (
                   <li>
-                    → <span className="text-emerald-400">Explore variants</span> — learn what to do when your opponent plays something different
+                    → <button onClick={onShowVariants} className="text-emerald-400 hover:underline">Explore variants</button> — learn what to do when your opponent plays something different
                   </li>
                 )}
                 <li>

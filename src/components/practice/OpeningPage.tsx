@@ -81,7 +81,10 @@ export default function OpeningPage({ opening }: OpeningPageProps) {
   // Main line practice
   return (
     <div className="px-4 py-8">
-      <PracticeSession opening={opening} />
+      <PracticeSession
+        opening={opening}
+        onShowVariants={opening.variants?.length ? () => setMode({ type: "intro" }) : undefined}
+      />
     </div>
   );
 }
