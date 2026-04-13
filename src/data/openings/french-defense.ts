@@ -55,6 +55,18 @@ export const frenchDefense: OpeningLine = {
       why: "Now Black strikes at the heart of White's center. The pawn on d5 directly challenges e4, forcing White to make a decision: advance, capture, or defend. This is the key confrontation in the French — Black refuses to let White hold the ideal center unchallenged. The e6 pawn provides rock-solid support.",
       concepts: ["center-control", "attack"],
       controls: "c4, e4 squares — directly attacks White's center",
+      commonMistakes: [
+        {
+          san: "c5",
+          whyBad:
+            "Playing ...c5 before ...d5 doesn't challenge the e4 pawn and lets White build an unchallenged center with d5 themselves. The ...d5 push is the whole point of 1...e6 — hit the center with full pawn support first, then play ...c5 later.",
+        },
+        {
+          san: "Nf6",
+          whyBad:
+            "While ...Nf6 attacks e4, White simply pushes e5, gaining space and kicking your knight. Play ...d5 first to challenge the center with a pawn, which is harder for White to push past.",
+        },
+      ],
     },
     {
       san: "Nc3",
@@ -135,6 +147,23 @@ export const frenchDefense: OpeningLine = {
       why: "The knight develops to e7 rather than the blocked f6 square (which is controlled by White's e5 pawn). From e7, the knight has flexible options: it can go to f5 to pressure d4, to g6 to support a kingside defense, or to c6 to add more pressure on the center. This flexible placement is a hallmark of French Defense strategy.",
       concepts: ["development", "piece-activity"],
       controls: "f5, g6, c6 squares — flexible knight placement",
+      commonMistakes: [
+        {
+          san: "Nc6",
+          whyBad:
+            "While Nc6 looks natural, from e7 the knight has far more flexibility — it can reroute to f5 (attacking d4), g6 (defending the kingside), or c6 later. The e7 square is a strategic hub in the French Defense.",
+        },
+        {
+          san: "Nh6",
+          whyBad:
+            "Nh6 puts the knight on a rim square where it has little influence. Knights on the edge of the board control fewer squares. Ne7 is centrally flexible and avoids being a target on h6 where White could attack it with Bxh6.",
+        },
+        {
+          san: "Qc7",
+          whyBad:
+            "Playing the queen out before developing the knight is premature. You need Ne7 first to get the knight into the game — piece development takes priority over queen moves in the opening. Qc7 will come at the right moment.",
+        },
+      ],
     },
     {
       san: "Qg4",
@@ -150,6 +179,18 @@ export const frenchDefense: OpeningLine = {
       why: "Black defends indirectly by placing the queen on c7, where it serves multiple purposes. It adds pressure on the e5 pawn (threatening to win it), supports the ...c5 break that is already undermining d4, and prepares to castle queenside where the king will be safer. This is a model multi-purpose move — every good move should accomplish more than one thing.",
       concepts: ["piece-activity", "attack", "king-safety"],
       controls: "e5 pawn, c5 support — multifunctional queen placement",
+      commonMistakes: [
+        {
+          san: "Kf8",
+          whyBad:
+            "Moving the king to avoid the g7 threat gives up castling rights forever. Qc7 is far superior — it defends indirectly by targeting e5, supports ...c5, and prepares queenside castling. Multi-purpose moves beat reactive ones.",
+        },
+        {
+          san: "cxd4",
+          whyBad:
+            "Capturing on d4 releases the tension too soon and doesn't address the queen on g4. Qc7 keeps the pressure on White's center while also preparing queenside castling. You want to maintain central tension, not relieve it for White.",
+        },
+      ],
     },
     {
       san: "Qxg7",
@@ -164,6 +205,18 @@ export const frenchDefense: OpeningLine = {
       why: "Black chases the queen with the rook, gaining a vital tempo. The rook activates on the open g-file where it will pressure White's position for the rest of the game. Black has sacrificed a pawn but gained significant compensation: the rook is powerfully placed, the queen will gain more tempo by attacking the displaced White queen, and Black's pieces are coming to life. This is the essence of the Winawer — material sacrifice for dynamic piece play and initiative.",
       concepts: ["tempo", "piece-activity", "attack"],
       controls: "g-file — rook activates with tempo on the queen",
+      commonMistakes: [
+        {
+          san: "Nf5",
+          whyBad:
+            "While Nf5 attacks the queen, it doesn't activate a major piece. Rg8 is more powerful because it puts the rook on an open file with tempo, creating long-term pressure. Rooks belong on open files, and this one comes with a free tempo.",
+        },
+        {
+          san: "Qxe5",
+          whyBad:
+            "Grabbing the e5 pawn with the queen looks tempting but it puts your queen in the center where it can be attacked by Nf3. Rg8 develops a rook with tempo and creates lasting initiative — activity over material is the Winawer philosophy.",
+        },
+      ],
     },
   ],
   summary:
@@ -178,9 +231,9 @@ export const frenchDefense: OpeningLine = {
       moves: [
         { san: "c5", color: "black", why: "Attack the base of White's pawn chain immediately. This is the key French idea — undermining d4 to break down the center.", concepts: ["center-control", "attack"], commonMistakes: [{ san: "Nf6", whyBad: "Nf6 is natural but after e5, the knight gets kicked. c5 first to challenge the center, then develop." }] },
         { san: "e5", color: "white", why: "White advances, gaining space. The Advance French structure arises — White has more space but a fixed center Black can target.", concepts: ["space", "center-control"] },
-        { san: "Nc6", color: "black", why: "Develop and add pressure on d4. The knight eyes the key e5 and d4 squares.", concepts: ["development", "center-control"] },
+        { san: "Nc6", color: "black", why: "Develop and add pressure on d4. The knight eyes the key e5 and d4 squares.", concepts: ["development", "center-control"], commonMistakes: [{ san: "Nd7", whyBad: "Nd7 blocks the queen and dark-squared bishop. Nc6 is better because it directly pressures d4 and e5, which is where the battle is. Keep the queenside pieces unblocked." }, { san: "f6", whyBad: "Trying to undermine e5 with ...f6 weakens the kingside badly and opens lines toward your king. Develop pieces with Nc6 first — piece play before pawn breaks." }] },
         { san: "Ndf3", color: "white", why: "The d2 knight moves to f3, supporting e5 and developing to a natural square.", concepts: ["development"] },
-        { san: "cxd4", color: "black", why: "Open the c-file and challenge the center. Black gets counterplay on the queenside.", concepts: ["center-control"] },
+        { san: "cxd4", color: "black", why: "Open the c-file and challenge the center. Black gets counterplay on the queenside.", concepts: ["center-control"], commonMistakes: [{ san: "Qb6", whyBad: "Moving the queen early doesn't address the center. Capture on d4 first to open the c-file for your rook and challenge White's central grip. Pawn structure changes before queen adventures." }, { san: "Be7", whyBad: "Passive development ignores the chance to open the center. Capture on d4 now while you can — it opens the c-file and gives you active counterplay on the queenside." }] },
         { san: "Nxd4", color: "white", why: "Recapture with the knight, centralizing it.", concepts: ["center-control", "piece-activity"] },
       ],
     },
@@ -191,11 +244,11 @@ export const frenchDefense: OpeningLine = {
       branchesAt: 4,
       opponentMove: { san: "exd5", color: "white", why: "The Exchange French — White simplifies immediately. After exd5 exd5, the position is symmetrical. White has a tiny edge from the first-move advantage but it's very drawish. Many consider this 'boring' but it teaches endgame concepts well.", concepts: ["center-control"] },
       moves: [
-        { san: "exd5", color: "black", why: "Recapture with the e-pawn. The position is now perfectly symmetrical — both sides have a d-pawn and open e-files.", concepts: ["center-control", "pawn-structure"] },
+        { san: "exd5", color: "black", why: "Recapture with the e-pawn. The position is now perfectly symmetrical — both sides have a d-pawn and open e-files.", concepts: ["center-control", "pawn-structure"], commonMistakes: [{ san: "Qxd5", whyBad: "Recapturing with the queen exposes it to attack by Nc3, losing tempo. Always recapture with the pawn to maintain a solid structure and open the e-file for your rook." }, { san: "c6", whyBad: "Ignoring the recapture leaves you a pawn down for no compensation. Take back on d5 with the e-pawn to establish a symmetrical, solid position." }] },
         { san: "Bd3", color: "white", why: "Develop the bishop actively toward the kingside. White's small advantage comes from tempo.", concepts: ["development", "piece-activity"] },
-        { san: "Bd6", color: "black", why: "Mirror development. The bishop goes to an active diagonal. Notice: unlike the main Winawer, Black's light-squared bishop is NOT blocked because there's no pawn on e6 anymore!", concepts: ["development", "piece-activity"] },
+        { san: "Bd6", color: "black", why: "Mirror development. The bishop goes to an active diagonal. Notice: unlike the main Winawer, Black's light-squared bishop is NOT blocked because there's no pawn on e6 anymore!", concepts: ["development", "piece-activity"], commonMistakes: [{ san: "Be7", whyBad: "Be7 is passive — the bishop does nothing on e7 except block the knight. Bd6 is more active, pointing at the kingside and controlling key squares on the b8-h2 diagonal." }, { san: "Nf6", whyBad: "Developing the knight first is okay but the bishop should go to d6 while the diagonal is open and the knight isn't in the way. Piece coordination matters — get the bishop placed actively first." }] },
         { san: "Nf3", color: "white", why: "Natural development. White plans to castle and play for a small edge in a quiet position.", concepts: ["development"] },
-        { san: "Ne7", color: "black", why: "Develop the knight flexibly. From e7, it can go to f5 (active) or g6 (supporting the kingside).", concepts: ["development", "piece-activity"] },
+        { san: "Ne7", color: "black", why: "Develop the knight flexibly. From e7, it can go to f5 (active) or g6 (supporting the kingside).", concepts: ["development", "piece-activity"], commonMistakes: [{ san: "Nf6", whyBad: "Nf6 looks natural but blocks the f-pawn and commits the knight too early. Ne7 is more flexible — from e7 the knight can reroute to f5 to pressure d4, or to g6 for kingside defense." }, { san: "Nc6", whyBad: "Nc6 blocks the c-pawn, preventing a future ...c5 break. Ne7 keeps all options open and the knight can still reach c6 later via e7 if needed." }] },
         { san: "O-O", color: "white", why: "Castle. The position is calm but White maintains a slight initiative.", concepts: ["king-safety"] },
       ],
     },
