@@ -35,6 +35,18 @@ export const kingsIndian: OpeningLine = {
       concepts: ["development", "center-control", "prophylaxis"],
       controls: "e4, d5 squares",
       prevents: "White from freely playing e4 without preparation",
+      commonMistakes: [
+        {
+          san: "d5",
+          whyBad:
+            "Playing ...d5 immediately leads to Queen's Gambit structures, not the King's Indian. The whole point of the KID is to let White build a center and then attack it later. Nf6 is the hypermodern approach — control the center with pieces first.",
+        },
+        {
+          san: "d6",
+          whyBad:
+            "While ...d6 is a King's Indian move, playing it before Nf6 lets White push e4 freely without any opposition. Nf6 first prevents e4 from coming easily, keeping the tension and preserving your options.",
+        },
+      ],
     },
     {
       san: "c4",
@@ -113,6 +125,18 @@ export const kingsIndian: OpeningLine = {
       why: "Black castles kingside, tucking the king into safety behind the fianchettoed bishop. This is essential before launching the ...e5 break — you never want your king in the center when the position opens up. The rook also moves to f8, where it will support the future ...f5 pawn storm. Castling here is both defensive and offensive preparation.",
       concepts: ["king-safety", "preparation"],
       controls: "Secures king, activates rook on f8",
+      commonMistakes: [
+        {
+          san: "e5",
+          whyBad:
+            "Playing ...e5 before castling is dangerous — the center could open with your king still in the middle. Castle first to secure the king, then strike with ...e5 when you're safe. Never open the position with your king exposed.",
+        },
+        {
+          san: "Nc6",
+          whyBad:
+            "Developing the knight before castling delays king safety. In the King's Indian, you need the king tucked behind the fianchettoed bishop before the center explodes. Castle first, develop later.",
+        },
+      ],
     },
     {
       san: "Be2",
@@ -128,6 +152,18 @@ export const kingsIndian: OpeningLine = {
       concepts: ["center-control", "piece-activity", "attack"],
       controls: "d4, f4 squares — challenges White's center",
       prevents: "White from maintaining an unchallenged pawn center",
+      commonMistakes: [
+        {
+          san: "c6",
+          whyBad:
+            "Playing ...c6 is too slow and passive. The King's Indian demands the aggressive ...e5 break to challenge d4 and activate the g7 bishop. Without ...e5, Black's position remains cramped with no counterplay.",
+        },
+        {
+          san: "Nbd7",
+          whyBad:
+            "Developing another piece instead of striking with ...e5 lets White consolidate the center further. This is the moment to challenge the center — Black has been preparing for this move since move 1. Don't delay the key break.",
+        },
+      ],
     },
     {
       san: "O-O",
@@ -142,6 +178,18 @@ export const kingsIndian: OpeningLine = {
       why: "Black develops the last minor piece, adding pressure to d4. The knight on c6 forces White to make a decision about the center — maintain the tension, push d5, or exchange on e5. This is a critical juncture in the King's Indian. The knight also eyes the e5 square if White exchanges, and can reroute to various squares depending on White's plan.",
       concepts: ["development", "center-control", "attack"],
       controls: "d4, e5 squares — increases pressure on the center",
+      commonMistakes: [
+        {
+          san: "Nbd7",
+          whyBad:
+            "Nbd7 is passive and doesn't put any pressure on d4. Nc6 is the correct square — it directly attacks d4, forces White to make a decision about the center, and the knight is more actively placed. In the KID, you need maximum pressure on d4.",
+        },
+        {
+          san: "f5",
+          whyBad:
+            "Playing ...f5 immediately without developing Nc6 first is premature. You need all your pieces in the game before launching the kingside pawn storm. Nc6 completes development and pressures d4 — then ...f5 will be far more effective.",
+        },
+      ],
     },
     {
       san: "d5",
@@ -175,11 +223,11 @@ export const kingsIndian: OpeningLine = {
       branchesAt: 8,
       opponentMove: { san: "f3", color: "white", why: "The Sämisch! White bolts the e4 pawn in place with f3, creating an ultra-solid center. White plans Be3, Qd2, and either O-O-O with a kingside pawn storm or O-O with a slow squeeze. Black must time ...e5 and ...f5 perfectly.", concepts: ["center-control", "preparation"] },
       moves: [
-        { san: "O-O", color: "black", why: "Castle first — you need the king safe before the fireworks start.", concepts: ["king-safety"] },
+        { san: "O-O", color: "black", why: "Castle first — you need the king safe before the fireworks start.", concepts: ["king-safety"], commonMistakes: [{ san: "e5", whyBad: "Striking the center before castling is reckless. The Samisch leads to very sharp positions — your king must be safe before any central confrontation. Castle first, attack second." }, { san: "c5", whyBad: "Opening the queenside before castling exposes your king to danger. Get your king to safety behind the fianchettoed bishop first, then choose the right pawn break." }] },
         { san: "Be3", color: "white", why: "Develop the bishop and prepare Qd2. The Sämisch setup is taking shape.", concepts: ["development", "preparation"] },
         { san: "e5", color: "black", why: "The key break! Challenge d4 even though White's center looks massive. Without ...e5, Black's position becomes too passive.", concepts: ["center-control", "attack"], commonMistakes: [{ san: "c5", whyBad: "c5 is the wrong break in the Sämisch. Black needs e5 to activate the g7 bishop and create kingside counterplay. c5 plays into White's hands." }] },
         { san: "d5", color: "white", why: "Close the center. Now it's a race: White on the queenside (c5), Black on the kingside (f5, g5).", concepts: ["space", "center-control"] },
-        { san: "Nh5", color: "black", why: "The knight heads to f4 via h5, a powerful outpost. From f4, it attacks d3 and supports the ...f5 break.", concepts: ["piece-activity", "preparation"] },
+        { san: "Nh5", color: "black", why: "The knight heads to f4 via h5, a powerful outpost. From f4, it attacks d3 and supports the ...f5 break.", concepts: ["piece-activity", "preparation"], commonMistakes: [{ san: "Ne8", whyBad: "Ne8 is too passive — the knight retreats backward with no clear plan. Nh5 heads to the powerful f4 outpost where it supports the ...f5 break and pressures d3. Aim forward, not backward." }, { san: "f5", whyBad: "Playing ...f5 immediately without first rerouting the knight via h5 to f4 means the f5 break lacks piece support. Get the knight to f4 first, then ...f5 will be much more powerful with the knight backing it up." }] },
         { san: "Qd2", color: "white", why: "Connect the rooks and prepare O-O-O. The race is about to begin.", concepts: ["development", "attack"] },
       ],
     },
@@ -190,11 +238,11 @@ export const kingsIndian: OpeningLine = {
       branchesAt: 8,
       opponentMove: { san: "f4", color: "white", why: "The Four Pawns Attack — White goes ALL IN on the center with c4-d4-e4-f4! This is the most aggressive possible approach against the King's Indian. White has a massive space advantage but the center can become overextended.", concepts: ["center-control", "space", "attack"] },
       moves: [
-        { san: "O-O", color: "black", why: "Castle immediately. With White's center so far advanced, the position could blow open at any moment — you need the king safe.", concepts: ["king-safety"] },
+        { san: "O-O", color: "black", why: "Castle immediately. With White's center so far advanced, the position could blow open at any moment — you need the king safe.", concepts: ["king-safety"], commonMistakes: [{ san: "c5", whyBad: "Challenging the center before castling is risky when White has four center pawns — the position could explode open with your king still in the middle. Safety first, then counterattack." }, { san: "e5", whyBad: "Playing ...e5 into White's four-pawn center before castling invites a sharp exchange that leaves your king exposed. Castle first to stay safe, then choose the right moment to strike." }] },
         { san: "Nf3", color: "white", why: "Develop and support the center. White has four center pawns but needs pieces to hold them.", concepts: ["development"] },
         { san: "c5", color: "black", why: "Strike at the center! c5 challenges d4 and d5, trying to undermine the four-pawn wall. This is the critical response — Black must counterattack before White consolidates.", concepts: ["center-control", "attack"], commonMistakes: [{ san: "e5", whyBad: "e5 runs into dxe5 dxe5 fxe5, and White's center is very strong. c5 first challenges the base of the chain." }] },
         { san: "d5", color: "white", why: "White closes the center, committing to a kingside attack with the f-pawn and pieces.", concepts: ["space"] },
-        { san: "e6", color: "black", why: "Attack the d5 pawn from a different angle. Black wants to open lines against White's over-extended center.", concepts: ["center-control", "attack"] },
+        { san: "e6", color: "black", why: "Attack the d5 pawn from a different angle. Black wants to open lines against White's over-extended center.", concepts: ["center-control", "attack"], commonMistakes: [{ san: "b5", whyBad: "Queenside expansion with ...b5 is too slow here. You need to attack the overextended center directly with ...e6, striking at d5. White's four-pawn center is the weakness — target it before it consolidates." }, { san: "Bg4", whyBad: "Developing the bishop doesn't challenge the center. You must play ...e6 now to undermine d5 while White's center is stretched thin. Piece moves can wait — the pawn break is urgent." }] },
         { san: "Be2", color: "white", why: "Develop and prepare to castle. White must play carefully — the four-pawn center is powerful but fragile.", concepts: ["development", "king-safety"] },
       ],
     },
