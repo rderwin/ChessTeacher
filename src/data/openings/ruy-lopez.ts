@@ -27,6 +27,10 @@ export const ruyLopez: OpeningLine = {
       why: "Stakes an immediate claim to the center by occupying e4 with a pawn. This controls the critical d5 and f5 squares, limiting Black's options for central counterplay. It also opens diagonals for your queen and light-squared bishop — development starts with this single move.",
       concepts: ["center-control", "development"],
       controls: "d5, f5 squares",
+      commonMistakes: [
+        { san: "d4", whyBad: "d4 is a fine first move but leads to Queen's Gambit/London territory. We're learning the Ruy Lopez which starts with e4 — the king pawn opening leads to sharper, more tactical positions." },
+        { san: "Nf3", whyBad: "Nf3 is flexible but delays the central claim. e4 grabs space immediately AND opens the bishop's diagonal. Claim the center with a pawn when you can." },
+      ],
     },
     {
       san: "e5",
@@ -47,6 +51,10 @@ export const ruyLopez: OpeningLine = {
           san: "Bc4",
           whyBad:
             "Bc4 develops a piece but doesn't create an immediate threat against e5. Nf3 is more precise because it forces Black to defend, giving you tempo. Always prefer moves that develop WITH a threat.",
+        },
+        {
+          san: "d4",
+          whyBad: "d4 immediately is the Center Game — after exd4 Qxd4, your queen is exposed. Nf3 develops with a threat first, and d4 can come later after proper preparation.",
         },
       ],
     },
@@ -97,6 +105,14 @@ export const ruyLopez: OpeningLine = {
           whyBad:
             "Capturing on c6 relieves all the tension! After ...dxc6, Black gets the bishop pair, a strong center, and easy development. The whole point of the Ruy Lopez is maintaining this pressure — Bxc6 gives up your strategic asset for nothing. Only exchange when you get something concrete in return.",
         },
+        {
+          san: "Be2",
+          whyBad: "Retreating to e2 throws away all the pressure you've built. Ba4 maintains the pin on the c6 knight along the diagonal. The bishop is not retreating — it's repositioning while keeping the same strategic threat.",
+        },
+        {
+          san: "Bc4",
+          whyBad: "Bc4 targets f7 but gives up the pin on the c6 knight entirely. Ba4 keeps the pressure on e5 through the pin — the indirect threat is more powerful than a direct one here.",
+        },
       ],
     },
     {
@@ -118,6 +134,14 @@ export const ruyLopez: OpeningLine = {
           whyBad:
             "d3 is too slow and passive — it blocks in the c1-bishop and misses the chance to castle while the position is still calm. Castle first, then you can choose between d3 (solid) or d4 (ambitious) depending on how Black responds.",
         },
+        {
+          san: "Nc3",
+          whyBad: "Nc3 develops but blocks the c-pawn from going to c3. In the Ruy Lopez, c3 is essential to prepare d4. If the knight sits on c3, the whole d4 plan falls apart. Castle first, then prepare c3+d4.",
+        },
+        {
+          san: "Bxc6",
+          whyBad: "Still too early to capture! Maintain the tension. Castling gets the king safe AND keeps all the pressure on. The threat of Bxc6 is more powerful than actually doing it.",
+        },
       ],
     },
     {
@@ -134,6 +158,11 @@ export const ruyLopez: OpeningLine = {
       concepts: ["development", "prophylaxis", "preparation"],
       controls: "e-file, supports e4 pawn",
       prevents: "Tactics against the e4 pawn, and prepares d4 break",
+      commonMistakes: [
+        { san: "d3", whyBad: "d3 is passive and commits too early. Re1 supports e4 while keeping ALL options open — d3, d4, c3+d4. The Ruy Lopez is about flexibility and not committing prematurely." },
+        { san: "d4", whyBad: "d4 without c3 preparation means after exd4 Nxd4, you move the knight twice. Re1 first supports e4, then c3 prepares d4 properly. Patience is the Ruy Lopez way." },
+        { san: "Nc3", whyBad: "Nc3 blocks the c-pawn! You need c3 to prepare d4 — the whole plan. Re1 is more useful right now: it supports e4 and prepares the central break properly." },
+      ],
     },
     {
       san: "b5",
@@ -148,6 +177,11 @@ export const ruyLopez: OpeningLine = {
       why: "The bishop retreats to b3, and while it's been pushed back twice, it actually lands on an excellent diagonal. From b3, the bishop targets the d5 square and the f7 pawn — two critical points in Black's position. The bishop has traded queenside influence for central and kingside potential. This is a key lesson: a retreat isn't always a concession if the piece lands on a better square.",
       concepts: ["piece-activity", "prophylaxis"],
       controls: "d5 square, f7 pawn, a2-g8 diagonal",
+      commonMistakes: [
+        { san: "Bc4", whyBad: "Bc4 looks natural but b3 is actually better here. On b3, the bishop is safe from ...Na5 attacks and still controls the same diagonal. Sometimes the 'further back' square is the stronger one." },
+        { san: "Be2", whyBad: "Be2 puts the bishop on a completely passive diagonal. Bb3 keeps it on the powerful a2-g8 diagonal targeting f7 and d5. Never retreat a bishop to a dead diagonal when an active one is available." },
+        { san: "Bxc6", whyBad: "STILL don't take on c6! The bishop on b3 is a long-term asset targeting f7 and d5. Giving it up now just helps Black. Maintain the pressure." },
+      ],
     },
     {
       san: "d6",
@@ -223,6 +257,10 @@ export const ruyLopez: OpeningLine = {
           color: "white",
           why: "Strike back in the center immediately. This opens lines and challenges Black's knight on e4. White aims to exploit the temporary awkwardness of Black's pieces.",
           concepts: ["center-control", "attack"],
+          commonMistakes: [
+            { san: "Re1", whyBad: "Re1 attacks the knight but d4 is more energetic. d4 opens the center AND attacks the knight simultaneously — two purposes in one move. Strike while the iron is hot." },
+            { san: "Nxe5", whyBad: "Nxe5 wins a pawn but after ...Nd6, Black recovers well. d4 is more principled — it opens the center for your better-developed pieces. Strategy over grabbing pawns." },
+          ],
         },
         {
           san: "Nd6",
@@ -235,6 +273,10 @@ export const ruyLopez: OpeningLine = {
           color: "white",
           why: "Now is the right time to capture. After dxc6, Black has doubled pawns but active pieces. The ensuing endgame is the 'Berlin Wall' — extremely hard for White to win despite the structural advantage.",
           concepts: ["pawn-structure"],
+          commonMistakes: [
+            { san: "dxe5", whyBad: "dxe5 Nxb5 loses the bishop for nothing. Bxc6 first damages the pawn structure, THEN you can take on e5. Move order is critical — capture on c6 before Black can win the bishop." },
+            { san: "Nxe5", whyBad: "Nxe5 Nxe5 dxe5 and Black's knight on e4 is very strong. Bxc6 first is more precise — damage the structure, then fight for the center." },
+          ],
         },
         {
           san: "dxc6",
@@ -286,6 +328,10 @@ export const ruyLopez: OpeningLine = {
           color: "white",
           why: "Develop the bishop actively. It eyes the a7 pawn and supports a potential c4-c5 advance later. White's plan is methodical: complete development, then exploit the pawn structure.",
           concepts: ["development", "piece-activity"],
+          commonMistakes: [
+            { san: "Bg5", whyBad: "Bg5 pins the f6 pawn but there's no knight to pin here. Be3 is more useful — it develops toward the queenside where the action will be. Develop pieces where they have targets." },
+            { san: "Bf4", whyBad: "Bf4 is less active than Be3 in this structure. Be3 supports c4 ideas and pressures a7. Place bishops where they work with your pawn structure." },
+          ],
         },
         {
           san: "Ne7",
@@ -298,6 +344,10 @@ export const ruyLopez: OpeningLine = {
           color: "white",
           why: "Reroute the knight toward better squares (c4 or f1-g3). White methodically improves piece placement while Black struggles with the long-term pawn weakness.",
           concepts: ["piece-activity", "preparation"],
+          commonMistakes: [
+            { san: "Nc3", whyBad: "Nc3 is the natural square but Nd2 is more flexible in this structure. From d2, the knight can go to c4 (attacking d6 and e5) or f1-g3 (supporting a kingside attack). Nd2 gives more options." },
+            { san: "c4", whyBad: "c4 is part of the plan but Nd2 first is more accurate. The knight wants to reach c4 — so send it on its way before committing the c-pawn. Piece development before pawn moves." },
+          ],
         },
       ],
     },
