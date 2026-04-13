@@ -27,6 +27,10 @@ export const italianGame: OpeningLine = {
       why: "Stakes an immediate claim to the center by occupying e4 with a pawn. This controls the critical d5 and f5 squares, limiting Black's options for central counterplay. It also opens diagonals for your queen and light-squared bishop — development starts with this single move.",
       concepts: ["center-control", "development"],
       controls: "d5, f5 squares",
+      commonMistakes: [
+        { san: "d4", whyBad: "d4 is also a great first move (leads to the Queen's Gambit, London, etc.), but we're learning the Italian Game which starts with e4. Both are equally valid — e4 leads to more open, tactical games." },
+        { san: "Nf3", whyBad: "Nf3 is fine but delays claiming the center. e4 grabs space immediately AND opens your bishop's diagonal. Always claim the center with a pawn when you can do it safely." },
+      ],
     },
     {
       san: "e5",
@@ -74,7 +78,19 @@ export const italianGame: OpeningLine = {
         {
           san: "Bb5",
           whyBad:
-            "Bb5 (the Ruy Lopez) is also a great opening, but in the Italian Game we prefer Bc4 because it directly targets f7 and controls d5. Bb5 puts pressure on the knight defending e5, which is a different strategic idea.",
+            "Bb5 (the Ruy Lopez) is also excellent — it's actually the most popular move here! But in the Italian Game we play Bc4 because it directly targets f7 (the weakest square) and controls d5. Bb5 pins the knight instead, which is a different strategic plan. Both are strong.",
+        },
+        {
+          san: "d4",
+          whyBad: "d4 right away leads to the Scotch Game — playable but different. In the Italian, we develop the bishop first to aim at f7, THEN prepare d4 later with c3. Piece development before pawn pushes.",
+        },
+        {
+          san: "Nc3",
+          whyBad: "Nc3 develops a piece but doesn't create a specific threat. Bc4 is better here because it targets the f7 weakness AND develops — every move should have a purpose beyond just 'getting a piece out.'",
+        },
+        {
+          san: "Be2",
+          whyBad: "Be2 is too passive — the bishop sits on a boring diagonal doing nothing. Bc4 is active: it targets f7 (weak square), controls d5 (key central square), and prepares castling. Always put bishops on ACTIVE diagonals.",
         },
       ],
     },
@@ -96,7 +112,22 @@ export const italianGame: OpeningLine = {
         {
           san: "d3",
           whyBad:
-            "d3 is too passive — it blocks in the light-squared bishop and gives up the fight for a big center. c3 preparing d4 is much more ambitious and puts real pressure on Black.",
+            "d3 is too passive — it blocks in the light-squared bishop on c4 and gives up the fight for d4. c3 preparing d4 is much more ambitious. Think: if I play d3, when will I ever get d4? With c3, d4 comes next move with full support.",
+        },
+        {
+          san: "d4",
+          whyBad:
+            "d4 immediately looks strong but after exd4, you have to recapture Nxd4 (the knight moves AGAIN, wasting a tempo) or lose the pawn. c3 FIRST means after d4 exd4 cxd4, you keep a pawn center. Preparation before action!",
+        },
+        {
+          san: "O-O",
+          whyBad:
+            "Castling is always a good move, but c3 is more urgent here. If you castle first, Black might play d5 challenging your center before you're ready. c3 prepares d4 which is the whole plan. Castle AFTER you've set up the center.",
+        },
+        {
+          san: "Nc3",
+          whyBad:
+            "Nc3 develops but BLOCKS the c-pawn! You need c3 to prepare d4. If the knight is on c3, you can never play c3. Move order matters — c3 first, then develop the knight to d2 or a different route.",
         },
       ],
     },
@@ -114,6 +145,10 @@ export const italianGame: OpeningLine = {
       concepts: ["center-control", "space", "tempo"],
       controls: "c5, e5 squares — attacks bishop and pawn",
       prevents: "Black from maintaining a comfortable setup",
+      commonMistakes: [
+        { san: "O-O", whyBad: "Castling is always tempting but d4 is the PLAN we've been building toward. c3 was played specifically to make d4 work. If you castle now, Black consolidates and your c3 was wasted. Execute the plan!" },
+        { san: "Qe2", whyBad: "Moving the queen this early clutters the position and blocks your bishop. d4 is the natural continuation — it's what c3 prepared. Don't get distracted by queen moves in the opening." },
+      ],
     },
     {
       san: "exd4",
@@ -128,6 +163,10 @@ export const italianGame: OpeningLine = {
       why: "Recapturing with the c-pawn gives you the ideal pawn center — pawns on d4 and e4 control a huge amount of space. Your pieces are all developed or ready to develop, and you can castle kingside on the next move. This is a textbook example of why preparation (c3) before action (d4) is so powerful.",
       concepts: ["center-control", "space"],
       controls: "c5, d5, e5, f5 squares — a wall of central control",
+      commonMistakes: [
+        { san: "Nxd4", whyBad: "Nxd4 recaptures but moves your already-developed knight AGAIN (it was perfect on f3). After cxd4, you keep the knight on f3 AND get a big pawn center. Don't move a piece twice when a pawn can do the job better." },
+        { san: "e5", whyBad: "e5 attacks the knight but ignores the d4 pawn. After Nxd4, you've lost a pawn for nothing. Always recapture material first, THEN attack." },
+      ],
     },
     {
       san: "Bb4+",
@@ -142,6 +181,10 @@ export const italianGame: OpeningLine = {
       why: "Blocks the check while developing the bishop. After Black trades or retreats, you'll castle and have a powerful position — two central pawns, actively placed pieces, and a safe king. This is the reward for understanding the Italian Game's strategic ideas.",
       concepts: ["development", "king-safety"],
       controls: "Blocks check, develops the last minor piece",
+      commonMistakes: [
+        { san: "Nc3", whyBad: "Nc3 blocks the check but puts the knight on c3 where it blocks your c-pawn (which already moved to d4). Bd2 is better because the bishop develops to a useful square AND blocks the check. Two birds, one stone." },
+        { san: "Kf1", whyBad: "Moving the king loses castling rights forever. Bd2 blocks the check AND develops a piece. Never give up castling when you don't have to — it's too valuable." },
+      ],
     },
   ],
   summary:
