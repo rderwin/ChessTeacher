@@ -17,9 +17,28 @@ export const scotchGame: OpeningLine = {
     famousPlayers: ["Garry Kasparov", "Fabiano Caruana", "Ian Nepomniachtchi", "Magnus Carlsen"],
   },
   moves: [
-    { san: "e4", color: "white", why: "Occupy the center and open lines for development.", concepts: ["center-control", "development"], controls: "d5, f5" },
+    {
+      san: "e4",
+      color: "white",
+      why: "Occupy the center and open lines for development.",
+      concepts: ["center-control", "development"],
+      controls: "d5, f5",
+      commonMistakes: [
+        { san: "d4", whyBad: "d4 is fine (Queen's Gambit, London, etc.) but leads to closed, positional games. We're learning the Scotch which starts with e4 — open, tactical positions where early center strikes matter." },
+        { san: "Nf3", whyBad: "Nf3 is flexible but delays the central pawn claim. e4 grabs space immediately AND opens the bishop's diagonal. Claim the center with a pawn first." },
+      ],
+    },
     { san: "e5", color: "black", why: "Black mirrors, claiming equal central space.", concepts: ["center-control"] },
-    { san: "Nf3", color: "white", why: "Develop and attack e5.", concepts: ["development", "attack"] },
+    {
+      san: "Nf3",
+      color: "white",
+      why: "Develop and attack e5.",
+      concepts: ["development", "attack"],
+      commonMistakes: [
+        { san: "d4", whyBad: "d4 immediately (the Center Game) is premature — after exd4 Qxd4, your queen is exposed in the center. Nf3 first develops with a threat, and d4 comes next move as the Scotch." },
+        { san: "Bc4", whyBad: "Bc4 develops but doesn't create an immediate threat to e5. Nf3 attacks e5 directly, forcing Black to defend — develop with threats, not just development." },
+      ],
+    },
     { san: "Nc6", color: "black", why: "Defend e5 with a developing move.", concepts: ["development", "center-control"] },
     {
       san: "d4",
@@ -29,6 +48,8 @@ export const scotchGame: OpeningLine = {
       controls: "Opens the position immediately",
       commonMistakes: [
         { san: "Bc4", whyBad: "Bc4 is the Italian Game — a fine opening but different from the Scotch. 3.d4 is more direct and leads to open positions faster." },
+        { san: "Bb5", whyBad: "Bb5 is the Ruy Lopez — also excellent but more positional and theory-heavy. d4 is the Scotch: immediate action in the center, less theory, more open play." },
+        { san: "d3", whyBad: "d3 is passive and gives up the chance to fight for the center. d4 is much more ambitious — it opens the position immediately. Don't play small when you can play big!" },
       ],
     },
     { san: "exd4", color: "black", why: "Virtually forced — Black must capture or lose central ground. The center opens up, which generally favors the side with better development (White, for now).", concepts: ["center-control"] },
@@ -38,6 +59,10 @@ export const scotchGame: OpeningLine = {
       why: "Recapture with the knight, which lands on a powerful central square. The knight on d4 attacks c6, e6, b5, f5 — it's a monster. White has completed the opening of the center and leads in development.",
       concepts: ["development", "center-control", "piece-activity"],
       controls: "c6, e6, b5, f5",
+      commonMistakes: [
+        { san: "Qxd4", whyBad: "Qxd4 recovers the pawn but puts the queen in the center where it's a target. After ...Nc6, the queen must move again — wasted tempo. Nxd4 keeps the queen safe and the knight is powerful on d4." },
+        { san: "Bc4", whyBad: "Bc4 is the Scotch Gambit — a valid option but a real pawn sacrifice. Nxd4 simply recovers the pawn with a strong knight. Don't give up material unless you have a specific plan." },
+      ],
     },
     {
       san: "Bc5",
@@ -52,6 +77,8 @@ export const scotchGame: OpeningLine = {
       concepts: ["pawn-structure"],
       commonMistakes: [
         { san: "Be3", whyBad: "Be3 is playable but allows Black to equalize easily. Nxc6 is more critical — it forces Black to decide how to recapture, creating imbalances White can exploit." },
+        { san: "Nb3", whyBad: "Nb3 retreats the knight to a passive square. The knight was great on d4! Nxc6 trades it but damages Black's pawn structure. Don't retreat active pieces without a reason." },
+        { san: "f3", whyBad: "f3 weakens the kingside horribly and doesn't develop anything. Nxc6 is much more useful — it creates a structural imbalance in your favor. Don't weaken your king for no reason." },
       ],
     },
     { san: "bxc6", color: "black", why: "Recapture toward the center. Black now has doubled c-pawns but the bishop pair and an open b-file for the rook. The position is dynamically balanced.", concepts: ["pawn-structure", "center-control"] },
@@ -60,15 +87,34 @@ export const scotchGame: OpeningLine = {
       color: "white",
       why: "Develop the bishop to an active diagonal pointing at the kingside. Bd3 also prepares castling. White's plan: castle, develop naturally, and exploit the structural advantage in the long term.",
       concepts: ["development", "piece-activity"],
+      commonMistakes: [
+        { san: "Be2", whyBad: "Be2 is passive — the bishop sits on a dead diagonal. Bd3 targets the kingside, especially h7 after Black castles. Active bishops are worth much more than passive ones." },
+        { san: "Bc4", whyBad: "Bc4 is playable but Bd3 is better in this specific structure. After ...d6, Bc4 can be hit by ...Na5. Bd3 is safer and still aims at the kingside." },
+        { san: "Qf3", whyBad: "Don't bring the queen out early! Qf3 develops the queen but it becomes a target. Bd3 develops a minor piece and prepares castling — much more solid." },
+      ],
     },
     { san: "d6", color: "black", why: "Solidify the center and open a path for the dark-squared bishop. Black's position is flexible with the two bishops as compensation for the doubled pawns.", concepts: ["center-control", "development"] },
-    { san: "O-O", color: "white", why: "Castle immediately — king safety first. The rook also comes to e1 to support the e4 pawn and contest the e-file.", concepts: ["king-safety", "development"] },
+    {
+      san: "O-O",
+      color: "white",
+      why: "Castle immediately — king safety first. The rook also comes to e1 to support the e4 pawn and contest the e-file.",
+      concepts: ["king-safety", "development"],
+      commonMistakes: [
+        { san: "Nc3", whyBad: "Nc3 develops but castling is more urgent in an open position. The center is wide open and your king is exposed — get it to safety first, then develop the knight." },
+        { san: "Qh5", whyBad: "Don't bring the queen out early for cheap tricks! Qh5 looks aggressive but Black easily defends with ...Qf6 or ...g6. O-O is much more responsible — king safety before attacks." },
+      ],
+    },
     { san: "Ne7", color: "black", why: "The knight develops to e7 (not f6, which would block the f-pawn). From e7, it can go to g6 to support the kingside or to f5 for active play.", concepts: ["development", "piece-activity"] },
     {
       san: "Nc3",
       color: "white",
       why: "Develop the last minor piece. The knight on c3 supports e4 and controls d5. White now has all pieces developed and a harmonious position.",
       concepts: ["development", "center-control"],
+      commonMistakes: [
+        { san: "Nd2", whyBad: "Nd2 is passive — in the Scotch (unlike the London/Colle), the c-pawn doesn't need to go to c3. Nc3 is the natural square here: it controls d5, supports e4, and develops to the best square." },
+        { san: "Re1", whyBad: "Re1 is useful but developing the knight is more important. Nc3 completes your minor piece development — all four minor pieces should be out before you start moving rooks." },
+        { san: "c3", whyBad: "c3 is a positional move but you have a knight to develop. Nc3 does everything c3 does (supports d5, controls center) but also adds a piece to the game. Develop pieces over pawn moves." },
+      ],
     },
     { san: "O-O", color: "black", why: "Black castles, completing basic development. Both sides are now developed with roughly equal chances — White has the better structure, Black has the bishops.", concepts: ["king-safety"] },
   ],
@@ -89,9 +135,26 @@ export const scotchGame: OpeningLine = {
         { san: "Nf6", color: "black", why: "Develop and counter-attack e4. Black ignores the gambit and fights for the center.", concepts: ["development", "attack"] },
         { san: "e5", color: "white", why: "Push the pawn, gaining space and attacking the knight. White is playing aggressively — every move creates a threat.", concepts: ["space", "attack"], commonMistakes: [{ san: "Nxd4", whyBad: "Taking back on d4 defeats the purpose of the gambit. e5 gains space and tempo — that's what you sacrificed the pawn for!" }] },
         { san: "d5", color: "black", why: "Counter in the center! Black strikes back immediately rather than retreating.", concepts: ["center-control", "attack"] },
-        { san: "Bb5", color: "white", why: "Pin the knight or force a response. White keeps the pressure up with every move.", concepts: ["attack", "piece-activity"] },
+        {
+          san: "Bb5",
+          color: "white",
+          why: "Pin the knight or force a response. White keeps the pressure up with every move.",
+          concepts: ["attack", "piece-activity"],
+          commonMistakes: [
+            { san: "exf6", whyBad: "Taking the knight too early opens lines for Black's pieces. Bb5 keeps the pressure and maintains the pawn on e5. Don't trade when you can build more pressure." },
+            { san: "Bd3", whyBad: "Bd3 is passive here. Bb5 creates immediate problems for Black by pinning the knight. In gambit play, every move must create threats — Bb5 does that." },
+          ],
+        },
         { san: "Ne4", color: "black", why: "The knight jumps to a powerful central outpost. Black is fighting back actively.", concepts: ["center-control", "piece-activity"] },
-        { san: "Nxd4", color: "white", why: "Recover the pawn while maintaining the initiative. White has caught up on material and still has active pieces.", concepts: ["center-control"] },
+        {
+          san: "Nxd4",
+          color: "white",
+          why: "Recover the pawn while maintaining the initiative. White has caught up on material and still has active pieces.",
+          concepts: ["center-control"],
+          commonMistakes: [
+            { san: "Bxc6+", whyBad: "Bxc6+ looks tempting but after ...bxc6, Black gets the bishop pair and open lines. Nxd4 recovers the gambit pawn and keeps a strong center." },
+          ],
+        },
       ],
     },
     {
@@ -106,11 +169,38 @@ export const scotchGame: OpeningLine = {
         concepts: ["development", "attack", "center-control"],
       },
       moves: [
-        { san: "Nxc6", color: "white", why: "Trade and open the position. After bxc6, White plans to target the weakened pawn structure.", concepts: ["pawn-structure"] },
+        {
+          san: "Nxc6",
+          color: "white",
+          why: "Trade and open the position. After bxc6, White plans to target the weakened pawn structure.",
+          concepts: ["pawn-structure"],
+          commonMistakes: [
+            { san: "Nb3", whyBad: "Nb3 retreats the knight passively. Nxc6 trades but creates doubled pawns for Black — that structural damage lasts the whole game. Don't retreat from a strong square without trading." },
+            { san: "f3", whyBad: "f3 weakens the kingside and blocks Nf3 potential. Nxc6 is the thematic move that creates lasting structural damage. Strategic trades beat weakening pawn moves." },
+          ],
+        },
         { san: "bxc6", color: "black", why: "Recapture toward the center, same structural trade as the main line.", concepts: ["pawn-structure", "center-control"] },
-        { san: "e5", color: "white", why: "Push the pawn, gaining space and forcing the knight to retreat. White seizes the initiative.", concepts: ["space", "attack"] },
+        {
+          san: "e5",
+          color: "white",
+          why: "Push the pawn, gaining space and forcing the knight to retreat. White seizes the initiative.",
+          concepts: ["space", "attack"],
+          commonMistakes: [
+            { san: "Bd3", whyBad: "Bd3 develops but doesn't capitalize on the moment. e5 gains space and attacks the knight with tempo. When you can gain space AND tempo, do it." },
+            { san: "Bd2", whyBad: "Bd2 is passive development. e5 is the aggressive move that takes advantage of Black's damaged pawn structure. Play actively when the position calls for it." },
+          ],
+        },
         { san: "Qe7", color: "black", why: "The queen blocks the check and prepares to recapture if White plays exf6. Unusual but theoretically sound.", concepts: ["prophylaxis"] },
-        { san: "Qe2", color: "white", why: "Counter the queen by blocking with your own. This leads to complex middlegame positions.", concepts: ["piece-activity"] },
+        {
+          san: "Qe2",
+          color: "white",
+          why: "Counter the queen by blocking with your own. This leads to complex middlegame positions.",
+          concepts: ["piece-activity"],
+          commonMistakes: [
+            { san: "Be2", whyBad: "Be2 blocks the queen and is passive. Qe2 supports the e5 pawn and faces Black's queen directly. In this specific position, the queen belongs on e2 to maintain the central pawn." },
+            { san: "exf6", whyBad: "Taking on f6 releases all the pressure. The pawn on e5 is cramping Black's position — keep it there! After Qe2, the pawn is defended and Black stays cramped." },
+          ],
+        },
         { san: "Nd5", color: "black", why: "The knight jumps to a powerful central outpost. Black has active play despite the structural damage.", concepts: ["center-control", "piece-activity"] },
       ],
     },
