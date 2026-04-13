@@ -56,6 +56,18 @@ export const sicilianNajdorf: OpeningLine = {
       concepts: ["center-control", "preparation"],
       controls: "e5 square",
       prevents: "White from occupying e5 with a piece early on",
+      commonMistakes: [
+        {
+          san: "Nc6",
+          whyBad:
+            "Nc6 commits the knight too early and leads to entirely different Sicilian systems (Classical or Sveshnikov). In the Najdorf, Black delays ...Nc6 to preserve flexibility for the ...a6 and ...b5 queenside expansion plan.",
+        },
+        {
+          san: "e6",
+          whyBad:
+            "Playing ...e6 heads toward the Scheveningen or Taimanov, not the Najdorf. The move ...d6 is the Najdorf move order — it keeps the position flexible and avoids committing the pawn structure too early.",
+        },
+      ],
     },
     {
       san: "d4",
@@ -70,6 +82,18 @@ export const sicilianNajdorf: OpeningLine = {
       why: "Black captures, which is virtually forced and also desirable. The exchange creates an asymmetrical pawn structure that defines the entire Sicilian: White gets a central pawn majority (e4 vs. d6), while Black gets a queenside pawn majority (a and b pawns against White's a-pawn after later exchanges). This structural imbalance is the engine of Black's counterplay.",
       concepts: ["center-control", "pawn-structure"],
       controls: "Opens the c-file for the future rook",
+      commonMistakes: [
+        {
+          san: "Nf6",
+          whyBad:
+            "Developing the knight before capturing on d4 lets White push d5, seizing the center and cramping Black's position. Capture on d4 first to ensure the asymmetrical Sicilian structure Black wants.",
+        },
+        {
+          san: "Nc6",
+          whyBad:
+            "Developing the knight allows White to maintain the d4 pawn with c3, keeping a strong center. Capture on d4 now to open the c-file and create the structural imbalance that fuels Black's counterplay.",
+        },
+      ],
     },
     {
       san: "Nxd4",
@@ -172,6 +196,18 @@ export const sicilianNajdorf: OpeningLine = {
       why: "Black castles kingside without delay, getting the king to safety before the position explodes. With White about to castle queenside and launch a kingside pawn storm, Black must have the king tucked away first. Castling also activates the rook on f8, which will later support the ...d5 or ...f5 central breaks that are Black's main sources of counterplay.",
       concepts: ["king-safety", "development"],
       controls: "Activates the f8 rook",
+      commonMistakes: [
+        {
+          san: "b5",
+          whyBad:
+            "Launching queenside expansion before castling is reckless. Your king is still in the center and White can exploit this with sharp central play. Castle first to secure the king, then expand with ...b5 when you're safe.",
+        },
+        {
+          san: "Nc6",
+          whyBad:
+            "Developing another piece before castling leaves the king in danger too long. With opposite-side castling approaching, every tempo matters for king safety. Castle now and activate the rook on f8.",
+        },
+      ],
     },
     {
       san: "Qd2",
@@ -187,6 +223,18 @@ export const sicilianNajdorf: OpeningLine = {
       concepts: ["development", "piece-activity", "prophylaxis"],
       controls: "d5, a2-g8 diagonal",
       prevents: "White from establishing a piece on d5",
+      commonMistakes: [
+        {
+          san: "Nc6",
+          whyBad:
+            "While Nc6 develops a piece, it blocks the c-file which is critical for Black's rook counterplay. Be6 is more precise — it controls d5, eyes a2 (where White's king is heading), and prepares ...b5 without blocking anything.",
+        },
+        {
+          san: "b5",
+          whyBad:
+            "Pushing ...b5 without the bishop on e6 to support it leaves the pawn weak and d5 uncontrolled. Develop Be6 first to guard d5 and support the ...b5 advance — preparation before pawn breaks.",
+        },
+      ],
     },
     {
       san: "O-O-O",
@@ -235,6 +283,18 @@ export const sicilianNajdorf: OpeningLine = {
           color: "black",
           why: "Develop the bishop and prepare to castle. Be7 is the safest square — it unpins the knight and gets the king to safety. The alternative Qb6 (the Poisoned Pawn) grabs b2 but is extremely risky.",
           concepts: ["development", "king-safety"],
+          commonMistakes: [
+            {
+              san: "Qb6",
+              whyBad:
+                "The famous Poisoned Pawn variation! Qb6 grabs the b2 pawn but the queen gets trapped in a whirlwind of tactics. For beginners, Be7 is far safer — it unpins the knight and prepares castling without taking extreme risks.",
+            },
+            {
+              san: "Nbd7",
+              whyBad:
+                "Nbd7 blocks the dark-squared bishop and doesn't unpin the knight on f6. Be7 is essential — it breaks the pin, develops a piece, and prepares castling all in one move.",
+            },
+          ],
         },
         {
           san: "Qf3",
@@ -247,6 +307,18 @@ export const sicilianNajdorf: OpeningLine = {
           color: "black",
           why: "The queen goes to c7, supporting e5 and connecting the rooks. It also eyes the c-file, which is the highway for Black's counterplay after queenside castling by White.",
           concepts: ["piece-activity", "preparation"],
+          commonMistakes: [
+            {
+              san: "O-O",
+              whyBad:
+                "Castling immediately is premature — you need the queen on c7 first to support the e5 push and control the c-file. Qc7 is a multi-purpose move that coordinates your pieces before committing the king.",
+            },
+            {
+              san: "Nc6",
+              whyBad:
+                "Nc6 blocks the c-file which is Black's main source of counterplay. Qc7 occupies the c-file strategically, supports a future ...e5 advance, and keeps the knight's options open.",
+            },
+          ],
         },
         {
           san: "O-O-O",
@@ -292,6 +364,18 @@ export const sicilianNajdorf: OpeningLine = {
           color: "black",
           why: "Develop the bishop actively. Be6 controls d5, eyes a2, and prepares queenside castling or a b5 push. The bishop on e6 is a strong piece in the Najdorf.",
           concepts: ["development", "piece-activity"],
+          commonMistakes: [
+            {
+              san: "Be7",
+              whyBad:
+                "Developing the kingside bishop first is less urgent. Be6 is more important because it controls the critical d5 square and pressures a2 where White's king will castle. Prioritize the bishop that serves both attack and defense.",
+            },
+            {
+              san: "b5",
+              whyBad:
+                "Pushing ...b5 without Be6 to support it leaves d5 unguarded and the b5 pawn can become weak. Develop Be6 first to control d5, then ...b5 will be a powerful advance with proper piece support.",
+            },
+          ],
         },
         {
           san: "Be3",
@@ -304,6 +388,18 @@ export const sicilianNajdorf: OpeningLine = {
           color: "black",
           why: "Prepare to castle kingside. Be7 is flexible — it can also reroute to f6 or g5 later if needed. Black is getting ready for the opposite-side castling battle.",
           concepts: ["development", "king-safety"],
+          commonMistakes: [
+            {
+              san: "Bc5",
+              whyBad:
+                "While Bc5 is aggressive, the bishop is exposed on c5 and can be kicked by Be3 or Na5. Be7 is safer and more flexible — it prepares castling and can reroute to f6 or g5 later without being a target.",
+            },
+            {
+              san: "h5",
+              whyBad:
+                "Trying to slow White's g4 advance with ...h5 weakens the kingside before you've even castled. Develop the bishop to e7 and castle first — then worry about defensive pawn moves if needed.",
+            },
+          ],
         },
         {
           san: "Qd2",
