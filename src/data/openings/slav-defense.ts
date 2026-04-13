@@ -83,6 +83,18 @@ export const slavDefense: OpeningLine = {
       concepts: ["development", "center-control", "prophylaxis"],
       controls: "e4, d5 squares",
       prevents: "White from easily pushing e4 to dominate the center",
+      commonMistakes: [
+        {
+          san: "Bf5",
+          whyBad:
+            "Developing the bishop before the knight allows White to push e4 immediately, attacking both the bishop and the center. Play Nf6 first to control e4, then capture on c4 and only then develop Bf5 — move order is everything in the Slav.",
+        },
+        {
+          san: "dxc4",
+          whyBad:
+            "Capturing on c4 too early, before Nf6, lets White push e4 with a powerful center. You need the knight on f6 controlling e4 first, THEN capture on c4. The Slav is all about precise move order.",
+        },
+      ],
     },
     {
       san: "Nc3",
@@ -120,6 +132,18 @@ export const slavDefense: OpeningLine = {
       concepts: ["development", "piece-activity", "center-control"],
       controls: "e4, d3, g6 squares along the h7-b1 diagonal",
       prevents: "White from easily achieving e4 central expansion",
+      commonMistakes: [
+        {
+          san: "e6",
+          whyBad:
+            "Playing ...e6 before ...Bf5 locks the bishop behind the pawn chain forever — this is the exact problem the Slav exists to solve! You captured on c4 specifically to develop Bf5 first. Don't throw away the advantage you earned.",
+        },
+        {
+          san: "Bg4",
+          whyBad:
+            "Bg4 pins the knight but the bishop is vulnerable to h3, forcing it to trade or retreat. Bf5 is the Slav's trademark square — the bishop is safe, controls e4 firmly, and doesn't give White a free tempo with h3.",
+        },
+      ],
     },
     {
       san: "e3",
@@ -135,6 +159,18 @@ export const slavDefense: OpeningLine = {
       concepts: ["development", "king-safety", "pawn-structure"],
       controls: "d5 square — completes the pawn support structure",
       prevents: "Any tactics against d5 or f7, solidifying the center",
+      commonMistakes: [
+        {
+          san: "Bb4",
+          whyBad:
+            "Developing Bb4 before playing ...e6 is premature. You need ...e6 first to solidify the center, open the dark-squared bishop's diagonal, and prepare castling. The pin on c3 is more effective when your position is already solid.",
+        },
+        {
+          san: "g6",
+          whyBad:
+            "A fianchetto setup with ...g6 is inconsistent with the Slav structure. You already have the bishop on f5, so play ...e6 to complete a harmonious setup: solid center, both bishops developed, and ready to castle.",
+        },
+      ],
     },
     {
       san: "Bxc4",
@@ -171,6 +207,18 @@ export const slavDefense: OpeningLine = {
       why: "Castle immediately to tuck your king away to safety. Both sides have now castled kingside, and the game transitions into a strategic middlegame. Your position is fundamentally sound: a solid pawn structure with c6 and e6, an active bishop on f5 outside the chain, and the pin on c3 creating lasting pressure.",
       concepts: ["king-safety", "development"],
       controls: "Secures the king and activates the h8 rook",
+      commonMistakes: [
+        {
+          san: "Nbd7",
+          whyBad:
+            "Developing the knight before castling leaves your king in the center one move too long. White can start active play in the center with e4 or Nh4 targeting your bishop. Castle first to ensure king safety, then develop the knight.",
+        },
+        {
+          san: "Bg6",
+          whyBad:
+            "Retreating the bishop wastes a tempo and reduces its influence. The bishop is perfectly placed on f5. Castle now to secure the king — the bishop doesn't need to move.",
+        },
+      ],
     },
     {
       san: "Qe2",
@@ -205,11 +253,11 @@ export const slavDefense: OpeningLine = {
       branchesAt: 4,
       opponentMove: { san: "cxd5", color: "white", why: "The Exchange Slav — White simplifies immediately. After cxd5 cxd5, the position is symmetrical and both sides have open c-files. White has a tiny edge from the extra tempo but Black equalizes easily. Often used by players who want a safe, quiet game.", concepts: ["center-control"] },
       moves: [
-        { san: "cxd5", color: "black", why: "Recapture with the c-pawn toward the center. The position is now symmetrical with both sides having d-pawns and open c-files.", concepts: ["center-control", "pawn-structure"] },
+        { san: "cxd5", color: "black", why: "Recapture with the c-pawn toward the center. The position is now symmetrical with both sides having d-pawns and open c-files.", concepts: ["center-control", "pawn-structure"], commonMistakes: [{ san: "Nf6", whyBad: "Ignoring the recapture leaves you a pawn down. Always recapture on d5 with the c-pawn — it maintains a central presence and opens the c-file for your rook." }, { san: "Qxd5", whyBad: "Recapturing with the queen exposes it to Nc3 with tempo, losing valuable time. Always recapture with the c-pawn for a solid, symmetrical structure." }] },
         { san: "Nc3", color: "white", why: "Develop naturally. White's plan is to use the slight tempo advantage to create small problems for Black.", concepts: ["development"] },
-        { san: "Nf6", color: "black", why: "Develop the knight and control e4. Black has no problems in this symmetrical position.", concepts: ["development", "center-control"] },
+        { san: "Nf6", color: "black", why: "Develop the knight and control e4. Black has no problems in this symmetrical position.", concepts: ["development", "center-control"], commonMistakes: [{ san: "Bf5", whyBad: "While the bishop is free to develop, Nf6 is more urgent — it prevents White from pushing e4 and gaining a big center. Develop the knight first to control e4, then the bishop." }, { san: "e6", whyBad: "Playing ...e6 in the Exchange Slav locks in the light-squared bishop unnecessarily. The c-file is open and the bishop is free — develop Nf6 first to fight for e4." }] },
         { san: "Bf4", color: "white", why: "Develop the bishop actively before e3. A classic London/Exchange Slav idea — get the dark-squared bishop outside the pawn chain.", concepts: ["development", "piece-activity"], commonMistakes: [{ san: "e3", whyBad: "e3 before Bf4 traps the dark-squared bishop. Always develop the bishop outside first — the same principle as the London System." }] },
-        { san: "Nc6", color: "black", why: "Develop and add more pressure on d4. Black is playing symmetrically and has no weaknesses.", concepts: ["development", "center-control"] },
+        { san: "Nc6", color: "black", why: "Develop and add more pressure on d4. Black is playing symmetrically and has no weaknesses.", concepts: ["development", "center-control"], commonMistakes: [{ san: "e6", whyBad: "Playing ...e6 locks the light-squared bishop behind the pawn chain. In the Exchange Slav, your bishop is free — use that advantage! Develop Nc6 to pressure d4 and keep the bishop's options open." }, { san: "Bf5", whyBad: "While Bf5 is the Slav's dream, developing Nc6 first is more precise. The knight adds pressure on d4 and develops toward central action. The bishop can come to f5 or g4 next move." }] },
         { san: "e3", color: "white", why: "Now e3 is safe — the bishop is already out. A solid, if unambitious, White setup.", concepts: ["center-control"] },
       ],
     },
@@ -221,11 +269,11 @@ export const slavDefense: OpeningLine = {
       opponentMove: { san: "e6", color: "black", why: "The Semi-Slav! Black reinforces d5 with BOTH c6 and e6, creating an incredibly solid pawn triangle. The downside: the light-squared bishop is now blocked behind e6 (the same problem as the QGD). But the upside: d5 is defended three times and the position is nearly impregnable. Black plans to break out with ...dxc4 and ...b5 (the Meran) or ...e5.", concepts: ["center-control", "pawn-structure"] },
       moves: [
         { san: "Nc3", color: "white", why: "Develop and add pressure to d5. White plans e4 to blow open the center before Black can solidify.", concepts: ["development", "center-control"] },
-        { san: "Nbd7", color: "black", why: "Develop the knight and prepare ...dxc4 followed by ...b5 (the Meran system) or ...e5. Nbd7 also avoids blocking the c-pawn.", concepts: ["development", "preparation"] },
+        { san: "Nbd7", color: "black", why: "Develop the knight and prepare ...dxc4 followed by ...b5 (the Meran system) or ...e5. Nbd7 also avoids blocking the c-pawn.", concepts: ["development", "preparation"], commonMistakes: [{ san: "Nc6", whyBad: "Nc6 blocks the c-pawn, preventing the ...c5 break that Black often needs. Nbd7 keeps the c-file clear and supports both ...e5 and ...c5 central breaks." }, { san: "Be7", whyBad: "Passive development doesn't address the center. Nbd7 prepares the dynamic ...dxc4 and ...b5 Meran system, which gives Black active counterplay. Develop with a plan, not just to develop." }] },
         { san: "Bd3", color: "white", why: "Develop the bishop toward the kingside. White prepares e4 to challenge the center.", concepts: ["development", "piece-activity"] },
         { san: "dxc4", color: "black", why: "Take the pawn! This is the Meran system — Black captures on c4 and follows up with ...b5, trying to hold the extra pawn or expand on the queenside.", concepts: ["center-control"], commonMistakes: [{ san: "Be7", whyBad: "Be7 is too passive. The Meran idea (dxc4 + b5) gives Black active counterplay. Don't just develop quietly — fight for the initiative!" }] },
         { san: "Bxc4", color: "white", why: "Recapture with the bishop, which is now actively placed on the a2-g8 diagonal.", concepts: ["development", "piece-activity"] },
-        { san: "b5", color: "black", why: "The Meran! Black pushes b5, attacking the bishop and preparing ...Bb7 to develop the 'problem bishop' via b7. This is one of the most dynamic ideas in the Semi-Slav — Black sacrifices pawn structure for active play.", concepts: ["space", "attack", "piece-activity"] },
+        { san: "b5", color: "black", why: "The Meran! Black pushes b5, attacking the bishop and preparing ...Bb7 to develop the 'problem bishop' via b7. This is one of the most dynamic ideas in the Semi-Slav — Black sacrifices pawn structure for active play.", concepts: ["space", "attack", "piece-activity"], commonMistakes: [{ san: "Bb7", whyBad: "Developing the bishop before ...b5 doesn't achieve anything — the bishop needs the b7 square to be supported by a pawn on b5 or c6. Push ...b5 first to attack the bishop on c4 and create space, then develop Bb7." }, { san: "Be7", whyBad: "Quiet development misses the chance for the dynamic Meran counterplay. Push ...b5 now to seize queenside space, attack the bishop, and prepare to activate your light-squared bishop via b7." }] },
       ],
     },
   ],
