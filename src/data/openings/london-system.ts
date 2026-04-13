@@ -27,6 +27,11 @@ export const londonSystem: OpeningLine = {
       why: "Claims the center with a pawn on d4, controlling the key e5 and c5 squares. Unlike 1.e4, this move doesn't immediately open diagonals for attacking pieces — instead it signals a more strategic, positional approach. The d4 pawn will become the foundation of White's pyramid structure.",
       concepts: ["center-control", "space"],
       controls: "e5, c5 squares",
+      commonMistakes: [
+        { san: "e4", whyBad: "e4 is also a great first move, but it leads to open, tactical games (Italian, Ruy Lopez, etc.). We're learning the London System which starts with d4 — a more strategic, positional approach. Both are equally valid." },
+        { san: "Nf3", whyBad: "Nf3 is flexible but delays claiming the center with a pawn. d4 stakes an immediate central claim and controls key squares. Grab space with a pawn first, then develop pieces." },
+        { san: "c4", whyBad: "c4 (the English Opening) is fine but leads to completely different structures. The London System's identity comes from d4 + Bf4 — c4 leads to Queen's Gambit territory instead." },
+      ],
     },
     {
       san: "d5",
@@ -69,6 +74,11 @@ export const londonSystem: OpeningLine = {
       concepts: ["center-control", "pawn-structure", "development"],
       controls: "d4 support, f4 square",
       prevents: "Black from undermining d4 easily",
+      commonMistakes: [
+        { san: "c4", whyBad: "c4 is aggressive but commits the c-pawn too early. In the London, c3 is the key move to complete the pyramid (c3-d4-e3). If you play c4, you can never build that rock-solid triangle. Preparation before ambition." },
+        { san: "Nc3", whyBad: "Nc3 develops a piece but BLOCKS the c-pawn from going to c3. The London pyramid needs c3 — if the knight sits on c3, you'll never complete the structure. The knight goes to d2 in this system." },
+        { san: "e4", whyBad: "e4 looks aggressive but leaves d4 underprotected and opens lines your position isn't ready for. e3 is more solid — it supports d4, completes the pyramid foundation, and keeps things under control. The London is about structure, not aggression." },
+      ],
     },
     {
       san: "c5",
@@ -117,6 +127,16 @@ export const londonSystem: OpeningLine = {
           whyBad:
             "Again, Nc3 blocks the c3 pawn. If you've already played c3, then Nc3 is simply illegal. The whole London structure depends on the c-pawn being on c3, so the knight must go to d2. This is a fundamental pattern to internalize.",
         },
+        {
+          san: "Bd3",
+          whyBad:
+            "Bd3 develops but the knight should come first. Nd2 keeps options open — the knight can reroute to f3, b3, or even e4 later. Develop knights before bishops when possible because knights have fewer good squares.",
+        },
+        {
+          san: "Qc2",
+          whyBad:
+            "Don't bring the queen out early! Qc2 looks like it prepares e4, but the queen becomes a target for Black's minor pieces. Nd2 quietly prepares the same e4 push without exposing your queen.",
+        },
       ],
     },
     {
@@ -132,6 +152,11 @@ export const londonSystem: OpeningLine = {
       why: "The second knight develops to its ideal square. With Nd2 already placed, Ngf3 completes the minor piece development on the kingside and adds another defender to d4. The knight on f3 also supports a future e4 push if the position calls for it, and prepares kingside castling.",
       concepts: ["development", "center-control", "king-safety"],
       controls: "e5, d4 squares",
+      commonMistakes: [
+        { san: "Bd3", whyBad: "Bd3 develops but doesn't help with castling as directly. Ngf3 is more urgent — it completes kingside development, supports d4, controls e5, and prepares O-O. Develop the knight before the bishop here." },
+        { san: "Be2", whyBad: "Be2 is passive — the bishop sits on a dead diagonal doing nothing. The bishop belongs on d3 where it targets h7 and supports e4. But first finish with Ngf3 to prepare castling." },
+        { san: "h3", whyBad: "h3 is a waste of time. No Black piece is threatening to come to g4 yet, and even if it did, you have more important moves. Don't play prophylactic pawn moves when you still have pieces to develop." },
+      ],
     },
     {
       san: "Bd6",
@@ -147,6 +172,11 @@ export const londonSystem: OpeningLine = {
       concepts: ["piece-activity", "prophylaxis"],
       controls: "e5 square, h2-b8 diagonal",
       prevents: "Black from trading off the London bishop, which would ease their position significantly",
+      commonMistakes: [
+        { san: "Bxd6", whyBad: "Trading your London bishop voluntarily is a strategic mistake! The dark-squared bishop is your most important piece in this system. After Bxd6 Qxd6, Black gets a great queen position and you've given up the piece your entire opening revolves around." },
+        { san: "Be5", whyBad: "Be5 looks aggressive but the bishop is exposed and will be chased with ...f6 or ...Nd7. Bg3 is safer — the bishop stays active on the diagonal but can't be easily attacked. Don't overextend pieces." },
+        { san: "O-O", whyBad: "Castling before dealing with the bishop threat is sloppy. After ...Bxf4 exf4, your pawn structure is wrecked with a doubled f-pawn. Handle the bishop situation first (Bg3), THEN castle." },
+      ],
     },
     {
       san: "O-O",
@@ -161,6 +191,11 @@ export const londonSystem: OpeningLine = {
       why: "The light-squared bishop develops to d3, completing the London System's bishop pair development pattern. From d3, the bishop points at the kingside along the b1-h7 diagonal, creating latent threats against Black's castled king. It also supports a future e4 pawn break. With Bd3, White is now ready to castle and has a fully coordinated position.",
       concepts: ["development", "attack", "king-safety"],
       controls: "h7 square, b1-h7 diagonal",
+      commonMistakes: [
+        { san: "Be2", whyBad: "Be2 is the classic passive bishop mistake. On e2, the bishop has no target and just blocks your pieces. On d3, it aims directly at h7 — a real attacking threat against Black's castled king. Active vs passive is a huge difference." },
+        { san: "O-O", whyBad: "Castling is close to happening, but developing Bd3 first is more accurate. The bishop needs to get to d3 before you castle — once you castle, you might need the f1 square for rook maneuvers. Develop first, castle when ready." },
+        { san: "Qc2", whyBad: "Don't bring the queen out early when you still have a bishop to develop! Bd3 develops a piece AND creates the Bxh7+ threat. Qc2 does support e4 but the queen is exposed to attacks from Black's pieces." },
+      ],
     },
     {
       san: "b6",
@@ -190,6 +225,10 @@ export const londonSystem: OpeningLine = {
           color: "white",
           why: "Same principle — get the bishop out before e3. Whether Black plays d5 or g6, the London setup is the same. That's the beauty of a system opening.",
           concepts: ["development", "piece-activity"],
+          commonMistakes: [
+            { san: "e3", whyBad: "e3 before Bf4 traps the dark-squared bishop behind its own pawns permanently. This is the number one London System mistake — always get the bishop out FIRST, regardless of what Black plays." },
+            { san: "c4", whyBad: "c4 changes the character of the game entirely — you'd be entering Queen's Gambit territory. The London's strength is that you play the same setup every game. Stick to the system: Bf4 first." },
+          ],
         },
         {
           san: "Bg7",
@@ -220,6 +259,10 @@ export const londonSystem: OpeningLine = {
           color: "white",
           why: "Develop the knight to its natural square. Controls e5 and supports d4. The London setup continues regardless of what Black does — that's its main selling point.",
           concepts: ["development"],
+          commonMistakes: [
+            { san: "Nc3", whyBad: "Nc3 blocks the c-pawn from going to c3 later. In the London, c3 is essential for the pyramid. The knight should go to d2, and the kingside knight to f3." },
+            { san: "Bd3", whyBad: "Bd3 is premature — finish knight development first. Nf3 controls e5 (critical against the fianchetto), supports d4, and prepares castling. Knights before bishops." },
+          ],
         },
         {
           san: "Nf6",
@@ -252,6 +295,10 @@ export const londonSystem: OpeningLine = {
               san: "dxc5",
               whyBad: "Capturing on c5 gives up your central pawn for a flank pawn. You'd lose your strong d4 presence for nothing. Keep the tension — let Black decide whether to trade.",
             },
+            {
+              san: "c3",
+              whyBad: "c3 before e3 leaves d4 only supported by the queen. e3 first gives d4 solid pawn support and starts the pyramid. The order matters: e3 first, c3 next.",
+            },
           ],
         },
         {
@@ -265,6 +312,10 @@ export const londonSystem: OpeningLine = {
           color: "white",
           why: "Extra support for d4 and the pyramid is complete: c3-d4-e3. This structure is nearly unbreakable. Even if Black plays cxd4, you recapture cxd4 or exd4 and maintain the center.",
           concepts: ["center-control", "pawn-structure"],
+          commonMistakes: [
+            { san: "Nc3", whyBad: "The c3 square belongs to the pawn in the London System. Nc3 blocks the entire pyramid structure. Route the knight through d2 instead." },
+            { san: "Nf3", whyBad: "Nf3 develops but c3 is more urgent here. Black is pressing d4 with ...c5 and ...Nc6 — you need the pyramid completed before it collapses. Secure the structure first, then develop." },
+          ],
         },
         {
           san: "Qb6",
@@ -277,6 +328,10 @@ export const londonSystem: OpeningLine = {
           color: "white",
           why: "Meet the queen with the queen! Qb3 defends b2 and offers a queen trade. If Black trades, the b-file opens for your rook. If they decline, the queens stare each other down.",
           concepts: ["prophylaxis", "development"],
+          commonMistakes: [
+            { san: "Qc2", whyBad: "Qc2 defends b2 but passively. Qb3 is better because it directly confronts Black's queen, offers an exchange that favors White (opening the b-file for your rook), and puts pressure on the b7 pawn." },
+            { san: "Rb1", whyBad: "Rb1 defends b2 but wastes a whole rook on a passive task. Qb3 defends AND creates counterplay. Don't use your most powerful pieces for defensive chores when the queen can do it while attacking." },
+          ],
         },
         {
           san: "Nf6",
