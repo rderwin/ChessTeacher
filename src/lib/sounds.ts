@@ -83,14 +83,18 @@ function playLevelUp(ctx: AudioContext) {
   });
 }
 
-// --- Chess move sounds ---
+// --- Chess move sounds (chess.com style) ---
 
-function playNoise(ctx: AudioContext, startTime: number, duration: number, gain: number) {
+/** Short filtered noise burst for wooden piece sounds */
+function playNoise(
+  ctx: AudioContext, startTime: number, duration: number, gain: number,
+  freq = 1200, q = 2
+) {
   const bufferSize = Math.floor(ctx.sampleRate * duration);
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
   for (let i = 0; i < bufferSize; i++) {
-    data[i] = (Math.random() * 2 - 1) * 0.5;
+    data[i] = (Math.random() * 2 - 1);
   }
   const source = ctx.createBufferSource();
   source.buffer = buffer;
@@ -99,11 +103,10 @@ function playNoise(ctx: AudioContext, startTime: number, duration: number, gain:
   g.gain.setValueAtTime(gain, startTime);
   g.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
 
-  // Bandpass filter to shape the noise
   const filter = ctx.createBiquadFilter();
   filter.type = "bandpass";
-  filter.frequency.value = 800;
-  filter.Q.value = 1;
+  filter.frequency.value = freq;
+  filter.Q.value = q;
 
   source.connect(filter);
   filter.connect(g);
@@ -113,35 +116,49 @@ function playNoise(ctx: AudioContext, startTime: number, duration: number, gain:
 }
 
 function playMove(ctx: AudioContext) {
-  // Soft wooden "tap" — filtered noise burst + low thud
+  // Chess.com-style wooden "thock" — sharp attack, quick decay
   const t = ctx.currentTime;
-  playNoise(ctx, t, 0.06, 0.15);
-  playTone(ctx, 150, t, 0.05, "sine", 0.08);
+  // High-freq noise click for the "snap"
+  playNoise(ctx, t, 0.03, 0.3, 2000, 3);
+  // Lower body for the "wood" character
+  playNoise(ctx, t, 0.06, 0.15, 600, 1.5);
+  // Very short low thump
+  playTone(ctx, 200, t, 0.03, "sine", 0.1);
 }
 
 function playCapture(ctx: AudioContext) {
-  // Sharper "thwack" — louder noise + mid tone
+  // Snappier, louder — two-part sound (grab + place)
   const t = ctx.currentTime;
-  playNoise(ctx, t, 0.08, 0.25);
-  playTone(ctx, 200, t, 0.06, "triangle", 0.12);
-  playTone(ctx, 120, t + 0.02, 0.06, "sine", 0.06);
+  // Initial snap (picking up piece)
+  playNoise(ctx, t, 0.02, 0.2, 2500, 4);
+  // Main thwack (capturing)
+  playNoise(ctx, t + 0.02, 0.05, 0.35, 1500, 2);
+  playNoise(ctx, t + 0.02, 0.08, 0.2, 500, 1);
+  // Low impact
+  playTone(ctx, 180, t + 0.02, 0.04, "sine", 0.12);
 }
 
 function playCheck(ctx: AudioContext) {
-  // Alert ping after the move sound
+  // Move sound + metallic ring
   const t = ctx.currentTime;
-  playNoise(ctx, t, 0.05, 0.15);
-  playTone(ctx, 880, t + 0.05, 0.15, "sine", 0.1);
-  playTone(ctx, 660, t + 0.12, 0.1, "sine", 0.06);
+  playNoise(ctx, t, 0.03, 0.25, 2000, 3);
+  playNoise(ctx, t, 0.05, 0.12, 600, 1.5);
+  // Metallic "ting" — higher pitched, sustains slightly
+  playTone(ctx, 1200, t + 0.04, 0.12, "sine", 0.08);
+  playTone(ctx, 1800, t + 0.04, 0.08, "sine", 0.04);
 }
 
 function playCastle(ctx: AudioContext) {
-  // Two taps (king + rook moving)
+  // Two quick thuds in succession (king slides, rook slides)
   const t = ctx.currentTime;
-  playNoise(ctx, t, 0.05, 0.12);
-  playTone(ctx, 160, t, 0.05, "sine", 0.08);
-  playNoise(ctx, t + 0.12, 0.05, 0.12);
-  playTone(ctx, 180, t + 0.12, 0.05, "sine", 0.08);
+  // First piece (king)
+  playNoise(ctx, t, 0.03, 0.25, 1800, 3);
+  playNoise(ctx, t, 0.05, 0.12, 600, 1.5);
+  playTone(ctx, 200, t, 0.03, "sine", 0.08);
+  // Second piece (rook) — slightly different pitch
+  playNoise(ctx, t + 0.1, 0.03, 0.2, 1600, 3);
+  playNoise(ctx, t + 0.1, 0.05, 0.1, 700, 1.5);
+  playTone(ctx, 220, t + 0.1, 0.03, "sine", 0.07);
 }
 
 function playGameover(ctx: AudioContext) {
