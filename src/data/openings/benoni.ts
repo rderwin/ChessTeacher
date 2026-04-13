@@ -35,6 +35,18 @@ export const modernBenoni: OpeningLine = {
       concepts: ["development", "center-control"],
       controls: "e4, d5 squares",
       prevents: "White from easily playing e4",
+      commonMistakes: [
+        {
+          san: "c5",
+          whyBad:
+            "Playing ...c5 immediately (the Old Benoni) without Nf6 first lets White respond with d5 followed by e4 and Nc3 with a huge center and easy development. Nf6 first controls e4 and forces White to commit before you play ...c5.",
+        },
+        {
+          san: "d5",
+          whyBad:
+            "Playing ...d5 leads to the Queen's Gambit family, not the Benoni. The Benoni requires Nf6 first to control e4, then ...c5 to challenge d4 and create the characteristic asymmetric structure.",
+        },
+      ],
     },
     {
       san: "c4",
@@ -82,6 +94,18 @@ export const modernBenoni: OpeningLine = {
       why: "Black immediately undermines the d5 pawn. This is the hallmark of the Modern Benoni — rather than accepting the locked center, Black challenges it with ...e6 to open the e-file and the a8-h1 diagonal for the light-squared bishop. After the exchange on d5, Black will have a semi-open e-file and active piece play to compensate for White's space advantage.",
       concepts: ["center-control", "attack", "piece-activity"],
       controls: "d5 pawn — challenges the center",
+      commonMistakes: [
+        {
+          san: "g6",
+          whyBad:
+            "Fianchettoing before playing ...e6 lets White consolidate the d5 pawn with e4 and Nc3 without any challenge. Play ...e6 NOW to undermine d5 — the fianchetto can wait until after you've created the Benoni pawn structure.",
+        },
+        {
+          san: "d6",
+          whyBad:
+            "Playing ...d6 first delays the critical ...e6 challenge to d5. White gets extra time to consolidate with e4 and Nc3. The Modern Benoni demands immediate central challenge with ...e6 to open lines for your pieces.",
+        },
+      ],
     },
     {
       san: "Nc3",
@@ -96,6 +120,18 @@ export const modernBenoni: OpeningLine = {
       why: "Black captures on d5 to create the classic Benoni pawn structure. After cxd5, the position features: White has a d5 pawn and central space; Black has a queenside pawn majority and semi-open e-file. This exchange is essential — Black needs open lines for the pieces to compensate for the space deficit. Delaying this capture lets White consolidate too comfortably.",
       concepts: ["center-control", "pawn-structure"],
       controls: "Opens e-file, creates the Benoni structure",
+      commonMistakes: [
+        {
+          san: "d6",
+          whyBad:
+            "Delaying the capture with ...d6 lets White consolidate with e4, building an overwhelming center. You must capture on d5 now to open the e-file and create the Benoni pawn structure that gives you counterplay.",
+        },
+        {
+          san: "Bg7",
+          whyBad:
+            "Developing the bishop before capturing on d5 is the wrong priority. Capture now to establish the Benoni structure and open lines. The bishop will go to g7 soon enough, but the pawn structure must come first.",
+        },
+      ],
     },
     {
       san: "cxd5",
@@ -110,6 +146,18 @@ export const modernBenoni: OpeningLine = {
       why: "Black solidifies the pawn chain and prepares the kingside fianchetto. The pawn on d6 supports the c5 pawn and controls e5, creating a solid foundation. Black's plan revolves around the ...b5 pawn break on the queenside (using the pawn majority) and ...f5 on the kingside (to challenge e4). Everything flows from this flexible setup.",
       concepts: ["pawn-structure", "preparation"],
       controls: "e5, c5 squares",
+      commonMistakes: [
+        {
+          san: "g6",
+          whyBad:
+            "Fianchettoing before ...d6 leaves the c5 pawn unsupported and the d6 square weak. Play ...d6 first to create a solid pawn chain, then fianchetto. Structure before development.",
+        },
+        {
+          san: "Be7",
+          whyBad:
+            "Be7 is passive — the bishop belongs on g7 in the Benoni where it pressures the long diagonal. Play ...d6 first to solidify the structure, then ...g6 and ...Bg7 for the active fianchetto.",
+        },
+      ],
     },
     {
       san: "e4",
@@ -124,6 +172,18 @@ export const modernBenoni: OpeningLine = {
       why: "Black prepares the kingside fianchetto, placing the bishop on g7 where it will be a powerful piece aimed at the center and queenside along the long diagonal. The fianchettoed bishop will pressure d4 and support both the ...b5 and ...f5 pawn breaks. This is Black's most flexible development scheme in the Modern Benoni.",
       concepts: ["development", "preparation", "piece-activity"],
       controls: "Prepares Bg7 fianchetto",
+      commonMistakes: [
+        {
+          san: "Be7",
+          whyBad:
+            "Be7 is the classical setup but far less dynamic than the fianchetto. The bishop on g7 pressures the entire a1-h8 diagonal — in the Benoni, this diagonal is Black's main source of counterplay. Be7 is passive by comparison.",
+        },
+        {
+          san: "b5",
+          whyBad:
+            "Launching the queenside break before completing development is premature. Prepare with ...g6 and ...Bg7 first, then ...a6 and ...b5 will be far more effective with the bishop supporting from g7.",
+        },
+      ],
     },
     {
       san: "Nf3",
@@ -138,6 +198,18 @@ export const modernBenoni: OpeningLine = {
       why: "The bishop takes its fianchetto post, becoming a powerhouse on the long diagonal. From g7, it pressures the entire a1-h8 diagonal, particularly the d4 square and White's queenside. Combined with ...O-O, this completes Black's kingside development. The bishop will come alive once Black achieves ...b5 or ...f5, opening lines toward White's position.",
       concepts: ["development", "piece-activity"],
       controls: "a1-h8 diagonal, pressures d4 and White's queenside",
+      commonMistakes: [
+        {
+          san: "Nbd7",
+          whyBad:
+            "Developing the knight before completing the fianchetto delays the g7 bishop, which is Black's most important piece in the Benoni. Get Bg7 out first — it controls the critical long diagonal.",
+        },
+        {
+          san: "a6",
+          whyBad:
+            "Preparing ...b5 before the bishop is on g7 is the wrong order. The fianchetto bishop supports the ...b5 break from the diagonal. Complete the setup with Bg7 first, then prepare ...b5.",
+        },
+      ],
     },
     {
       san: "Be2",
@@ -152,6 +224,18 @@ export const modernBenoni: OpeningLine = {
       why: "Black castles kingside, securing the king before launching queenside and central counterplay. With the king safe, Black can focus on the two main plans: the ...b5 pawn break (leveraging the queenside pawn majority to undermine White's center) and the ...f5 break (challenging e4 and opening the f-file). The rook on f8 will support ...f5, and the king is well-protected behind the fianchettoed bishop.",
       concepts: ["king-safety", "preparation"],
       controls: "Secures king, activates rook on f8",
+      commonMistakes: [
+        {
+          san: "a6",
+          whyBad:
+            "Preparing ...b5 before castling leaves the king in the center. In the sharp Benoni positions, king safety is essential before starting any counterplay. Castle first, then launch the ...b5 break.",
+        },
+        {
+          san: "Nbd7",
+          whyBad:
+            "Developing another piece before castling delays king safety. The Benoni can become very sharp very quickly — get the king to g8 behind the fianchettoed bishop before anything else.",
+        },
+      ],
     },
   ],
   summary:
@@ -176,6 +260,18 @@ export const modernBenoni: OpeningLine = {
           why: "Black completes the fianchetto as planned. Now both sides will have fianchettoed bishops staring at each other across the long diagonals, creating an interesting strategic battle.",
           concepts: ["development", "piece-activity"],
           controls: "a1-h8 diagonal",
+          commonMistakes: [
+            {
+              san: "a6",
+              whyBad:
+                "Preparing ...b5 before completing the fianchetto is premature. The g7 bishop supports the whole queenside counterplay from the diagonal. Complete the fianchetto first, then prepare ...b5.",
+            },
+            {
+              san: "Be7",
+              whyBad:
+                "Be7 is passive and wastes the g6 preparation. You played ...g6 to fianchetto — follow through with Bg7 for the powerful long-diagonal pressure that defines the Benoni.",
+            },
+          ],
         },
         {
           san: "Bg2",
@@ -189,6 +285,18 @@ export const modernBenoni: OpeningLine = {
           color: "black",
           why: "Castle immediately. Black needs the king safe before launching the ...b5 or ...a6-b5 pawn breaks on the queenside.",
           concepts: ["king-safety"],
+          commonMistakes: [
+            {
+              san: "a6",
+              whyBad:
+                "Preparing ...b5 before castling is risky — the king needs to be safe first. Castle now, then prepare the queenside counterplay from a secure position.",
+            },
+            {
+              san: "Nbd7",
+              whyBad:
+                "Developing before castling delays king safety. In the Benoni, the priority is always king safety first, then counterplay. Castle immediately.",
+            },
+          ],
         },
         {
           san: "Nf3",
@@ -223,6 +331,18 @@ export const modernBenoni: OpeningLine = {
           why: "Now the knight develops, heading to c5 or e5 depending on the position. The knight on d7 supports the ...b5 break and can reroute to active squares once the queenside opens up.",
           concepts: ["development", "preparation"],
           controls: "Supports ...b5, eyes c5 and e5",
+          commonMistakes: [
+            {
+              san: "b5",
+              whyBad:
+                "Pushing ...b5 without piece support is premature. Develop Nbd7 first to support the break and have the knight ready to reroute to c5 or e5 once the queenside opens.",
+            },
+            {
+              san: "Na6",
+              whyBad:
+                "Na6 puts the knight on the rim where it's less effective. Nbd7 is more flexible — from d7, the knight can go to c5 (pressuring d3 and e4) or e5 (a powerful central outpost).",
+            },
+          ],
         },
       ],
     },
@@ -244,6 +364,18 @@ export const modernBenoni: OpeningLine = {
           color: "black",
           why: "Castle first to get the king safe. Black will need to respond actively once the knight reaches c4, so completing development is urgent.",
           concepts: ["king-safety"],
+          commonMistakes: [
+            {
+              san: "Nbd7",
+              whyBad:
+                "Developing before castling leaves the king in danger. White's knight is heading to c4 where it will create immediate threats — you need the king safe on g8 before dealing with that pressure.",
+            },
+            {
+              san: "a6",
+              whyBad:
+                "Preparing ...b5 before castling ignores king safety. Castle first, then prepare counterplay. White's knight maneuver to c4 is coming fast and you need a safe king to handle it.",
+            },
+          ],
         },
         {
           san: "Nc4",
@@ -258,6 +390,18 @@ export const modernBenoni: OpeningLine = {
           why: "Develop the knight and prepare to challenge White's powerful c4 knight. The knight on d7 can go to b6 to exchange the c4 knight, or to e5 to contest the center.",
           concepts: ["development", "piece-activity"],
           controls: "Prepares ...Nb6 or ...Ne5",
+          commonMistakes: [
+            {
+              san: "Na6",
+              whyBad:
+                "Na6 is less flexible than Nbd7. From d7, the knight can go to both b6 (to challenge the c4 knight) and e5 (a powerful central outpost). Na6 only aims at c7 or b4.",
+            },
+            {
+              san: "a6",
+              whyBad:
+                "Preparing ...b5 while White has a knight on c4 is the wrong priority. You need to challenge the c4 knight first with Nbd7 followed by ...Nb6 or ...Ne5. Address the immediate threat before expanding.",
+            },
+          ],
         },
         {
           san: "Bf4",
@@ -272,6 +416,18 @@ export const modernBenoni: OpeningLine = {
           why: "The knight leaps to the powerful e5 outpost, challenging White's control and activating Black's pieces. From e5, the knight is centralized, attacks c4 and d3, and supports the ...f5 break.",
           concepts: ["piece-activity", "center-control"],
           controls: "c4, d3, f3 squares — powerful central outpost",
+          commonMistakes: [
+            {
+              san: "Nb6",
+              whyBad:
+                "While Nb6 challenges the c4 knight, Ne5 is even stronger. The e5 outpost gives the knight maximum central influence, attacking c4, d3, and f3. A centralized knight is worth more than one on the edge.",
+            },
+            {
+              san: "Re8",
+              whyBad:
+                "A rook move is too passive when you have the chance to plant a knight on e5. Seize the powerful outpost now — the knight on e5 is the best piece on the board and supports the ...f5 break.",
+            },
+          ],
         },
         {
           san: "Be2",
