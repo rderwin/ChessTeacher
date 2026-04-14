@@ -6,6 +6,7 @@ import InteractiveBoard from "@/components/board/InteractiveBoard";
 import { usePuzzleSession, type PuzzleStatus } from "@/hooks/usePuzzleSession";
 import { useSound } from "@/hooks/useSound";
 import { usePuzzleProgress, type PuzzleResultFeedback } from "@/hooks/usePuzzleProgress";
+import { useToast } from "@/contexts/ToastContext";
 import { getAchievement } from "@/data/achievements";
 import { getXPForNextLevel } from "@/lib/xp";
 
@@ -54,6 +55,7 @@ export default function PuzzleBoard({
 
   const { play: playFx } = useSound();
   const { progress, recordPuzzleResult } = usePuzzleProgress();
+  const { show: showToast } = useToast();
   const [lastResult, setLastResult] = useState<PuzzleResultFeedback | null>(null);
   const resultRecordedRef = useRef(false);
   const prevStatusRef = useRef<PuzzleStatus>(status);
@@ -86,8 +88,26 @@ export default function PuzzleBoard({
           setLastResult(feedback);
           if (feedback.newAchievements.length > 0) {
             playFx("achievement");
-          } else if (feedback.leveledUp) {
+            // Fire global toasts for each new achievement
+            for (const id of feedback.newAchievements) {
+              const def = getAchievement(id);
+              if (!def) continue;
+              showToast({
+                kind: "achievement",
+                title: `Achievement unlocked: ${def.name}`,
+                description: def.description,
+                icon: def.icon,
+              });
+            }
+          }
+          if (feedback.leveledUp) {
             playFx("levelup");
+            showToast({
+              kind: "levelup",
+              title: `Level up! You reached Lv.${feedback.newLevel}`,
+              description: "Keep solving puzzles to climb even higher.",
+              icon: "⭐",
+            });
           }
         });
       }
