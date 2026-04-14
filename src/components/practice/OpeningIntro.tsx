@@ -5,9 +5,10 @@ import { OpeningLine } from "@/data/types";
 interface OpeningIntroProps {
   opening: OpeningLine;
   onStart: () => void;
+  onTest?: () => void;
 }
 
-export default function OpeningIntro({ opening, onStart }: OpeningIntroProps) {
+export default function OpeningIntro({ opening, onStart, onTest }: OpeningIntroProps) {
   const { history } = opening;
 
   return (
@@ -73,17 +74,30 @@ export default function OpeningIntro({ opening, onStart }: OpeningIntroProps) {
       </div>
 
       <div className="mt-8 text-center">
-        <button
-          onClick={onStart}
-          className="px-8 py-3.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-500 transition-colors text-lg font-medium"
-        >
-          Start Practicing
-        </button>
+        <div className="flex gap-3 justify-center">
+          <button
+            onClick={onStart}
+            className="px-8 py-3.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-500 transition-colors text-lg font-medium"
+          >
+            Practice with Guides
+          </button>
+          {onTest && (
+            <button
+              onClick={onTest}
+              className="px-8 py-3.5 bg-amber-700 text-white rounded-xl hover:bg-amber-600 transition-colors text-lg font-medium"
+            >
+              Test Yourself
+            </button>
+          )}
+        </div>
         <p className="text-sm text-stone-500 mt-3">
           Playing as{" "}
           <span className="text-stone-300">{opening.playerColor}</span>
           {" / "}
           {opening.moves.length} moves
+          {opening.variants && opening.variants.length > 0 && (
+            <span> + {opening.variants.length} variants</span>
+          )}
         </p>
       </div>
     </div>

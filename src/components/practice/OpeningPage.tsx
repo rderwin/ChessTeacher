@@ -7,6 +7,7 @@ import { useProgress } from "@/hooks/useProgress";
 import OpeningIntro from "./OpeningIntro";
 import PracticeSession from "./PracticeSession";
 import VariantCard from "./VariantCard";
+import OpeningTest from "./OpeningTest";
 
 interface OpeningPageProps {
   opening: OpeningLine;
@@ -15,7 +16,8 @@ interface OpeningPageProps {
 type Mode =
   | { type: "intro" }
   | { type: "main-line" }
-  | { type: "variant"; variant: OpeningVariant };
+  | { type: "variant"; variant: OpeningVariant }
+  | { type: "test" };
 
 export default function OpeningPage({ opening }: OpeningPageProps) {
   const [mode, setMode] = useState<Mode>({ type: "intro" });
@@ -27,10 +29,22 @@ export default function OpeningPage({ opening }: OpeningPageProps) {
     return buildVariantSession(opening, mode.variant);
   }, [mode, opening]);
 
+  if (mode.type === "test") {
+    return (
+      <div className="px-4 py-8 max-w-6xl mx-auto">
+        <OpeningTest opening={opening} onBack={() => setMode({ type: "intro" })} />
+      </div>
+    );
+  }
+
   if (mode.type === "intro") {
     return (
       <div className="px-4 py-8">
-        <OpeningIntro opening={opening} onStart={() => setMode({ type: "main-line" })} />
+        <OpeningIntro
+          opening={opening}
+          onStart={() => setMode({ type: "main-line" })}
+          onTest={() => setMode({ type: "test" })}
+        />
 
         {/* Variants section — always shown if variants exist */}
         {opening.variants && opening.variants.length > 0 && (
