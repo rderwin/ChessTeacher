@@ -23,6 +23,18 @@ export const punishEarlyQueen: OpeningLine = {
       why: "Claim the center. A solid start that controls e5 and c5. We're playing a queen's pawn opening.",
       concepts: ["center-control"],
       controls: "e5, c5 squares",
+      commonMistakes: [
+        {
+          san: "e4",
+          whyBad:
+            "e4 is a perfectly fine opening move, but this lesson teaches the d4 approach against early queen attacks. d4 leads to positions where Black's premature queen is particularly awkward since the center becomes closed enough that tempo matters enormously.",
+        },
+        {
+          san: "Nf3",
+          whyBad:
+            "Nf3 is a solid move but d4 is more direct — it immediately stakes a claim in the center. In this lesson we want to build a strong d4+e4 pawn center, and d4 is the first step in that plan.",
+        },
+      ],
     },
     {
       san: "d5",
@@ -35,6 +47,18 @@ export const punishEarlyQueen: OpeningLine = {
       color: "white",
       why: "Develop a piece and support d4. Standard opening play — pieces before pawns.",
       concepts: ["development", "center-control"],
+      commonMistakes: [
+        {
+          san: "c4",
+          whyBad:
+            "c4 is a pawn move, not a piece move. In the opening, develop pieces first! Nf3 gets a knight out, supports d4, and controls e5. Follow the golden rule: knights and bishops before pawns and queens.",
+        },
+        {
+          san: "e4",
+          whyBad:
+            "e4 grabs more center but it's too early without piece support. After ...dxe4 you'd need to spend time winning the pawn back. Nf3 develops a piece first — the e4 push will be much stronger later when Nc3 is in place to support it.",
+        },
+      ],
     },
     {
       san: "Qd6",
@@ -127,6 +151,18 @@ export const punishEarlyQueen: OpeningLine = {
       why: "Develop the last minor piece before castling. The bishop goes to d3, an active diagonal pointing at the kingside. Notice: you've developed FOUR pieces (Nf3, Nc3, Bd2, Bd3) while Black has developed ZERO (only queen moves). This is a dream position.",
       concepts: ["development", "piece-activity"],
       controls: "h7 square, b1-h7 diagonal",
+      commonMistakes: [
+        {
+          san: "O-O",
+          whyBad:
+            "Castling before Bd3 wastes the chance to develop the last minor piece first. Get ALL your minor pieces out, then castle. Bd3 is the final piece of the development puzzle — it aims at h7 and prepares castling on the very next move.",
+        },
+        {
+          san: "Be2",
+          whyBad:
+            "Be2 develops but the bishop is passive there — it doesn't aim at anything. Bd3 is much more aggressive, pointing directly at h7 on the kingside. When you're this far ahead in development, put your pieces on active squares to maximize the punishment.",
+        },
+      ],
     },
     {
       san: "Nc6",
@@ -139,6 +175,18 @@ export const punishEarlyQueen: OpeningLine = {
       color: "white",
       why: "Castle! King is safe, rook is activated, and you've completed development while Black has ONE piece out (and a queen that wasted 5 moves). This is the reward for staying calm and developing with tempo against an early queen. You're winning.",
       concepts: ["king-safety", "development"],
+      commonMistakes: [
+        {
+          san: "e6",
+          whyBad:
+            "Pushing pawns instead of castling is a beginner habit. You've developed all your pieces — now get the king to safety! O-O tucks the king away and activates the rook. Don't keep pushing pawns when you can castle.",
+        },
+        {
+          san: "Qe2",
+          whyBad:
+            "Bringing your own queen out early is exactly the mistake you're punishing your opponent for! O-O is the natural completion of development. The queen can join the attack later — right now, king safety comes first.",
+        },
+      ],
     },
     {
       san: "e6",
@@ -185,6 +233,18 @@ export const punishEarlyQueen: OpeningLine = {
           color: "white",
           why: "Attack the queen AGAIN while seizing the center! The queen must move a 3rd time. You're building a monster center and developing while they flail.",
           concepts: ["center-control", "attack", "tempo"],
+          commonMistakes: [
+            {
+              san: "Bd3",
+              whyBad:
+                "Bd3 develops but doesn't attack the queen. e4 is a double-purpose move — it seizes the center AND forces the queen to move again. Always prefer moves that develop AND attack the wandering queen simultaneously.",
+            },
+            {
+              san: "d5",
+              whyBad:
+                "Pushing d5 closes the center when you want to OPEN it. You're ahead in development, so open positions favor you. e4 grabs central space while keeping things dynamic and forcing the queen to keep running.",
+            },
+          ],
         },
         {
           san: "Qf6",
@@ -197,6 +257,18 @@ export const punishEarlyQueen: OpeningLine = {
           color: "white",
           why: "Push the queen AGAIN with a pawn! e5 attacks f6 and gains space. The queen has nowhere comfortable to go.",
           concepts: ["attack", "space", "tempo"],
+          commonMistakes: [
+            {
+              san: "exd5",
+              whyBad:
+                "Capturing on d5 doesn't attack the queen. The whole point is to keep chasing the queen and gaining tempi. e5 hits the queen directly AND gains space. Always prefer attacking the queen over making neutral pawn trades.",
+            },
+            {
+              san: "Bf4",
+              whyBad:
+                "Bf4 develops but doesn't threaten the queen on f6. e5 is stronger because it attacks the queen with a pawn while advancing in the center. When the opponent's queen is out early, every move should either develop OR attack the queen — ideally both.",
+            },
+          ],
         },
         {
           san: "Qg6",
@@ -209,6 +281,18 @@ export const punishEarlyQueen: OpeningLine = {
           color: "white",
           why: "Develop AND attack the queen AGAIN (Bd3 eyes g6 through the e-file). The pattern repeats: you develop pieces that happen to hit the queen. Free tempi, every time.",
           concepts: ["development", "attack", "tempo"],
+          commonMistakes: [
+            {
+              san: "Be2",
+              whyBad:
+                "Be2 develops but doesn't put pressure on the queen on g6. Bd3 is aggressive — it aims at g6 and threatens to create problems. When you can develop AND attack the queen, always choose the attacking square.",
+            },
+            {
+              san: "Bc4",
+              whyBad:
+                "Bc4 targets f7 but doesn't threaten the queen on g6. Bd3 is better in this specific position because it directly pressures the queen's current location while still developing to an active diagonal. Target the queen, not some future tactic.",
+            },
+          ],
         },
         {
           san: "Qg4",
@@ -235,6 +319,18 @@ export const punishEarlyQueen: OpeningLine = {
           color: "white",
           why: "Just develop. Nc3 blocks any Qe1 nonsense and develops naturally. Don't try to 'punish' the queen immediately — just build your position. The punishment IS your superior development.",
           concepts: ["development", "center-control"],
+          commonMistakes: [
+            {
+              san: "a3",
+              whyBad:
+                "a3 tries to chase the queen but doesn't develop a piece. The queen on a5 isn't actually threatening anything dangerous. Nc3 develops naturally and the queen will have to move on its own eventually. Develop, don't chase.",
+            },
+            {
+              san: "Bd2",
+              whyBad:
+                "Bd2 attacks the queen but it's the wrong move order. You want Nc3 first for central control and development, then Bd2 later when it has maximum effect. Develop knights before bishops — they have fewer good squares.",
+            },
+          ],
         },
         {
           san: "e5",
@@ -247,6 +343,18 @@ export const punishEarlyQueen: OpeningLine = {
           color: "white",
           why: "Challenge the center directly. You have more pieces ready to support the center battle.",
           concepts: ["center-control", "space"],
+          commonMistakes: [
+            {
+              san: "e3",
+              whyBad:
+                "e3 is too passive. Black wasted a tempo on Qa5, so you should punish that by grabbing maximum central space with e4. When your opponent wastes time, seize the center aggressively — e4 is bold and justified by your development lead.",
+            },
+            {
+              san: "Bf4",
+              whyBad:
+                "Bf4 develops but doesn't seize the center. e4 is stronger because it grabs space and opens lines while you're ahead in development. The bishop can develop to d2 later where it will also attack the misplaced queen.",
+            },
+          ],
         },
         {
           san: "Nc6",
@@ -259,6 +367,18 @@ export const punishEarlyQueen: OpeningLine = {
           color: "white",
           why: "Develop AND attack the queen! Bd2 hits Qa5. The queen must move again, losing another tempo.",
           concepts: ["development", "attack", "tempo"],
+          commonMistakes: [
+            {
+              san: "Bg5",
+              whyBad:
+                "Bg5 develops the bishop actively but doesn't attack the queen on a5. Bd2 is the key move here because it simultaneously develops AND forces the queen to waste another move. Two birds, one stone — that's the pattern against early queens.",
+            },
+            {
+              san: "Be3",
+              whyBad:
+                "Be3 develops to an active square but again doesn't hit the queen. The whole lesson is about developing WITH TEMPO by attacking the queen. Bd2 does exactly that — the queen on a5 is hit and must retreat.",
+            },
+          ],
         },
         {
           san: "Qd8",
