@@ -27,6 +27,7 @@ export default function DailyPuzzle() {
   const [status, setStatus] = useState<"playing" | "correct" | "wrong" | "solved">("playing");
   const [solutionIndex, setSolutionIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -91,11 +92,53 @@ export default function DailyPuzzle() {
 
   const handleClick = useCallback(
     ({ square }: { piece: unknown; square: string | null }) => {
-      // Simple click handler — not full click-to-move, just for piece selection feel
-      void square;
+      if (!square || !puzzle) return;
+
+      const playerColor = puzzle.playerColor === "white" ? "w" : "b";
+
+      // If a piece is already selected, try to move it
+      if (selectedSquare && selectedSquare !== square) {
+        const success = handleDrop({
+          piece: null,
+          sourceSquare: selectedSquare,
+          targetSquare: square,
+        });
+        setSelectedSquare(null);
+        if (success) return;
+
+        // Check if we clicked another friendly piece — re-select
+        try {
+          const chess = new Chess(fen);
+          const piece = chess.get(square as Square);
+          if (piece && piece.color === playerColor) {
+            setSelectedSquare(square);
+          }
+        } catch { /* ignore */ }
+        return;
+      }
+
+      // Deselect if clicking same square
+      if (selectedSquare === square) {
+        setSelectedSquare(null);
+        return;
+      }
+
+      // Select a friendly piece
+      try {
+        const chess = new Chess(fen);
+        const piece = chess.get(square as Square);
+        if (piece && piece.color === playerColor) {
+          setSelectedSquare(square);
+        }
+      } catch { /* ignore */ }
     },
-    []
+    [selectedSquare, fen, puzzle, handleDrop]
   );
+
+  // Clear selection when the board changes
+  useEffect(() => {
+    setSelectedSquare(null);
+  }, [fen]);
 
   if (!mounted || !puzzle) return null;
 
@@ -126,6 +169,11 @@ export default function DailyPuzzle() {
               boardOrientation: orientation,
               onPieceDrop: handleDrop,
               onSquareClick: handleClick,
+              onPieceClick: ({ square }: { piece: unknown; square: string | null }) =>
+                handleClick({ piece: null, square: square ?? null }),
+              squareStyles: selectedSquare
+                ? { [selectedSquare]: { backgroundColor: "rgba(255, 255, 0, 0.4)" } }
+                : {},
               allowDragging: status === "playing",
               animationDurationInMs: 200,
               boardStyle: { borderRadius: "4px" },

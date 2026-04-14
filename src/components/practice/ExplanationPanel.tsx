@@ -32,14 +32,12 @@ const CONCEPT_COLORS: Record<string, string> = {
 interface ExplanationPanelProps {
   explanation: MoveExplanation;
   moveIndex: number;
-  onNext: () => void;
   isOpponentMove?: boolean;
 }
 
 export default function ExplanationPanel({
   explanation,
   moveIndex,
-  onNext,
   isOpponentMove = false,
 }: ExplanationPanelProps) {
   const moveNum = getMoveNumber(moveIndex);
@@ -80,18 +78,11 @@ export default function ExplanationPanel({
       )}
 
       {explanation.prevents && (
-        <div className="text-sm text-stone-400 mb-4">
+        <div className="text-sm text-stone-400">
           <span className="text-stone-500 font-medium">Prevents: </span>
           {explanation.prevents}
         </div>
       )}
-
-      <button
-        onClick={onNext}
-        className="w-full mt-2 px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors font-medium"
-      >
-        Continue
-      </button>
     </div>
   );
 }

@@ -129,7 +129,8 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
 
   const makeMove = useCallback(
     (from: string, to: string): boolean => {
-      if (status !== "waiting-for-user") return false;
+      // Allow moves when waiting OR when the player is retrying after a wrong move
+      if (status !== "waiting-for-user" && status !== "wrong-move") return false;
       if (currentMoveIndex >= totalMoves) return false;
 
       const validation = validateMoveAgainstLine(

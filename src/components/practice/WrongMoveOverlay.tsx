@@ -8,7 +8,6 @@ interface WrongMoveOverlayProps {
   correct: MoveExplanation;
   moveIndex: number;
   specificFeedback?: string;
-  onRetry: () => void;
 }
 
 export default function WrongMoveOverlay({
@@ -16,7 +15,6 @@ export default function WrongMoveOverlay({
   correct,
   moveIndex,
   specificFeedback,
-  onRetry,
 }: WrongMoveOverlayProps) {
   const moveNum = getMoveNumber(moveIndex);
 
@@ -42,19 +40,16 @@ export default function WrongMoveOverlay({
         </div>
       )}
 
-      <div className="bg-stone-800/50 rounded-lg p-3 mb-4 border border-stone-700/50">
+      <div className="bg-stone-800/50 rounded-lg p-3 mb-3 border border-stone-700/50">
         <p className="text-sm font-medium text-stone-400 mb-1">
           Why {correct.san}?
         </p>
         <p className="text-sm text-stone-300">{correct.why}</p>
       </div>
 
-      <button
-        onClick={onRetry}
-        className="w-full px-4 py-2.5 bg-stone-700 text-white rounded-lg hover:bg-stone-600 transition-colors font-medium"
-      >
-        Try Again
-      </button>
+      <p className="text-xs text-stone-500 text-center">
+        Just make a move on the board to try again — no button needed
+      </p>
     </div>
   );
 }

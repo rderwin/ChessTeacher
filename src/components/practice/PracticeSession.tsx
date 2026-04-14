@@ -32,8 +32,6 @@ export default function PracticeSession({ opening, startFen, progressKey, onShow
     highlightSquares,
     arrows,
     makeMove,
-    advance,
-    retry,
     reset,
     completionPercent,
   } = usePracticeSession(opening, { startFen, progressKey });
@@ -46,9 +44,11 @@ export default function PracticeSession({ opening, startFen, progressKey, onShow
     return makeMove(from, to);
   };
 
+  // Only disable the board when the opponent is moving or game is over.
+  // Wrong-move state KEEPS the board active so the player can just click
+  // another move to retry (no "Try Again" button needed).
   const isDisabled =
     status === "opponent-moving" ||
-    status === "showing-explanation" ||
     status === "completed";
 
   return (
@@ -120,7 +120,6 @@ export default function PracticeSession({ opening, startFen, progressKey, onShow
           <ExplanationPanel
             explanation={currentExplanation}
             moveIndex={currentMoveIndex}
-            onNext={advance}
             isOpponentMove={
               currentExplanation.color !== opening.playerColor
             }
@@ -133,7 +132,6 @@ export default function PracticeSession({ opening, startFen, progressKey, onShow
             correct={wrongMoveInfo.correct}
             moveIndex={currentMoveIndex}
             specificFeedback={wrongMoveInfo.specificFeedback}
-            onRetry={retry}
           />
         )}
 
