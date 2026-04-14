@@ -40,6 +40,15 @@ interface PracticeOptions {
   progressKey?: string;
 }
 
+// --- Timing constants ---------------------------------------------------
+// Explanation panels update instantly when a move plays. These delays are
+// ONLY the minimum pause between moves so the player can perceive what
+// just happened before the opponent responds. Keep them short.
+const PLAYER_EXPLANATION_MS = 550;   // pause after player's correct move
+const OPPONENT_EXPLANATION_MS = 550; // pause after opponent's auto move
+const OPPONENT_ANIMATION_MS = 350;   // delay before opponent plays (for animation feel)
+const WRONG_MOVE_PAUSE_MS = 1800;    // show wrong-move feedback, then auto-play correct
+
 export function usePracticeSession(opening: OpeningLine, options?: PracticeOptions) {
   const startFen = options?.startFen;
   const chessRef = useRef(startFen ? new Chess(startFen) : new Chess());
@@ -56,7 +65,32 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
   >({});
   const [arrows, setArrows] = useState<Arrow[]>([]);
   const { saveProgress } = useProgress(options?.progressKey ?? opening.id);
-  const advanceRef = useRef<() => void>(() => {});
+
+  // Timers for auto-advance flow — tracked so they can be cancelled if the
+  // player makes another move early.
+  const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const opponentTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wrongMoveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearTimers = useCallback(() => {
+    if (advanceTimerRef.current) {
+      clearTimeout(advanceTimerRef.current);
+      advanceTimerRef.current = null;
+    }
+    if (opponentTimerRef.current) {
+      clearTimeout(opponentTimerRef.current);
+      opponentTimerRef.current = null;
+    }
+    if (wrongMoveTimerRef.current) {
+      clearTimeout(wrongMoveTimerRef.current);
+      wrongMoveTimerRef.current = null;
+    }
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => clearTimers();
+  }, [clearTimers]);
 
   const totalMoves = opening.moves.length;
   const userMoveCount = getUserMoveCount(opening);
@@ -74,7 +108,13 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
           [squares.from]: { backgroundColor: "rgba(0, 180, 0, 0.4)" },
           [squares.to]: { backgroundColor: "rgba(0, 180, 0, 0.4)" },
         });
-        setArrows([{ startSquare: squares.from, endSquare: squares.to, color: "rgba(0, 180, 0, 0.6)" }]);
+        setArrows([
+          {
+            startSquare: squares.from,
+            endSquare: squares.to,
+            color: "rgba(0, 180, 0, 0.6)",
+          },
+        ]);
       }
     },
     []
@@ -96,24 +136,201 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
     [opening]
   );
 
-  // Play opponent's move automatically
+  /** Number of moves played since the Chess instance was created. This
+   *  equals the index of the next move to apply from opening.moves. */
+  const movesPlayed = useCallback(
+    () => chessRef.current.history().length,
+    [],
+  );
+
+  // Forward-declare so functions can call each other via refs
+  const advanceAfterPlayerRef = useRef<() => void>(() => {});
+  const playOpponentMoveRef = useRef<() => void>(() => {});
+
+  /** Play the opponent's move at the current chess state and advance. */
   const playOpponentMove = useCallback(() => {
-    const move = opening.moves[currentMoveIndex];
+    clearTimers();
+    const idx = movesPlayed();
+    const move = opening.moves[idx];
     if (!move || move.color === opening.playerColor) return;
 
     setStatus("opponent-moving");
-    setTimeout(() => {
+    setWrongMoveInfo(null);
+    clearHighlights();
+
+    opponentTimerRef.current = setTimeout(() => {
       try {
         chessRef.current.move(move.san);
-        playSound(getMoveSound(move.san), isSoundEnabled());
-        setFen(chessRef.current.fen());
       } catch {
-        // Move failed — data issue
+        // bad data — skip
       }
+      playSound(getMoveSound(move.san), isSoundEnabled());
+      setFen(chessRef.current.fen());
       setCurrentExplanation(move);
+      setCurrentMoveIndex(movesPlayed());
       setStatus("showing-explanation");
-    }, 600);
-  }, [currentMoveIndex, opening]);
+
+      // After a short pause, ready for the player's next move
+      advanceTimerRef.current = setTimeout(() => {
+        const nextIdx = movesPlayed();
+        if (nextIdx >= totalMoves) {
+          setStatus("completed");
+          saveProgress(totalMoves, totalMoves);
+          return;
+        }
+
+        const nextMove = opening.moves[nextIdx];
+        if (nextMove && nextMove.color !== opening.playerColor) {
+          // Two opponent moves in a row (rare) — chain
+          playOpponentMoveRef.current();
+        } else {
+          setStatus("waiting-for-user");
+          saveProgress(nextIdx, totalMoves);
+          showMoveGuide(nextIdx);
+        }
+      }, OPPONENT_EXPLANATION_MS);
+    }, OPPONENT_ANIMATION_MS);
+  }, [
+    clearTimers,
+    movesPlayed,
+    opening,
+    totalMoves,
+    clearHighlights,
+    saveProgress,
+    showMoveGuide,
+  ]);
+  playOpponentMoveRef.current = playOpponentMove;
+
+  /** After the player's correct move, brief pause then kick off whatever's next. */
+  const advanceAfterPlayer = useCallback(() => {
+    clearTimers();
+    const nextIdx = movesPlayed();
+
+    if (nextIdx >= totalMoves) {
+      setStatus("completed");
+      saveProgress(totalMoves, totalMoves);
+      return;
+    }
+
+    const nextMove = opening.moves[nextIdx];
+    if (nextMove && nextMove.color !== opening.playerColor) {
+      playOpponentMoveRef.current();
+    } else {
+      // Player's turn again (e.g. two player moves in a row shouldn't happen,
+      // but handle gracefully)
+      setStatus("waiting-for-user");
+      saveProgress(nextIdx, totalMoves);
+      showMoveGuide(nextIdx);
+    }
+  }, [clearTimers, movesPlayed, totalMoves, opening, saveProgress, showMoveGuide]);
+  advanceAfterPlayerRef.current = advanceAfterPlayer;
+
+  /** Auto-play the correct move on the board after a wrong attempt, so the
+   *  player sees what they SHOULD have played without needing to click "try again". */
+  const autoPlayCorrectMove = useCallback(
+    (expectedSan: string, explanation: MoveExplanation) => {
+      clearTimers();
+      try {
+        chessRef.current.move(expectedSan);
+      } catch {
+        return;
+      }
+      playSound(getMoveSound(expectedSan), isSoundEnabled());
+      setFen(chessRef.current.fen());
+      setCurrentExplanation(explanation);
+      setCurrentMoveIndex(movesPlayed());
+      setWrongMoveInfo(null);
+      clearHighlights();
+      setStatus("showing-explanation");
+      saveProgress(movesPlayed(), totalMoves);
+
+      advanceTimerRef.current = setTimeout(() => {
+        advanceAfterPlayerRef.current();
+      }, PLAYER_EXPLANATION_MS);
+    },
+    [clearTimers, movesPlayed, clearHighlights, saveProgress, totalMoves],
+  );
+
+  const makeMove = useCallback(
+    (from: string, to: string): boolean => {
+      // Opponent is mid-animation or game is over — no input
+      if (status === "opponent-moving" || status === "completed") return false;
+
+      const idx = movesPlayed();
+      if (idx >= totalMoves) return false;
+
+      const expected = opening.moves[idx];
+      // If it's somehow the opponent's turn, ignore input
+      if (!expected || expected.color !== opening.playerColor) return false;
+
+      const validation = validateMoveAgainstLine(
+        chessRef.current,
+        from,
+        to,
+        opening,
+        idx,
+      );
+
+      if (!validation) return false; // illegal
+
+      if (validation.correct) {
+        // Cancel any pending wrong-move auto-play — player fixed it themselves
+        clearTimers();
+
+        try {
+          chessRef.current.move({ from, to, promotion: "q" });
+        } catch {
+          return false;
+        }
+        playSound(getMoveSound(validation.expectedSan), isSoundEnabled());
+        setFen(chessRef.current.fen());
+        setCurrentExplanation(validation.explanation);
+        setCurrentMoveIndex(movesPlayed());
+        setWrongMoveInfo(null);
+        clearHighlights();
+        setStatus("showing-explanation");
+        saveProgress(movesPlayed(), totalMoves);
+
+        // Brief pause then advance to opponent / completion
+        advanceTimerRef.current = setTimeout(() => {
+          advanceAfterPlayerRef.current();
+        }, PLAYER_EXPLANATION_MS);
+
+        return true;
+      } else {
+        // Wrong move — show feedback, then auto-play the correct move so the
+        // player sees what they should have played. No "try again" button
+        // needed, and the flow keeps moving.
+        clearTimers();
+        setWrongMoveInfo({
+          attempted: validation.playedSan,
+          correct: validation.explanation,
+          specificFeedback: validation.specificMistakeFeedback,
+        });
+        highlightMove(validation.expectedSan);
+        setStatus("wrong-move");
+
+        wrongMoveTimerRef.current = setTimeout(() => {
+          autoPlayCorrectMove(
+            validation.expectedSan,
+            validation.explanation,
+          );
+        }, WRONG_MOVE_PAUSE_MS);
+        return false;
+      }
+    },
+    [
+      status,
+      movesPlayed,
+      totalMoves,
+      opening,
+      clearHighlights,
+      highlightMove,
+      clearTimers,
+      saveProgress,
+      autoPlayCorrectMove,
+    ],
+  );
 
   // Initialize: if the first move is opponent's, play it; otherwise show guide
   useEffect(() => {
@@ -125,123 +342,11 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
     } else if (currentMoveIndex === 0) {
       showMoveGuide(0);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const makeMove = useCallback(
-    (from: string, to: string): boolean => {
-      // Allow moves when waiting OR when the player is retrying after a wrong move
-      if (status !== "waiting-for-user" && status !== "wrong-move") return false;
-      if (currentMoveIndex >= totalMoves) return false;
-
-      const validation = validateMoveAgainstLine(
-        chessRef.current,
-        from,
-        to,
-        opening,
-        currentMoveIndex
-      );
-
-      if (!validation) return false; // illegal move
-
-      if (validation.correct) {
-        // Apply the correct move
-        chessRef.current.move({ from, to, promotion: "q" });
-        playSound(getMoveSound(validation.expectedSan), isSoundEnabled());
-        setFen(chessRef.current.fen());
-        setCurrentExplanation(validation.explanation);
-        setWrongMoveInfo(null);
-        clearHighlights();
-        setStatus("showing-explanation");
-
-        // Auto-advance after a pause so the player reads the explanation
-        setTimeout(() => {
-          advanceRef.current();
-        }, 2000);
-
-        return true;
-      } else {
-        // Wrong move
-        setWrongMoveInfo({
-          attempted: validation.playedSan,
-          correct: validation.explanation,
-          specificFeedback: validation.specificMistakeFeedback,
-        });
-        highlightMove(validation.expectedSan);
-        setStatus("wrong-move");
-        return false;
-      }
-    },
-    [
-      status,
-      currentMoveIndex,
-      totalMoves,
-      opening,
-      clearHighlights,
-      highlightMove,
-    ]
-  );
-
-  const advance = useCallback(() => {
-    const nextIndex = currentMoveIndex + 1;
-
-    if (nextIndex >= totalMoves) {
-      setStatus("completed");
-      saveProgress(totalMoves, totalMoves);
-      return;
-    }
-
-    setCurrentMoveIndex(nextIndex);
-    setCurrentExplanation(null);
-    clearHighlights();
-
-    const nextMove = opening.moves[nextIndex];
-    if (nextMove && nextMove.color !== opening.playerColor) {
-      // Next is opponent's move — play it automatically
-      setStatus("opponent-moving");
-      setTimeout(() => {
-        try {
-          chessRef.current.move(nextMove.san);
-          playSound(getMoveSound(nextMove.san), isSoundEnabled());
-          setFen(chessRef.current.fen());
-        } catch {
-          // Move failed
-        }
-        setCurrentExplanation(nextMove);
-        setStatus("showing-explanation");
-
-        // Auto-advance after opponent's explanation shows
-        setTimeout(() => {
-          const nextNext = nextIndex + 1;
-          if (nextNext >= totalMoves) {
-            setStatus("completed");
-            saveProgress(totalMoves, totalMoves);
-          } else {
-            setCurrentMoveIndex(nextNext);
-            setCurrentExplanation(null);
-            clearHighlights();
-            setStatus("waiting-for-user");
-            saveProgress(nextNext, totalMoves);
-            showMoveGuide(nextNext);
-          }
-        }, 2000);
-      }, 600);
-    } else {
-      setStatus("waiting-for-user");
-      saveProgress(nextIndex, totalMoves);
-      showMoveGuide(nextIndex);
-    }
-  }, [currentMoveIndex, totalMoves, opening, clearHighlights, saveProgress, showMoveGuide]);
-
-  advanceRef.current = advance;
-
-  const retry = useCallback(() => {
-    setWrongMoveInfo(null);
-    clearHighlights();
-    setStatus("waiting-for-user");
-    showMoveGuide(currentMoveIndex);
-  }, [clearHighlights, showMoveGuide, currentMoveIndex]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const reset = useCallback(() => {
+    clearTimers();
     chessRef.current = startFen ? new Chess(startFen) : new Chess();
     setFen(chessRef.current.fen());
     setCurrentMoveIndex(0);
@@ -250,25 +355,13 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
     clearHighlights();
 
     if (opening.moves[0]?.color !== opening.playerColor) {
-      // First move is opponent's
-      setTimeout(() => {
-        const move = opening.moves[0];
-        setStatus("opponent-moving");
-        setTimeout(() => {
-          try {
-            chessRef.current.move(move.san);
-            setFen(chessRef.current.fen());
-          } catch {
-            // Move failed
-          }
-          setCurrentExplanation(move);
-          setStatus("showing-explanation");
-        }, 600);
-      }, 100);
+      // First move is opponent's — play it
+      setTimeout(() => playOpponentMoveRef.current(), 80);
     } else {
       setStatus("waiting-for-user");
+      setTimeout(() => showMoveGuide(0), 80);
     }
-  }, [opening, clearHighlights]);
+  }, [opening, clearHighlights, clearTimers, startFen, showMoveGuide]);
 
   return {
     fen,
@@ -281,8 +374,6 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
     highlightSquares,
     arrows,
     makeMove,
-    advance,
-    retry,
     reset,
     completionPercent: Math.round((currentMoveIndex / totalMoves) * 100),
     opening,

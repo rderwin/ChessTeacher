@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { OpeningLine } from "@/data/types";
 import { usePracticeSession } from "@/hooks/usePracticeSession";
 import InteractiveBoard from "@/components/board/InteractiveBoard";
@@ -9,6 +9,8 @@ import ExplanationPanel from "./ExplanationPanel";
 import WrongMoveOverlay from "./WrongMoveOverlay";
 import ProgressBar from "./ProgressBar";
 import MoveHistory from "./MoveHistory";
+import Confetti from "@/components/ui/Confetti";
+import { useToast } from "@/contexts/ToastContext";
 import Link from "next/link";
 
 interface PracticeSessionProps {
@@ -39,6 +41,26 @@ export default function PracticeSession({ opening, startFen, progressKey, onShow
   const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
     opening.playerColor
   );
+  const { show: showToast } = useToast();
+  const [confettiKey, setConfettiKey] = useState(0);
+  const celebratedRef = useRef(false);
+
+  // Fire confetti + success toast exactly once when the opening completes
+  useEffect(() => {
+    if (status === "completed" && !celebratedRef.current) {
+      celebratedRef.current = true;
+      setConfettiKey((k) => k + 1);
+      showToast({
+        kind: "success",
+        title: `Opening complete: ${opening.name}`,
+        description: "Nice work! Every move practiced and understood.",
+        icon: "🎉",
+      });
+    }
+    if (status !== "completed") {
+      celebratedRef.current = false;
+    }
+  }, [status, showToast, opening.name]);
 
   const handlePieceDrop = (from: string, to: string): boolean => {
     return makeMove(from, to);
@@ -53,6 +75,9 @@ export default function PracticeSession({ opening, startFen, progressKey, onShow
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto">
+      {confettiKey > 0 && status === "completed" && (
+        <Confetti fireKey={confettiKey} />
+      )}
       {/* Left: Board */}
       <div className="flex flex-col items-center">
         <div className="mb-4 text-center">

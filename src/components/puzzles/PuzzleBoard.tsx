@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Puzzle, PuzzleSet } from "@/data/types";
 import InteractiveBoard from "@/components/board/InteractiveBoard";
+import Confetti from "@/components/ui/Confetti";
 import { usePuzzleSession, type PuzzleStatus } from "@/hooks/usePuzzleSession";
 import { useSound } from "@/hooks/useSound";
 import { usePuzzleProgress, type PuzzleResultFeedback } from "@/hooks/usePuzzleProgress";
@@ -57,6 +58,7 @@ export default function PuzzleBoard({
   const { progress, recordPuzzleResult } = usePuzzleProgress();
   const { show: showToast } = useToast();
   const [lastResult, setLastResult] = useState<PuzzleResultFeedback | null>(null);
+  const [confettiKey, setConfettiKey] = useState(0);
   const resultRecordedRef = useRef(false);
   const prevStatusRef = useRef<PuzzleStatus>(status);
 
@@ -75,6 +77,8 @@ export default function PuzzleBoard({
     else if (status === "wrong-move") playFx("wrong");
     else if (status === "completed") {
       playFx("complete");
+      // Confetti on solve
+      setConfettiKey((k) => k + 1);
 
       // Record puzzle result
       if (!resultRecordedRef.current) {
@@ -129,6 +133,9 @@ export default function PuzzleBoard({
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
+      {confettiKey > 0 && status === "completed" && (
+        <Confetti fireKey={confettiKey} />
+      )}
       {/* Board */}
       <div className="shrink-0">
         <InteractiveBoard

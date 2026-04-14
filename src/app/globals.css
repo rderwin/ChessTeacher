@@ -34,3 +34,33 @@ body {
 .animate-shake {
   animation: shake 0.5s ease-in-out;
 }
+
+/* Confetti pieces falling for celebrations */
+@keyframes confetti-fall {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--drift, 0), 110vh, 0) rotate(var(--rotate, 360deg));
+    opacity: 0.8;
+  }
+}
+
+.confetti-piece {
+  position: absolute;
+  border-radius: 1px;
+  animation: confetti-fall linear forwards;
+  will-change: transform, opacity;
+}
+
+/* Subtle pop animation used for success banners */
+@keyframes pop-in {
+  0% { transform: scale(0.9); opacity: 0; }
+  60% { transform: scale(1.03); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-pop {
+  animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
