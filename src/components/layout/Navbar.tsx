@@ -50,13 +50,30 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
-          {progress.level > 1 && (
+          {(progress.level > 1 || progress.totalSolved > 0) && (
             <Link
-              href="/puzzles"
-              className="text-xs font-bold px-2 py-0.5 bg-emerald-900/50 text-emerald-400 border border-emerald-700/50 rounded-full hover:bg-emerald-800/50 transition-colors"
-              title={`Puzzle Rating: ${progress.rating}`}
+              href="/account"
+              className="group flex items-center gap-1.5 text-xs px-2.5 py-1 bg-stone-800 hover:bg-stone-700 border border-stone-700 hover:border-stone-600 rounded-full transition-colors"
+              title={`Puzzle Rating: ${progress.rating} · Level ${progress.level} · ${progress.xp} XP`}
             >
-              Lv.{progress.level}
+              <span className="font-bold text-amber-400">
+                Lv.{progress.level}
+              </span>
+              <span className="text-stone-500">·</span>
+              <span className="font-semibold text-emerald-400">
+                {progress.rating}
+              </span>
+              {progress.currentStreak >= 3 && (
+                <>
+                  <span className="text-stone-500">·</span>
+                  <span
+                    className="font-medium text-orange-400"
+                    title={`${progress.currentStreak} puzzle streak`}
+                  >
+                    🔥{progress.currentStreak}
+                  </span>
+                </>
+              )}
             </Link>
           )}
           {!loading && (
