@@ -104,7 +104,10 @@ export default function InteractiveBoard({
     [disabled, selectedSquare, fen, playerColor, onPieceDrop, getLegalMoveStyles]
   );
 
-  const mergedStyles = { ...clickStyles, ...highlightSquares };
+  // Click selection / legal move dots must override the practice-session
+  // move guide highlights, otherwise selecting a piece that's currently
+  // being hinted shows no visible selection feedback.
+  const mergedStyles = { ...highlightSquares, ...clickStyles };
 
   const pieceFilter = [pieceStyle.filter, pieceStyle.shadow]
     .filter((v) => v !== "none")
@@ -123,10 +126,11 @@ export default function InteractiveBoard({
             if (!targetSquare) return false;
             return onPieceDrop(sourceSquare, targetSquare);
           },
+          // Only wire onSquareClick — react-chessboard also fires this when
+          // you click a square that contains a piece. Wiring onPieceClick as
+          // well would cause every piece click to fire twice and immediately
+          // deselect whatever was just selected.
           onSquareClick: handleSquareClick,
-          onPieceClick: ({ square }) => {
-            handleSquareClick({ piece: null, square: square || "" });
-          },
           squareStyles: mergedStyles,
           arrows,
           allowDragging: !disabled,
