@@ -3,6 +3,7 @@ import { modernBenoni } from "./benoni";
 import { caroKann } from "./caro-kann";
 import { catalan } from "./catalan";
 import { colleSystem } from "./colle-system";
+import { defendEarlyQueen } from "./defend-early-queen";
 import { dutchDefense } from "./dutch-defense";
 import { englishOpening } from "./english-opening";
 import { frenchDefense } from "./french-defense";
@@ -25,6 +26,7 @@ export const ALL_OPENINGS: OpeningLine[] = [
   caroKann,
   catalan,
   punishEarlyQueen,
+  defendEarlyQueen,
   colleSystem,
   dutchDefense,
   englishOpening,
