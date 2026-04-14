@@ -27,6 +27,18 @@ export const trompowsky: OpeningLine = {
       why: "Opens with d4, claiming central space. While this usually leads to Queen's Gambit or Indian Defense territory, White has a surprise in store — the Trompowsky begins as a normal d4 opening but diverges sharply on move 2.",
       concepts: ["center-control", "development"],
       controls: "c5, e5 squares",
+      commonMistakes: [
+        {
+          san: "e4",
+          whyBad:
+            "e4 leads to completely different opening systems (Open Game, Sicilian, French, etc.). The Trompowsky requires d4 because the entire idea hinges on 2.Bg5 pinning the knight after 1...Nf6, which only arises in d4 openings.",
+        },
+        {
+          san: "Nf3",
+          whyBad:
+            "Nf3 first prevents you from playing the Trompowsky because after 1...d5 2.Bg5 there is no knight to pin. The move order d4 then Bg5 is essential — you need Black to play ...Nf6 so the Bg5 pin has a target.",
+        },
+      ],
     },
     {
       san: "Nf6",
@@ -86,6 +98,18 @@ export const trompowsky: OpeningLine = {
       why: "Solidifies the center and opens the diagonal for the light-squared bishop. The e3 pawn supports d4 and prepares Bd3, which will attack the knight on e4. White is building a solid position around the center — the Trompowsky often transitions from an aggressive opening into a strategic middlegame.",
       concepts: ["center-control", "development", "preparation"],
       controls: "d4 pawn reinforced, f1-a6 diagonal opened",
+      commonMistakes: [
+        {
+          san: "f3",
+          whyBad:
+            "f3 attacks the knight on e4 but weakens the kingside terribly and blocks the natural Nf3 development. After ...Nf6, White has weakened the king position for nothing. e3 is much sounder — it supports d4, opens the bishop diagonal, and keeps the kingside intact.",
+        },
+        {
+          san: "Nd2",
+          whyBad:
+            "Nd2 develops but blocks the dark-squared bishop on f4 and doesn't reinforce d4. e3 is the priority because it supports the center, opens the f1 bishop's diagonal for Bd3, and creates a harmonious setup where all pieces work together.",
+        },
+      ],
     },
     {
       san: "c5",
@@ -100,6 +124,18 @@ export const trompowsky: OpeningLine = {
       why: "The bishop develops to d3, directly attacking the knight on e4. This forces Black to make a decision about the knight — exchange it, retreat it, or support it further. The Bd3 also eyes the kingside (h7 target) and prepares castling.",
       concepts: ["development", "attack"],
       controls: "e4 knight attacked, h7 square targeted",
+      commonMistakes: [
+        {
+          san: "Be2",
+          whyBad:
+            "Be2 is passive — it doesn't attack the knight on e4 or aim at any kingside targets. Bd3 is much more aggressive because it forces Black to deal with the threat to the knight immediately while also eyeing h7 for future kingside play.",
+        },
+        {
+          san: "Nf3",
+          whyBad:
+            "Nf3 develops but doesn't challenge the knight on e4. Black's knight sits comfortably in the center, and you've missed the chance to force it to make a decision. Bd3 attacks the knight directly and develops with purpose.",
+        },
+      ],
     },
     {
       san: "Nc6",
@@ -114,6 +150,18 @@ export const trompowsky: OpeningLine = {
       why: "Reinforces d4 against Black's pressure from c5 and Nc6. The familiar c3 support gives the center extra stability. White's plan is clear: maintain the center, complete development with Nf3 and O-O, then look for a way to exploit the position.",
       concepts: ["center-control", "pawn-structure"],
       controls: "d4 pawn reinforced",
+      commonMistakes: [
+        {
+          san: "Nf3",
+          whyBad:
+            "Nf3 develops but doesn't address the immediate pressure on d4 from ...c5 and ...Nc6. After ...cxd4, the center collapses. c3 first ensures d4 is rock-solid, then Nf3 can come on the next move with the center secured.",
+        },
+        {
+          san: "O-O",
+          whyBad:
+            "Castling before reinforcing d4 is premature. Black can play ...cxd4 and suddenly White's center is gone. c3 is the defensive move that holds everything together — castle after the center is stabilized.",
+        },
+      ],
     },
     {
       san: "Qb6",
@@ -148,6 +196,18 @@ export const trompowsky: OpeningLine = {
       why: "White takes the queen exchange. In this specific position, trading queens is strong because White's pawn structure is healthier and the bishop pair can dominate in the resulting endgame. Without queens, Black's knight on e4 loses some of its attacking potential, and White's central control and active bishops become more important.",
       concepts: ["piece-activity", "pawn-structure"],
       controls: "Simplifies into a favorable endgame structure",
+      commonMistakes: [
+        {
+          san: "Qc2",
+          whyBad:
+            "Retreating the queen to c2 avoids the trade but cedes the initiative. Black's queen stays active on b6 pressuring b2 and d4 while your queen hides. Qxb6 is stronger because the resulting endgame favors White's bishop pair and better pawn structure.",
+        },
+        {
+          san: "Qd1",
+          whyBad:
+            "Pulling the queen all the way back to d1 is a complete waste of tempi — you moved it to b3 just to retreat. Qxb6 is the principled choice: exchange into a favorable endgame where White's structural advantages and bishop pair dominate.",
+        },
+      ],
     },
     {
       san: "axb6",
@@ -198,6 +258,18 @@ export const trompowsky: OpeningLine = {
           color: "white",
           why: "White sets up a solid center with e3, supporting d4 and preparing to develop the light-squared bishop. The position is strategic now — White has a better pawn structure while Black has the bishop pair. White's plan is to exploit the doubled f-pawns in the endgame.",
           concepts: ["center-control", "development"],
+          commonMistakes: [
+            {
+              san: "e4",
+              whyBad:
+                "e4 looks aggressive but after ...dxe4, White has given up the center for nothing. Without the knight on c3 to support it, e4 just loses a pawn or creates an isolated d-pawn. e3 is more solid — it supports d4 and opens the bishop diagonal without overextending.",
+            },
+            {
+              san: "g3",
+              whyBad:
+                "Fianchettoing the bishop sounds appealing but it's too slow here. Black already has the bishop pair as compensation for the doubled pawns. White needs to develop quickly with e3, Bd3, and Nf3 to exploit the structural advantage before Black's bishops come alive.",
+            },
+          ],
         },
         {
           san: "Bd6",
@@ -211,6 +283,18 @@ export const trompowsky: OpeningLine = {
           why: "White challenges the center with c4, aiming to undermine Black's d5 pawn. If Black takes, White gets an isolated d-pawn but also open lines and active piece play. If Black maintains the tension, White can build pressure.",
           concepts: ["center-control", "attack"],
           controls: "Attacks d5, opens queenside",
+          commonMistakes: [
+            {
+              san: "Bd3",
+              whyBad:
+                "Bd3 develops but doesn't challenge Black's center. Black gets a comfortable position with ...Bd6 and ...O-O without any pressure. c4 is the critical move — it attacks d5 and forces Black to make a decision about the center structure.",
+            },
+            {
+              san: "Nf3",
+              whyBad:
+                "Nf3 is natural but passive in this specific position. White has the structural advantage (doubled f-pawns for Black) and needs to press it with c4. Developing without challenging the center lets Black equalize comfortably.",
+            },
+          ],
         },
         {
           san: "c6",
@@ -225,6 +309,18 @@ export const trompowsky: OpeningLine = {
           why: "The knight develops to c3, adding pressure on d5 and preparing to support a later e4 push. In this line, Nc3 is preferred over Nbd2 because the c4 pawn has already committed and the knight is needed on c3 to maintain pressure.",
           concepts: ["development", "center-control"],
           controls: "d5, e4 squares",
+          commonMistakes: [
+            {
+              san: "Nf3",
+              whyBad:
+                "Nf3 is a good developing move but it's the kingside knight — you need the queenside knight on c3 to pressure d5 and support a future e4 break. Nf3 can come later; Nc3 is the priority because it works with c4 to create maximum tension on d5.",
+            },
+            {
+              san: "Nd2",
+              whyBad:
+                "Nd2 is too passive — the knight doesn't pressure d5 from d2 and it blocks the dark-squared bishop. Nc3 is the natural and active square, directly targeting d5 and e4 while keeping all other pieces unobstructed.",
+            },
+          ],
         },
         {
           san: "O-O",
@@ -253,6 +349,18 @@ export const trompowsky: OpeningLine = {
           why: "White seizes the center with e4! Since Black hasn't challenged the center with ...d5 yet, White grabs space immediately. The position now resembles a reversed French Defense where White has an extra tempo. The e4+d4 center gives White a space advantage and aggressive prospects.",
           concepts: ["center-control", "space"],
           controls: "d5, f5 squares — commanding central presence",
+          commonMistakes: [
+            {
+              san: "e3",
+              whyBad:
+                "e3 is too timid when Black has played the passive ...e6. Since Black hasn't challenged the center with ...d5, White should grab maximum space with e4. Playing e3 instead surrenders the opportunity for a commanding two-pawn center.",
+            },
+            {
+              san: "Nf3",
+              whyBad:
+                "Nf3 is a normal developing move but misses the key moment. Black played ...e6 without ...d5, leaving the center wide open for e4. Grab the space now — Nf3 can come later, but the chance to play e4 with full effect won't last.",
+            },
+          ],
         },
         {
           san: "h6",
@@ -267,6 +375,18 @@ export const trompowsky: OpeningLine = {
           why: "White takes the knight. With the big center already established, the doubled pawns become a long-term weakness for Black. Trading the bishop for the knight is worth it because the pawn structure damage is permanent.",
           concepts: ["pawn-structure", "attack"],
           controls: "Doubles f-pawns, creates structural weakness",
+          commonMistakes: [
+            {
+              san: "Bh4",
+              whyBad:
+                "Retreating to h4 maintains the pin but the bishop is passive on the rim. Black forced you to decide with ...h6 — take the knight now and get the doubled pawns, or admit the bishop sortie was pointless. Bxf6 follows through on the Trompowsky's central idea.",
+            },
+            {
+              san: "Be3",
+              whyBad:
+                "Dropping the bishop back to e3 wastes all the tempi spent on Bg5. You played Bg5 to create the pin and damage Black's structure — retreating without taking means Black got ...h6 for free while you accomplished nothing. Bxf6 delivers the structural damage you invested in.",
+            },
+          ],
         },
         {
           san: "Qxf6",
@@ -281,6 +401,18 @@ export const trompowsky: OpeningLine = {
           why: "Develops the knight to c3 with tempo — the knight eyes d5 and also prepares to support e5 push. White has a commanding center and is developing faster than Black.",
           concepts: ["development", "center-control", "tempo"],
           controls: "d5 square, supports e5",
+          commonMistakes: [
+            {
+              san: "Bd3",
+              whyBad:
+                "Bd3 develops but doesn't create the same pressure as Nc3. The knight on c3 controls d5 — a critical outpost — and prepares Nd5 which would be devastating. Develop the knight first to maximize central pressure, then the bishop.",
+            },
+            {
+              san: "c3",
+              whyBad:
+                "c3 supports d4 but blocks the natural Nc3 square. The knight belongs on c3 where it pressures d5 and supports e5. Playing c3 forces the knight to the passive d2 square and wastes the chance for active development.",
+            },
+          ],
         },
         {
           san: "d6",
@@ -295,6 +427,18 @@ export const trompowsky: OpeningLine = {
           why: "Complete development with Nf3, preparing to castle. White has a significant space advantage with the e4+d4 center and better development. The plan is to castle and then look for ways to break through — f4 to support e5, or Nd5 to plant a knight in Black's territory.",
           concepts: ["development", "king-safety"],
           controls: "e5, d4 squares",
+          commonMistakes: [
+            {
+              san: "f4",
+              whyBad:
+                "f4 looks aggressive but it weakens the kingside before castling. White hasn't completed development yet — Nf3 and O-O should come first to secure the king. Then f4 can be considered as a plan to support e5 from a safe position.",
+            },
+            {
+              san: "Bd3",
+              whyBad:
+                "Bd3 develops but it's more important to get Nf3 in first so you can castle quickly. The knight on f3 supports d4 and e5 while enabling kingside castling. The bishop can come to d3, c4, or b5 after the king is safe.",
+            },
+          ],
         },
         {
           san: "Nd7",
