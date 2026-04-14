@@ -48,9 +48,7 @@ export default function PuzzleBoard({
     playerMoveCount,
     solveTimeMs,
     makeMove,
-    retry,
     showHint,
-    dismissHint,
     reset,
   } = usePuzzleSession(puzzle);
 
@@ -97,8 +95,12 @@ export default function PuzzleBoard({
   }, [status, playFx, puzzle, attemptsUsed, solveTimeMs, puzzleIndex, puzzleSet.puzzles.length, recordPuzzleResult]);
 
   const orientation = puzzle.playerColor === "white" ? "white" : "black";
+  // Keep the board interactive during wrong-move state so players can
+  // retry by just making another move — no "Try again" button needed.
   const isInteractive =
-    status === "waiting-for-user" || status === "showing-hint";
+    status === "waiting-for-user" ||
+    status === "wrong-move" ||
+    status === "showing-hint";
 
   const handleDrop = useCallback(
     (from: string, to: string) => makeMove(from, to),
@@ -168,27 +170,22 @@ export default function PuzzleBoard({
           <div className="bg-red-950/30 border border-red-800/50 rounded-xl p-4">
             <p className="text-red-300 font-medium mb-2">Not quite!</p>
             <p className="text-sm text-stone-400">
-              That&apos;s not the best move here. Look again at the position.
+              That&apos;s not the best move here. Look again at the position
+              and make another move when you&apos;re ready.
             </p>
-            <button
-              onClick={retry}
-              className="mt-3 px-4 py-2 bg-stone-700 text-white rounded-lg hover:bg-stone-600 transition-colors text-sm"
-            >
-              Try again
-            </button>
+            <p className="mt-2 text-xs text-stone-500">
+              Just make a move on the board to try again — no button needed
+            </p>
           </div>
         )}
 
         {status === "showing-hint" && (
           <div className="bg-amber-950/30 border border-amber-800/50 rounded-xl p-4">
-            <p className="text-amber-300 font-medium mb-1">Hint</p>
+            <p className="text-amber-300 font-medium mb-1">Hint 💡</p>
             <p className="text-sm text-stone-300">{puzzle.hint}</p>
-            <button
-              onClick={dismissHint}
-              className="mt-3 px-4 py-2 bg-stone-700 text-white rounded-lg hover:bg-stone-600 transition-colors text-sm"
-            >
-              Got it
-            </button>
+            <p className="mt-2 text-xs text-stone-500">
+              Make your move on the board when you&apos;re ready
+            </p>
           </div>
         )}
 

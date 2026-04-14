@@ -73,7 +73,14 @@ export function usePuzzleSession(puzzle: Puzzle) {
   /** Player attempts a move */
   const makeMove = useCallback(
     (from: string, to: string): boolean => {
-      if (state.status !== "waiting-for-user") return false;
+      // Allow retry directly from wrong-move or hint state by just making another move
+      if (
+        state.status !== "waiting-for-user" &&
+        state.status !== "wrong-move" &&
+        state.status !== "showing-hint"
+      ) {
+        return false;
+      }
 
       const result = validatePuzzleMove(
         chessRef.current,
