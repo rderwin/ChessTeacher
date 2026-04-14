@@ -35,6 +35,18 @@ export const grunfeld: OpeningLine = {
       concepts: ["development", "center-control"],
       controls: "e4, d5 squares",
       prevents: "White from easily establishing e4+d4 center",
+      commonMistakes: [
+        {
+          san: "d5",
+          whyBad:
+            "Playing ...d5 immediately leads to the Queen's Gambit, not the Grunfeld. The Grunfeld requires Nf6 and g6 first to set up the fianchetto before striking with ...d5. Move order defines the opening.",
+        },
+        {
+          san: "g6",
+          whyBad:
+            "Playing ...g6 before Nf6 lets White play e4 freely, establishing a massive center. Nf6 first controls e4 and prevents that expansion, then ...g6 can come on the next move.",
+        },
+      ],
     },
     {
       san: "c4",
@@ -92,6 +104,18 @@ export const grunfeld: OpeningLine = {
       why: "Black recaptures with the knight, putting it on a central square where it attacks c3 and prepares to be kicked by e4. This is all part of the plan — Black wants White to play e4 because it overextends the center. The knight will be pushed back, but Black's pieces will be mobilized against the very center White is building.",
       concepts: ["development", "center-control"],
       controls: "c3, e3, b4, f4 squares — centralized knight",
+      commonMistakes: [
+        {
+          san: "Qxd5",
+          whyBad:
+            "Recapturing with the queen exposes it to tempo attacks — White plays Nc3 or e4 gaining time by hitting the queen. In the Grunfeld, the knight on d5 is the correct recapture because it provokes e4, creating the overextended center Black wants to attack.",
+        },
+        {
+          san: "Bg7",
+          whyBad:
+            "Developing the bishop before recapturing leaves White with an extra pawn on d5. Black must take back immediately with Nxd5 to maintain material equality and set up the thematic Nxc3 exchange that damages White's pawn structure.",
+        },
+      ],
     },
     {
       san: "e4",
@@ -127,6 +151,18 @@ export const grunfeld: OpeningLine = {
       why: "The bishop finally takes its throne on g7, and what a position it occupies! From g7, the bishop stares down the entire a1-h8 diagonal, directly targeting the d4 pawn — the base of White's center. This bishop is the soul of the Grunfeld. Combined with ...c5 and ...Nc6, it will create unbearable pressure on White's central pawns. The bishop also provides excellent king safety after castling.",
       concepts: ["development", "piece-activity", "attack"],
       controls: "a1-h8 diagonal — devastating pressure on d4",
+      commonMistakes: [
+        {
+          san: "c5",
+          whyBad:
+            "Striking at d4 before developing the bishop misses the point. The Bg7 fianchetto is the cornerstone of the Grunfeld — the bishop on g7 provides the sustained diagonal pressure that makes ...c5 truly devastating. Without the bishop in place, ...c5 lacks teeth and White can comfortably recapture.",
+        },
+        {
+          san: "O-O",
+          whyBad:
+            "Castling before Bg7 makes no sense — the bishop hasn't even left the back rank yet. Bg7 first completes the fianchetto, activates the most important piece in the Grunfeld, and prepares castling on the very next move if needed.",
+        },
+      ],
     },
     {
       san: "Nf3",
@@ -163,6 +199,18 @@ export const grunfeld: OpeningLine = {
       concepts: ["attack", "piece-activity"],
       controls: "c3 pawn — exploits the structural weakness",
       prevents: "White from comfortably consolidating the center",
+      commonMistakes: [
+        {
+          san: "Nc6",
+          whyBad:
+            "Nc6 develops a piece but doesn't create the immediate double-threat that Qa5 does. The queen on a5 simultaneously hits c3 and pins it, forcing White into defensive contortions. Nc6 is a good move in other Grunfeld lines, but here Qa5 exploits the structural weakness created by bxc3 right now.",
+        },
+        {
+          san: "O-O",
+          whyBad:
+            "Castling is safe but passive — it gives White time to consolidate with Qd2 and Rd1, stabilizing the center. Qa5 is more urgent because it strikes while the c3 pawn is undefended and White's pieces are still uncoordinated. The initiative matters more than king safety at this moment.",
+        },
+      ],
     },
   ],
   summary:
@@ -186,6 +234,18 @@ export const grunfeld: OpeningLine = {
           color: "black",
           why: "With the Qa5 plan less effective, Black castles and prepares to increase pressure on d4 with ...Nc6 and ...cxd4. King safety first, then counterattack.",
           concepts: ["king-safety", "preparation"],
+          commonMistakes: [
+            {
+              san: "Qa5",
+              whyBad:
+                "The whole point of White's Rb1 is to neutralize Qa5 — the b2 pawn is defended and ...Qxa2 would trap the queen after Ra1. Castling is the correct response, securing the king before resuming the counterattack with ...Nc6.",
+            },
+            {
+              san: "b6",
+              whyBad:
+                "Fianchettoing the queenside bishop is too slow here. Black needs to castle immediately and then pressure d4 with ...Nc6. Spending time on ...b6 and ...Bb7 lets White consolidate the center with Be2 and O-O unchallenged.",
+            },
+          ],
         },
         {
           san: "Be2",
@@ -199,6 +259,18 @@ export const grunfeld: OpeningLine = {
           why: "The knight develops to its natural square, adding another attacker to d4. With the g7 bishop and the knight both targeting d4, and ...cxd4 ready, the pressure on White's center is mounting.",
           concepts: ["development", "center-control", "attack"],
           controls: "d4, e5 squares",
+          commonMistakes: [
+            {
+              san: "cxd4",
+              whyBad:
+                "Capturing on d4 too early releases the tension without maximum pressure. By developing Nc6 first, Black adds another attacker to d4 before exchanging, making the recapture more problematic for White. Timing the exchange correctly is key in the Grunfeld.",
+            },
+            {
+              san: "Nd7",
+              whyBad:
+                "Nd7 blocks the c8 bishop and doesn't pressure d4 nearly as effectively as Nc6. The knight on c6 hits both d4 and e5, creating the multi-piece siege on White's center that defines the Grunfeld counterattack.",
+            },
+          ],
         },
         {
           san: "d5",
@@ -220,6 +292,18 @@ export const grunfeld: OpeningLine = {
           why: "The knight occupies the powerful e5 outpost, a direct consequence of White's d5 push. From e5, the knight is centralized and dominates — it attacks c4, d3, f3, and g4 while being very hard to dislodge. This is the payoff for Black's patient pressure.",
           concepts: ["piece-activity", "center-control"],
           controls: "c4, d3, f3, g4 — dominant central outpost",
+          commonMistakes: [
+            {
+              san: "Na5",
+              whyBad:
+                "Na5 heads to the rim where the knight is passive and only targets c4. Ne5 is far superior — the knight sits in the center, controls four key squares, and is nearly impossible to dislodge. A knight on the rim is dim; a knight on e5 is a monster.",
+            },
+            {
+              san: "Nb4",
+              whyBad:
+                "Nb4 looks active but the knight can be easily kicked with a3 and lacks a stable square. Ne5 gives the knight a permanent outpost that White cannot challenge with pawns. The e5 square is the strategic prize created by White's d5 advance.",
+            },
+          ],
         },
         {
           san: "O-O",
@@ -248,6 +332,18 @@ export const grunfeld: OpeningLine = {
           why: "Develop the knight and add more pressure to d4. With ...c5 and ...Nc6 both targeting d4, White's center is under serious siege. The knight on c6 also controls e5 and a5.",
           concepts: ["development", "center-control", "attack"],
           controls: "d4, e5 squares",
+          commonMistakes: [
+            {
+              san: "O-O",
+              whyBad:
+                "Castling before Nc6 is passive — it doesn't add pressure to d4. Black needs to pile up on White's center with Nc6 before White can consolidate with Rd1 and stabilize. Every tempo matters in the Grunfeld counterattack.",
+            },
+            {
+              san: "Qa5",
+              whyBad:
+                "Qa5 is premature here because White has Qd2 already placed to defend c3 and connect with Rc1. Nc6 first adds a real attacker to d4, and the Qa5 idea can come later at a more opportune moment after the knight develops.",
+            },
+          ],
         },
         {
           san: "Rc1",
@@ -262,6 +358,18 @@ export const grunfeld: OpeningLine = {
           why: "Black captures, opening lines against White's center and the c3 pawn. After cxd4, White must recapture with a piece or the c-pawn, and Black's g7 bishop roars to life on the open diagonal.",
           concepts: ["center-control", "piece-activity"],
           controls: "Opens the long diagonal for Bg7",
+          commonMistakes: [
+            {
+              san: "O-O",
+              whyBad:
+                "Castling instead of capturing allows White to play d5, pushing the Nc6 away and seizing space on White's terms. The timing of ...cxd4 is crucial — it must happen now while Nc6 is in place to maximize the opening of the long diagonal for the g7 bishop.",
+            },
+            {
+              san: "Qa5",
+              whyBad:
+                "Qa5 before cxd4 puts the queen out before the center is opened. After ...cxd4, the g7 bishop becomes a monster on the long diagonal — that positional transformation should come first. Then ...Qa5 can follow with even greater effect.",
+            },
+          ],
         },
         {
           san: "cxd4",
