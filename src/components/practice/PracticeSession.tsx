@@ -11,6 +11,7 @@ import ProgressBar from "./ProgressBar";
 import MoveHistory from "./MoveHistory";
 import Confetti from "@/components/ui/Confetti";
 import { useToast } from "@/contexts/ToastContext";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import Link from "next/link";
 
 interface PracticeSessionProps {
@@ -44,6 +45,19 @@ export default function PracticeSession({ opening, startFen, progressKey, onShow
   const { show: showToast } = useToast();
   const [confettiKey, setConfettiKey] = useState(0);
   const celebratedRef = useRef(false);
+
+  // Keyboard shortcuts: r to reset, f to flip, v for variants (if any)
+  useKeyboardShortcuts([
+    { key: "r", handler: reset },
+    {
+      key: "f",
+      handler: () =>
+        setBoardOrientation((o) => (o === "white" ? "black" : "white")),
+    },
+    ...(onShowVariants
+      ? [{ key: "v", handler: onShowVariants }]
+      : []),
+  ]);
 
   // Fire confetti + success toast exactly once when the opening completes
   useEffect(() => {

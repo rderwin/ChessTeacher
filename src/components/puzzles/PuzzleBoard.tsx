@@ -8,6 +8,7 @@ import { usePuzzleSession, type PuzzleStatus } from "@/hooks/usePuzzleSession";
 import { useSound } from "@/hooks/useSound";
 import { usePuzzleProgress, type PuzzleResultFeedback } from "@/hooks/usePuzzleProgress";
 import { useToast } from "@/contexts/ToastContext";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { getAchievement } from "@/data/achievements";
 import { getXPForNextLevel } from "@/lib/xp";
 
@@ -67,6 +68,24 @@ export default function PuzzleBoard({
     resultRecordedRef.current = false;
     setLastResult(null);
   }, [puzzleIndex]);
+
+  // Keyboard shortcuts: r = reset, h = hint, n = next puzzle, b = back
+  useKeyboardShortcuts([
+    { key: "r", handler: reset },
+    {
+      key: "h",
+      handler: () => {
+        if (status === "waiting-for-user" && !hintShown) showHint();
+      },
+    },
+    {
+      key: "n",
+      handler: () => {
+        if (status === "completed") onNextPuzzle();
+      },
+    },
+    { key: "b", handler: onBackToSet },
+  ]);
 
   useEffect(() => {
     const prev = prevStatusRef.current;
