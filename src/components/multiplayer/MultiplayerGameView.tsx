@@ -12,10 +12,13 @@ import { useMultiplayerGame } from "@/hooks/useMultiplayerGame";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import {
   createMultiplayerGame,
-  getGameShareUrl,
-  type MultiplayerGame,
+  setGameRatingDelta,
   type MultiplayerPlayer,
 } from "@/lib/multiplayer";
+import {
+  applyGameResult,
+  getMultiplayerRating,
+} from "@/lib/multiplayer-rating";
 import { getMoveSound } from "@/lib/sounds";
 import PlayerStrip from "./PlayerStrip";
 import GameEndBanner from "./GameEndBanner";
@@ -47,7 +50,10 @@ export default function MultiplayerGameView({ gameId }: Props) {
 
   const [confettiKey, setConfettiKey] = useState(0);
   const [creatingRematch, setCreatingRematch] = useState(false);
+  const [whiteRating, setWhiteRating] = useState<number | null>(null);
+  const [blackRating, setBlackRating] = useState<number | null>(null);
   const celebratedRef = useRef<string | null>(null);
+  const ratingAppliedRef = useRef<string | null>(null);
   const prevMovesLenRef = useRef(0);
 
   // Play move sound whenever the move count changes
@@ -60,6 +66,60 @@ export default function MultiplayerGameView({ gameId }: Props) {
       playFx(getMoveSound(lastSan));
     }
   }, [game, playFx]);
+
+  // Load both players' ratings when they join the game, and refresh them
+  // after the rating delta is written on game end.
+  useEffect(() => {
+    if (!game?.white?.uid) {
+      setWhiteRating(null);
+      return;
+    }
+    let cancelled = false;
+    getMultiplayerRating(game.white.uid).then((r) => {
+      if (!cancelled) setWhiteRating(r.rating);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [game?.white?.uid, game?.ratingDelta]);
+
+  useEffect(() => {
+    if (!game?.black?.uid) {
+      setBlackRating(null);
+      return;
+    }
+    let cancelled = false;
+    getMultiplayerRating(game.black.uid).then((r) => {
+      if (!cancelled) setBlackRating(r.rating);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [game?.black?.uid, game?.ratingDelta]);
+
+  // Apply multiplayer rating deltas once per completed game. Only the white
+  // player runs this to avoid double-writes — the black player just reads
+  // the resulting ratingDelta field from the snapshot.
+  useEffect(() => {
+    if (!game || !user) return;
+    if (game.status !== "completed") return;
+    if (game.ratingDelta) return; // already applied
+    if (!game.white?.uid || !game.black?.uid) return;
+    if (user.uid !== game.white.uid) return; // only white applies
+    if (ratingAppliedRef.current === game.id) return;
+    ratingAppliedRef.current = game.id;
+
+    if (!game.result || game.result === null) return;
+
+    applyGameResult(game.white.uid, game.black.uid, game.result)
+      .then((delta) => {
+        return setGameRatingDelta(game.id, delta);
+      })
+      .catch(() => {
+        // Reset so we can retry on the next render if something went wrong
+        ratingAppliedRef.current = null;
+      });
+  }, [game, user]);
 
   // Fire confetti + toast once when the game finishes in the current player's favor
   useEffect(() => {
@@ -304,6 +364,7 @@ export default function MultiplayerGameView({ gameId }: Props) {
           {/* Opponent strip (top) */}
           <PlayerStrip
             player={orientation === "white" ? game.black : game.white}
+            rating={orientation === "white" ? blackRating : whiteRating}
             isTheirTurn={
               game.status === "active" &&
               game.turn !== (orientation === "white" ? "white" : "black") &&
@@ -332,6 +393,7 @@ export default function MultiplayerGameView({ gameId }: Props) {
           {/* Me strip (bottom) */}
           <PlayerStrip
             player={orientation === "white" ? game.white : game.black}
+            rating={orientation === "white" ? whiteRating : blackRating}
             isTheirTurn={
               game.status === "active" &&
               game.turn === (orientation === "white" ? "white" : "black")

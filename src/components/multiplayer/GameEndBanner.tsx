@@ -54,12 +54,42 @@ export default function GameEndBanner({
       ? "from-emerald-900/40 to-emerald-950/40 border-emerald-700/60 text-emerald-100"
       : "from-red-900/40 to-red-950/40 border-red-700/60 text-red-100";
 
+  // Rating delta for the current player, if available
+  const delta = game.ratingDelta;
+  const myDelta = delta && playerColor !== "spectator"
+    ? playerColor === "white"
+      ? { before: delta.whiteBefore, after: delta.whiteAfter }
+      : { before: delta.blackBefore, after: delta.blackAfter }
+    : null;
+  const myChange = myDelta ? myDelta.after - myDelta.before : null;
+
   return (
     <div
       className={`bg-gradient-to-br ${color} border rounded-xl p-5 animate-pop`}
     >
       <h2 className="text-2xl font-bold mb-1">{title}</h2>
-      {subtitle && <p className="text-sm opacity-80 mb-4">{subtitle}</p>}
+      {subtitle && <p className="text-sm opacity-80 mb-3">{subtitle}</p>}
+
+      {myDelta && myChange !== null && (
+        <div className="mb-4 inline-flex items-center gap-2 px-3 py-1.5 bg-stone-900/60 rounded-full border border-stone-700/60">
+          <span className="text-xs text-stone-400">Rating:</span>
+          <span className="font-mono font-semibold text-stone-200">
+            {myDelta.before} → {myDelta.after}
+          </span>
+          <span
+            className={`text-xs font-semibold ${
+              myChange > 0
+                ? "text-emerald-400"
+                : myChange < 0
+                  ? "text-red-400"
+                  : "text-stone-400"
+            }`}
+          >
+            ({myChange >= 0 ? "+" : ""}
+            {myChange})
+          </span>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2">
         {playerColor !== "spectator" && (

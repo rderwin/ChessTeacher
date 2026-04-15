@@ -45,6 +45,17 @@ export interface MultiplayerPlayer {
   photoURL: string | null;
 }
 
+export interface RatingDelta {
+  /** White's rating before this game. */
+  whiteBefore: number;
+  /** White's rating after this game. */
+  whiteAfter: number;
+  /** Black's rating before this game. */
+  blackBefore: number;
+  /** Black's rating after this game. */
+  blackAfter: number;
+}
+
 export interface MultiplayerGame {
   id: string;
   /** White player — creator of the game */
@@ -72,6 +83,8 @@ export interface MultiplayerGame {
   rematchOfferedBy: "white" | "black" | null;
   /** Game ID of the rematch, if created */
   rematchGameId: string | null;
+  /** Rating deltas — written once when the game completes, then read by both clients. */
+  ratingDelta: RatingDelta | null;
 }
 
 // --- Collection helpers --------------------------------------------------
@@ -102,6 +115,7 @@ interface FirestoreGameDoc {
   drawOfferedBy: "white" | "black" | null;
   rematchOfferedBy: "white" | "black" | null;
   rematchGameId: string | null;
+  ratingDelta: RatingDelta | null;
 }
 
 function docToGame(id: string, data: FirestoreGameDoc): MultiplayerGame {
@@ -120,6 +134,7 @@ function docToGame(id: string, data: FirestoreGameDoc): MultiplayerGame {
     drawOfferedBy: data.drawOfferedBy ?? null,
     rematchOfferedBy: data.rematchOfferedBy ?? null,
     rematchGameId: data.rematchGameId ?? null,
+    ratingDelta: data.ratingDelta ?? null,
   };
 }
 
@@ -147,9 +162,21 @@ export async function createMultiplayerGame(
     drawOfferedBy: null,
     rematchOfferedBy: null,
     rematchGameId: null,
+    ratingDelta: null,
   };
   const ref = await addDoc(gamesCollectionRef(), payload);
   return ref.id;
+}
+
+/** Write the rating delta to the game doc. Called once after a completed game. */
+export async function setGameRatingDelta(
+  gameId: string,
+  delta: RatingDelta,
+): Promise<void> {
+  await updateDoc(gameDocRef(gameId), {
+    ratingDelta: delta,
+    updatedAt: serverTimestamp(),
+  });
 }
 
 /** Fetch a game once (not realtime). */
