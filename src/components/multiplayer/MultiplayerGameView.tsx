@@ -26,6 +26,7 @@ import PlayerStrip from "./PlayerStrip";
 import GameEndBanner from "./GameEndBanner";
 import WaitingForOpponent from "./WaitingForOpponent";
 import MultiplayerMoveList from "./MultiplayerMoveList";
+import GameChat from "./GameChat";
 
 interface Props {
   gameId: string;
@@ -519,6 +520,11 @@ export default function MultiplayerGameView({ gameId }: Props) {
           )}
 
           <MultiplayerMoveList moves={game.moves} />
+
+          <GameChat
+            gameId={game.id}
+            readOnly={playerColor === "spectator"}
+          />
         </div>
       </div>
     </div>

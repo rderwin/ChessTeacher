@@ -64,6 +64,32 @@ service cloud.firestore {
       );
 
       allow delete: if false;
+
+      // ---- In-game chat ---------------------------------------------
+      // Path: /multiplayerGames/{gameId}/messages/{msgId}
+      //
+      // Any signed-in user can read chat (so spectators can follow).
+      // Only the two game participants can send messages, and only
+      // while the game is in the waiting/active state.
+      match /messages/{msgId} {
+        allow read: if request.auth != null;
+
+        allow create: if request.auth != null
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 280
+          && (
+            get(/databases/$(database)/documents/multiplayerGames/$(gameId)).data.white.uid == request.auth.uid
+            || (
+              get(/databases/$(database)/documents/multiplayerGames/$(gameId)).data.black != null
+              && get(/databases/$(database)/documents/multiplayerGames/$(gameId)).data.black.uid == request.auth.uid
+            )
+          );
+
+        // Chat messages are immutable once sent
+        allow update, delete: if false;
+      }
     }
   }
 }
