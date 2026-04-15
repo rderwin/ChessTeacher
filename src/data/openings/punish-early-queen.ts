@@ -388,5 +388,110 @@ export const punishEarlyQueen: OpeningLine = {
         },
       ],
     },
+    {
+      id: "scandinavian-queen",
+      name: "Scandinavian Queen (1.e4 d5 2.exd5 Qxd5 3.Nc3)",
+      description: "Black plays the Scandinavian and recaptures with the queen. Punish it with Nc3, gaining tempo on the queen immediately.",
+      branchesAt: 0,
+      opponentMove: {
+        san: "e4",
+        color: "white",
+        why: "You play e4 (not d4 in this line). Then Black responds with d5, the Scandinavian Defense.",
+        concepts: ["center-control"],
+      },
+      moves: [
+        {
+          san: "d5",
+          color: "black",
+          why: "The Scandinavian Defense! Black challenges the e-pawn immediately. This is a legitimate opening, but most beginners follow it up with a risky early queen move.",
+          concepts: ["center-control"],
+        },
+        {
+          san: "exd5",
+          color: "white",
+          why: "Capture the pawn. Straightforward — you gain a pawn in the center and force Black to recapture.",
+          concepts: ["center-control"],
+          commonMistakes: [
+            {
+              san: "e5",
+              whyBad: "Pushing e5 instead of taking is possible but slow — it loses the chance to force Black's queen into a bad square. Take the pawn and let Black come get it with their queen, then punish.",
+            },
+            {
+              san: "Nc3",
+              whyBad: "Developing without capturing lets Black take on e4 first. Always capture when you can gain material without downside — the d5 pawn is free here.",
+            },
+          ],
+        },
+        {
+          san: "Qxd5",
+          color: "black",
+          why: "Black recaptures with the queen. This is the most common beginner move (and the Mieses variation at top level). Now the queen is out in the center and exposed.",
+          concepts: ["attack"],
+        },
+        {
+          san: "Nc3",
+          color: "white",
+          why: "HUGE move — develop the knight AND attack the queen! The knight to c3 hits d5 with tempo. Black must move the queen AGAIN, losing another move. This is the textbook punishment.",
+          concepts: ["development", "tempo", "center-control"],
+          controls: "d5 square, pressures the queen",
+          commonMistakes: [
+            {
+              san: "Nf3",
+              whyBad: "Nf3 develops a piece but doesn't attack the queen. Nc3 is better because it's a 'free' tempo — you develop AND force Black to spend another move running the queen.",
+            },
+            {
+              san: "d4",
+              whyBad: "d4 is fine but it's a pawn move. Nc3 is sharper — it develops AND pressures the queen. Develop pieces before pawns when you can gain tempo.",
+            },
+          ],
+        },
+        {
+          san: "Qa5",
+          color: "black",
+          why: "The queen retreats to a5, the main line. Black has now moved the queen twice (Qxd5, Qa5) while you've developed a knight. Your lead is growing.",
+          concepts: ["tempo"],
+        },
+        {
+          san: "d4",
+          color: "white",
+          why: "Now claim the center. You have piece pressure, a safer king, and a developing lead. d4 builds a strong pawn center while Black's queen sits on a5 doing nothing useful.",
+          concepts: ["center-control", "space"],
+          commonMistakes: [
+            {
+              san: "Nf3",
+              whyBad: "Nf3 also develops, but d4 is stronger because it seizes the center. With the queen on a5 out of the action, you should grab space before Black gets organized.",
+            },
+            {
+              san: "Bc4",
+              whyBad: "Bc4 develops but doesn't grab the center. d4 first, THEN Bc4. Center pawns before bishops is a classical principle, and it's especially valid when your opponent is out of position.",
+            },
+          ],
+        },
+        {
+          san: "Nf6",
+          color: "black",
+          why: "Black finally develops a piece. But you're already ahead — pawns on d4 and d5-space (well, e-file), a developed knight, and your queen safe.",
+          concepts: ["development"],
+        },
+        {
+          san: "Nf3",
+          color: "white",
+          why: "Complete your knight development. Nf3 supports d4 and eyes e5. You're building a dream position: strong center, both knights out, castling next.",
+          concepts: ["development"],
+        },
+        {
+          san: "c6",
+          color: "black",
+          why: "Black prepares to develop the bishop by giving the queen a retreat square on c7. Normal Scandinavian treatment — but you're still a tempo ahead.",
+          concepts: ["preparation"],
+        },
+        {
+          san: "Bc4",
+          color: "white",
+          why: "Develop the bishop to an active diagonal. Bc4 aims at f7 (a classic target) and prepares castling next move. You have a beautiful position.",
+          concepts: ["development", "piece-activity"],
+        },
+      ],
+    },
   ],
 };
