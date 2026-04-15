@@ -99,10 +99,10 @@ export default function MultiplayerGameView({ gameId }: Props) {
   }, [game, playerColor, showToast, playFx]);
 
   const handlePieceDrop = useCallback(
-    (from: string, to: string): boolean => {
+    (from: string, to: string, promotion?: "q" | "r" | "b" | "n"): boolean => {
       if (!canMove) return false;
       // Fire-and-forget — the real state update comes back through the realtime listener
-      makeMove(from, to).catch(() => {});
+      makeMove(from, to, promotion ?? "q").catch(() => {});
       // Return true optimistically so the piece doesn't snap back during animation
       return true;
     },
@@ -286,6 +286,7 @@ export default function MultiplayerGameView({ gameId }: Props) {
               playerColor={orientation}
               onPieceDrop={handlePieceDrop}
               disabled={!canMove || game.status !== "active"}
+              enablePromotionPicker
             />
           </div>
 

@@ -5,14 +5,32 @@ import { Chessboard } from "react-chessboard";
 import type { Arrow } from "react-chessboard";
 import { Chess } from "chess.js";
 import { usePreferences } from "@/contexts/PreferencesContext";
+import PromotionPicker, {
+  type PromotionPiece,
+} from "./PromotionPicker";
 
 interface InteractiveBoardProps {
   fen: string;
   playerColor: "white" | "black";
-  onPieceDrop: (from: string, to: string) => boolean;
+  /**
+   * Called with (from, to, promotion). Returns true if the move was accepted
+   * (optimistic). When `enablePromotionPicker` is true, the promotion param
+   * reflects the user's chosen piece; otherwise it defaults to "q".
+   */
+  onPieceDrop: (
+    from: string,
+    to: string,
+    promotion?: PromotionPiece,
+  ) => boolean;
   highlightSquares?: Record<string, CSSProperties>;
   arrows?: Arrow[];
   disabled?: boolean;
+  /**
+   * If true, promotion moves will open a picker modal letting the player
+   * choose Q/R/B/N. If false (default), promotes to queen automatically so
+   * practice/puzzle flows with pre-determined moves keep working.
+   */
+  enablePromotionPicker?: boolean;
 }
 
 const SELECTED_STYLE: CSSProperties = {
@@ -25,6 +43,21 @@ const LEGAL_CAPTURE_STYLE: CSSProperties = {
   background: "radial-gradient(circle, rgba(0,0,0,0.2) 85%, transparent 85%)",
 };
 
+/** Return true if moving a pawn from `from` to `to` would be a promotion. */
+function isPromotionMove(fen: string, from: string, to: string): boolean {
+  try {
+    const chess = new Chess(fen);
+    const piece = chess.get(from as never);
+    if (!piece || piece.type !== "p") return false;
+    const targetRank = to[1];
+    if (piece.color === "w" && targetRank === "8") return true;
+    if (piece.color === "b" && targetRank === "1") return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 export default function InteractiveBoard({
   fen,
   playerColor,
@@ -32,12 +65,19 @@ export default function InteractiveBoard({
   highlightSquares = {},
   arrows = [],
   disabled = false,
+  enablePromotionPicker = false,
 }: InteractiveBoardProps) {
   const { boardTheme, pieceStyle } = usePreferences();
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [clickStyles, setClickStyles] = useState<Record<string, CSSProperties>>(
     {}
   );
+
+  // Pending promotion move — shown when the picker is open
+  const [pendingPromotion, setPendingPromotion] = useState<{
+    from: string;
+    to: string;
+  } | null>(null);
 
   // Clear selection when fen changes (move was made) or when disabled
   useEffect(() => {
@@ -60,13 +100,31 @@ export default function InteractiveBoard({
     [fen]
   );
 
+  /** Wrap onPieceDrop so promotion moves open the picker instead of firing immediately. */
+  const submitMove = useCallback(
+    (from: string, to: string): boolean => {
+      if (enablePromotionPicker && isPromotionMove(fen, from, to)) {
+        setPendingPromotion({ from, to });
+        // Clear selection so the board visually settles
+        setSelectedSquare(null);
+        setClickStyles({});
+        // Return false so the Chessboard snaps back (we'll apply the real
+        // move after the user picks a piece)
+        return false;
+      }
+      return onPieceDrop(from, to);
+    },
+    [enablePromotionPicker, fen, onPieceDrop],
+  );
+
   const handleSquareClick = useCallback(
     ({ square }: { piece: unknown; square: string }) => {
       if (disabled) return;
+      if (pendingPromotion) return; // ignore clicks while the picker is open
 
       // If a piece is already selected and we click a target square, try the move
       if (selectedSquare && selectedSquare !== square) {
-        const success = onPieceDrop(selectedSquare, square);
+        const success = submitMove(selectedSquare, square);
         if (success) {
           setSelectedSquare(null);
           setClickStyles({});
@@ -101,7 +159,15 @@ export default function InteractiveBoard({
         setClickStyles(getLegalMoveStyles(square));
       }
     },
-    [disabled, selectedSquare, fen, playerColor, onPieceDrop, getLegalMoveStyles]
+    [
+      disabled,
+      pendingPromotion,
+      selectedSquare,
+      fen,
+      playerColor,
+      submitMove,
+      getLegalMoveStyles,
+    ],
   );
 
   // Click selection / legal move dots must override the practice-session
@@ -113,36 +179,55 @@ export default function InteractiveBoard({
     .filter((v) => v !== "none")
     .join(" ");
 
+  const handlePromotionPick = useCallback(
+    (piece: PromotionPiece) => {
+      if (!pendingPromotion) return;
+      onPieceDrop(pendingPromotion.from, pendingPromotion.to, piece);
+      setPendingPromotion(null);
+    },
+    [pendingPromotion, onPieceDrop],
+  );
+
   return (
-    <div
-      className="w-full max-w-full sm:max-w-[560px] aspect-square"
-      style={pieceFilter ? { filter: pieceFilter } as React.CSSProperties : undefined}
-    >
-      <Chessboard
-        options={{
-          position: fen,
-          boardOrientation: playerColor,
-          onPieceDrop: ({ sourceSquare, targetSquare }) => {
-            if (!targetSquare) return false;
-            return onPieceDrop(sourceSquare, targetSquare);
-          },
-          // Only wire onSquareClick — react-chessboard also fires this when
-          // you click a square that contains a piece. Wiring onPieceClick as
-          // well would cause every piece click to fire twice and immediately
-          // deselect whatever was just selected.
-          onSquareClick: handleSquareClick,
-          squareStyles: mergedStyles,
-          arrows,
-          allowDragging: !disabled,
-          animationDurationInMs: 300,
-          boardStyle: {
-            borderRadius: "4px",
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-          },
-          darkSquareStyle: { backgroundColor: boardTheme.darkSquare },
-          lightSquareStyle: { backgroundColor: boardTheme.lightSquare },
-        }}
-      />
-    </div>
+    <>
+      <div
+        className="w-full max-w-full sm:max-w-[560px] aspect-square"
+        style={pieceFilter ? { filter: pieceFilter } as React.CSSProperties : undefined}
+      >
+        <Chessboard
+          options={{
+            position: fen,
+            boardOrientation: playerColor,
+            onPieceDrop: ({ sourceSquare, targetSquare }) => {
+              if (!targetSquare) return false;
+              return submitMove(sourceSquare, targetSquare);
+            },
+            // Only wire onSquareClick — react-chessboard also fires this when
+            // you click a square that contains a piece. Wiring onPieceClick as
+            // well would cause every piece click to fire twice and immediately
+            // deselect whatever was just selected.
+            onSquareClick: handleSquareClick,
+            squareStyles: mergedStyles,
+            arrows,
+            allowDragging: !disabled,
+            animationDurationInMs: 300,
+            boardStyle: {
+              borderRadius: "4px",
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+            },
+            darkSquareStyle: { backgroundColor: boardTheme.darkSquare },
+            lightSquareStyle: { backgroundColor: boardTheme.lightSquare },
+          }}
+        />
+      </div>
+
+      {pendingPromotion && (
+        <PromotionPicker
+          color={playerColor}
+          onPick={handlePromotionPick}
+          onCancel={() => setPendingPromotion(null)}
+        />
+      )}
+    </>
   );
 }
