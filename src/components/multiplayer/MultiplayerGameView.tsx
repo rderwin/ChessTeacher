@@ -35,6 +35,7 @@ export default function MultiplayerGameView({ gameId }: Props) {
     game,
     loading,
     error,
+    disconnected,
     playerColor,
     canMove,
     makeMove,
@@ -254,6 +255,16 @@ export default function MultiplayerGameView({ gameId }: Props) {
           Game ID: <code className="text-stone-400">{game.id.slice(0, 8)}</code>
         </span>
       </div>
+
+      {disconnected && (
+        <div className="mb-4 bg-red-950/40 border border-red-700/60 rounded-xl p-3 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse shrink-0" />
+          <p className="text-sm text-red-200">
+            <strong>Disconnected.</strong> Trying to reconnect... your moves will
+            sync when the connection returns.
+          </p>
+        </div>
+      )}
 
       {game.status === "waiting" && playerColor === "white" && (
         <WaitingForOpponent game={game} />

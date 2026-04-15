@@ -20,6 +20,8 @@ interface UseMultiplayerGameResult {
   game: MultiplayerGame | null;
   loading: boolean;
   error: string | null;
+  /** True when the realtime listener is disconnected or the browser is offline. */
+  disconnected: boolean;
   /** "white" | "black" | "spectator" — which side the current user controls */
   playerColor: "white" | "black" | "spectator";
   /** Whether it's the current user's turn and they can move */
@@ -51,6 +53,7 @@ export function useMultiplayerGame(
   const [game, setGame] = useState<MultiplayerGame | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [disconnected, setDisconnected] = useState(false);
   const autoJoin = opts?.autoJoin ?? true;
 
   // Subscribe to realtime updates
@@ -62,19 +65,46 @@ export function useMultiplayerGame(
     }
     setLoading(true);
     setError(null);
+    setDisconnected(false);
     const unsub = subscribeToGame(
       gameId,
       (next) => {
         setGame(next);
         setLoading(false);
+        setDisconnected(false);
       },
       (err) => {
+        // Firestore raises this when the listener hits a network error.
+        // Firebase auto-retries internally, so we just surface a banner and
+        // wait for the next snapshot to clear it.
         setError(err.message);
-        setLoading(false);
+        setDisconnected(true);
       },
     );
     return () => unsub();
   }, [gameId]);
+
+  // Watch the browser's online/offline state as an extra signal. Firestore
+  // listeners don't always emit an error promptly when the network drops,
+  // so this provides a faster visible cue.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onOffline = () => setDisconnected(true);
+    const onOnline = () => {
+      // Don't immediately clear the disconnected flag — wait for the next
+      // successful snapshot. But if Firestore is still responsive, the
+      // snapshot handler will clear it.
+      setDisconnected(!navigator.onLine);
+    };
+    window.addEventListener("offline", onOffline);
+    window.addEventListener("online", onOnline);
+    // Prime from current state
+    if (!navigator.onLine) setDisconnected(true);
+    return () => {
+      window.removeEventListener("offline", onOffline);
+      window.removeEventListener("online", onOnline);
+    };
+  }, []);
 
   // Auto-join as the black player if the game is waiting and we're not in it yet
   useEffect(() => {
@@ -146,6 +176,7 @@ export function useMultiplayerGame(
     game,
     loading,
     error,
+    disconnected,
     playerColor,
     canMove,
     makeMove,
