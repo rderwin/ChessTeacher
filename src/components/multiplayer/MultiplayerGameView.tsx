@@ -259,6 +259,34 @@ export default function MultiplayerGameView({ gameId }: Props) {
         <WaitingForOpponent game={game} />
       )}
 
+      {playerColor === "spectator" && game.status === "active" && (
+        <div className="mb-4 bg-blue-950/30 border border-blue-800/50 rounded-xl p-4 flex items-center gap-3">
+          <span className="text-lg" aria-hidden>
+            👀
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-blue-200 font-medium text-sm">
+              Watching as spectator
+            </p>
+            <p className="text-xs text-stone-400">
+              You can&apos;t make moves — the game updates live as the players move.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {playerColor === "spectator" && game.status === "waiting" && (
+        <div className="mb-4 bg-amber-950/30 border border-amber-800/50 rounded-xl p-4 flex items-center gap-3">
+          <span className="text-lg" aria-hidden>
+            ⏳
+          </span>
+          <p className="text-sm text-amber-200">
+            This game is still waiting for a second player. Only the creator
+            can invite an opponent.
+          </p>
+        </div>
+      )}
+
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Board + player strips */}
         <div className="shrink-0">
