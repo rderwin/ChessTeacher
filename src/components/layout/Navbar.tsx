@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePuzzleProgress } from "@/hooks/usePuzzleProgress";
 
 const NAV_LINKS = [
+  { href: "/play", label: "Play Online" },
   { href: "/trainer", label: "Coach" },
   { href: "/puzzles", label: "Puzzles" },
   { href: "/openings", label: "Openings" },

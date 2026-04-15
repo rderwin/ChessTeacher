@@ -18,6 +18,15 @@ interface ModuleCard {
 
 const MODULES: ModuleCard[] = [
   {
+    id: "play",
+    title: "Play Online",
+    href: "/play",
+    description:
+      "Challenge a friend to a real-time game. Create a room and share the link — they'll join as Black.",
+    icon: "🌐",
+    colorClass: "from-cyan-600/10 to-sky-700/10 hover:border-cyan-500/40",
+  },
+  {
     id: "trainer",
     title: "Coach Mode",
     href: "/trainer",
