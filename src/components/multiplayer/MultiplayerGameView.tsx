@@ -13,6 +13,8 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import {
   createMultiplayerGame,
   setGameRatingDelta,
+  getEffectiveClocks,
+  claimTimeout,
   type MultiplayerPlayer,
 } from "@/lib/multiplayer";
 import {
@@ -52,9 +54,51 @@ export default function MultiplayerGameView({ gameId }: Props) {
   const [creatingRematch, setCreatingRematch] = useState(false);
   const [whiteRating, setWhiteRating] = useState<number | null>(null);
   const [blackRating, setBlackRating] = useState<number | null>(null);
+  const [clockTick, setClockTick] = useState(0);
   const celebratedRef = useRef<string | null>(null);
   const ratingAppliedRef = useRef<string | null>(null);
+  const timeoutClaimedRef = useRef<string | null>(null);
   const prevMovesLenRef = useRef(0);
+
+  // Tick once every 100ms when the game is running and has a timer.
+  // The clock display reads from `game.turnStartedAt` + `Date.now()` which
+  // doesn't need state to update, but we need to force re-renders.
+  useEffect(() => {
+    if (!game || game.status !== "active" || !game.timeControl) return;
+    const id = setInterval(() => setClockTick((t) => t + 1), 100);
+    return () => clearInterval(id);
+  }, [game?.status, game?.timeControl]);
+
+  // Claim victory on time when the opponent flags. Only the opposing player
+  // attempts this (not the one whose clock is running).
+  useEffect(() => {
+    if (!game || !user) return;
+    if (game.status !== "active" || !game.timeControl) return;
+    if (timeoutClaimedRef.current === game.id + ":" + game.moves.length) return;
+
+    const clocks = getEffectiveClocks(game);
+    const runningClock =
+      game.turn === "white" ? clocks.whiteMs : clocks.blackMs;
+    if (runningClock === null || runningClock > 0) return;
+
+    // The running side has flagged. Only the OPPONENT claims (to avoid both
+    // writing). If the running side is me, skip.
+    const myColor = playerColor;
+    if (myColor === "spectator") return;
+    if (myColor === game.turn) return;
+
+    timeoutClaimedRef.current = game.id + ":" + game.moves.length;
+    claimTimeout(game).catch(() => {
+      timeoutClaimedRef.current = null;
+    });
+  }, [game, user, playerColor, clockTick]);
+
+  // Derived clocks for display
+  const clocks = game
+    ? getEffectiveClocks(game)
+    : { whiteMs: null, blackMs: null };
+  // Reference clockTick so lint doesn't complain about an unused dep driver
+  void clockTick;
 
   // Play move sound whenever the move count changes
   useEffect(() => {
@@ -200,7 +244,8 @@ export default function MultiplayerGameView({ gameId }: Props) {
         name: user.displayName ?? "Anonymous",
         photoURL: user.photoURL ?? null,
       };
-      const newId = await createMultiplayerGame(player);
+      // Preserve the previous game's time control for the rematch
+      const newId = await createMultiplayerGame(player, game.timeControl);
       router.push(`/play/${newId}`);
     } catch {
       setCreatingRematch(false);
@@ -365,6 +410,13 @@ export default function MultiplayerGameView({ gameId }: Props) {
           <PlayerStrip
             player={orientation === "white" ? game.black : game.white}
             rating={orientation === "white" ? blackRating : whiteRating}
+            clockMs={orientation === "white" ? clocks.blackMs : clocks.whiteMs}
+            clockUrgent={
+              game.timeControl !== null &&
+              (orientation === "white"
+                ? (clocks.blackMs ?? Infinity) < 10_000
+                : (clocks.whiteMs ?? Infinity) < 10_000)
+            }
             isTheirTurn={
               game.status === "active" &&
               game.turn !== (orientation === "white" ? "white" : "black") &&
@@ -394,6 +446,13 @@ export default function MultiplayerGameView({ gameId }: Props) {
           <PlayerStrip
             player={orientation === "white" ? game.white : game.black}
             rating={orientation === "white" ? whiteRating : blackRating}
+            clockMs={orientation === "white" ? clocks.whiteMs : clocks.blackMs}
+            clockUrgent={
+              game.timeControl !== null &&
+              (orientation === "white"
+                ? (clocks.whiteMs ?? Infinity) < 10_000
+                : (clocks.blackMs ?? Infinity) < 10_000)
+            }
             isTheirTurn={
               game.status === "active" &&
               game.turn === (orientation === "white" ? "white" : "black")

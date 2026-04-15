@@ -18,6 +18,7 @@ const END_REASON_LABELS: Record<string, string> = {
   threefold: "by threefold repetition",
   insufficient: "by insufficient material",
   "fifty-move": "by the 50-move rule",
+  timeout: "on time",
   aborted: "— game aborted",
 };
 

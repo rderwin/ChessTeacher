@@ -36,8 +36,35 @@ export type MultiplayerEndReason =
   | "threefold"
   | "insufficient"
   | "fifty-move"
+  | "timeout"
   | "aborted"
   | null;
+
+/** Time control format. A value of null means untimed. */
+export interface TimeControl {
+  /** Starting time per side in milliseconds. */
+  initialMs: number;
+  /** Fischer increment added after each move, in milliseconds. */
+  incrementMs: number;
+}
+
+export const TIME_CONTROLS: Array<{
+  id: string;
+  label: string;
+  category: "bullet" | "blitz" | "rapid" | "classical" | "unlimited";
+  tc: TimeControl | null;
+}> = [
+  { id: "1+0", label: "1 min", category: "bullet", tc: { initialMs: 60_000, incrementMs: 0 } },
+  { id: "2+1", label: "2 | 1", category: "bullet", tc: { initialMs: 120_000, incrementMs: 1_000 } },
+  { id: "3+0", label: "3 min", category: "blitz", tc: { initialMs: 180_000, incrementMs: 0 } },
+  { id: "3+2", label: "3 | 2", category: "blitz", tc: { initialMs: 180_000, incrementMs: 2_000 } },
+  { id: "5+0", label: "5 min", category: "blitz", tc: { initialMs: 300_000, incrementMs: 0 } },
+  { id: "5+3", label: "5 | 3", category: "blitz", tc: { initialMs: 300_000, incrementMs: 3_000 } },
+  { id: "10+0", label: "10 min", category: "rapid", tc: { initialMs: 600_000, incrementMs: 0 } },
+  { id: "15+10", label: "15 | 10", category: "rapid", tc: { initialMs: 900_000, incrementMs: 10_000 } },
+  { id: "30+0", label: "30 min", category: "classical", tc: { initialMs: 1_800_000, incrementMs: 0 } },
+  { id: "unlimited", label: "Unlimited", category: "unlimited", tc: null },
+];
 
 export interface MultiplayerPlayer {
   uid: string;
@@ -85,6 +112,14 @@ export interface MultiplayerGame {
   rematchGameId: string | null;
   /** Rating deltas — written once when the game completes, then read by both clients. */
   ratingDelta: RatingDelta | null;
+  /** Time control, or null for untimed games */
+  timeControl: TimeControl | null;
+  /** Remaining time for white in ms (null = untimed) */
+  whiteTimeMs: number | null;
+  /** Remaining time for black in ms (null = untimed) */
+  blackTimeMs: number | null;
+  /** Wall-clock millis when the current side started thinking. Null for untimed / pre-start. */
+  turnStartedAt: number | null;
 }
 
 // --- Collection helpers --------------------------------------------------
@@ -116,6 +151,10 @@ interface FirestoreGameDoc {
   rematchOfferedBy: "white" | "black" | null;
   rematchGameId: string | null;
   ratingDelta: RatingDelta | null;
+  timeControl: TimeControl | null;
+  whiteTimeMs: number | null;
+  blackTimeMs: number | null;
+  turnStartedAt: number | null;
 }
 
 function docToGame(id: string, data: FirestoreGameDoc): MultiplayerGame {
@@ -135,6 +174,10 @@ function docToGame(id: string, data: FirestoreGameDoc): MultiplayerGame {
     rematchOfferedBy: data.rematchOfferedBy ?? null,
     rematchGameId: data.rematchGameId ?? null,
     ratingDelta: data.ratingDelta ?? null,
+    timeControl: data.timeControl ?? null,
+    whiteTimeMs: data.whiteTimeMs ?? null,
+    blackTimeMs: data.blackTimeMs ?? null,
+    turnStartedAt: data.turnStartedAt ?? null,
   };
 }
 
@@ -143,6 +186,7 @@ function docToGame(id: string, data: FirestoreGameDoc): MultiplayerGame {
 /** Create a new game. The creator always plays white in v1. Returns the new game ID. */
 export async function createMultiplayerGame(
   creator: MultiplayerPlayer,
+  timeControl: TimeControl | null = null,
 ): Promise<string> {
   const chess = new Chess();
   const payload: Omit<FirestoreGameDoc, "createdAt" | "updatedAt"> & {
@@ -163,6 +207,10 @@ export async function createMultiplayerGame(
     rematchOfferedBy: null,
     rematchGameId: null,
     ratingDelta: null,
+    timeControl,
+    whiteTimeMs: timeControl ? timeControl.initialMs : null,
+    blackTimeMs: timeControl ? timeControl.initialMs : null,
+    turnStartedAt: null, // populated when black joins
   };
   const ref = await addDoc(gamesCollectionRef(), payload);
   return ref.id;
@@ -212,6 +260,8 @@ export async function joinMultiplayerGame(
   await updateDoc(ref, {
     black: joiner,
     status: "active",
+    // Start white's clock the moment the second player joins
+    turnStartedAt: Date.now(),
     updatedAt: serverTimestamp(),
   });
 }
@@ -287,6 +337,12 @@ export function applyMoveToGame(
 /**
  * Submit a move to Firestore. Validates locally first. Callers should only
  * call this when it's their turn.
+ *
+ * For timed games:
+ *  - The moving player's elapsed time (now - turnStartedAt) is subtracted
+ *    from their clock, plus the Fischer increment added back.
+ *  - If their clock is zero or negative, the move is rejected as a timeout.
+ *  - The new turnStartedAt is set to the current wall clock.
  */
 export async function submitMove(
   game: MultiplayerGame,
@@ -295,7 +351,12 @@ export async function submitMove(
   promotion: "q" | "r" | "b" | "n" = "q",
 ): Promise<void> {
   const applied = applyMoveToGame(game, from, to, promotion);
-  await updateDoc(gameDocRef(game.id), {
+
+  const movingColor = game.turn;
+  const now = Date.now();
+
+  // Default update payload — no clock changes
+  const update: Record<string, unknown> = {
     fen: applied.nextFen,
     moves: applied.nextMoves,
     turn: applied.nextTurn,
@@ -303,9 +364,96 @@ export async function submitMove(
     result: applied.nextResult,
     endReason: applied.nextEndReason,
     updatedAt: serverTimestamp(),
-    // A move always cancels any pending draw offer
     drawOfferedBy: null,
-  });
+  };
+
+  if (game.timeControl) {
+    const elapsed = game.turnStartedAt ? now - game.turnStartedAt : 0;
+    const currentClock =
+      movingColor === "white" ? game.whiteTimeMs ?? 0 : game.blackTimeMs ?? 0;
+    const remaining = currentClock - elapsed;
+
+    if (remaining <= 0) {
+      // Flag fall — mover loses
+      update.status = "completed";
+      update.result = movingColor === "white" ? "0-1" : "1-0";
+      update.endReason = "timeout";
+      if (movingColor === "white") {
+        update.whiteTimeMs = 0;
+      } else {
+        update.blackTimeMs = 0;
+      }
+    } else {
+      // Apply the move and add the increment
+      const withIncrement = remaining + game.timeControl.incrementMs;
+      if (movingColor === "white") {
+        update.whiteTimeMs = withIncrement;
+      } else {
+        update.blackTimeMs = withIncrement;
+      }
+      // Start the next player's clock (if the game didn't just end)
+      update.turnStartedAt =
+        applied.nextStatus === "active" ? now : null;
+    }
+  }
+
+  await updateDoc(gameDocRef(game.id), update);
+}
+
+/** Claim victory on time when the opponent's clock has flagged. */
+export async function claimTimeout(game: MultiplayerGame): Promise<void> {
+  if (!game.timeControl || game.status !== "active") return;
+  if (!game.turnStartedAt) return;
+  const now = Date.now();
+  const elapsed = now - game.turnStartedAt;
+  const runningClock =
+    game.turn === "white" ? game.whiteTimeMs ?? 0 : game.blackTimeMs ?? 0;
+  if (runningClock - elapsed > 0) return; // not flagged yet
+
+  const update: Record<string, unknown> = {
+    status: "completed",
+    result: game.turn === "white" ? "0-1" : "1-0",
+    endReason: "timeout",
+    updatedAt: serverTimestamp(),
+  };
+  if (game.turn === "white") {
+    update.whiteTimeMs = 0;
+  } else {
+    update.blackTimeMs = 0;
+  }
+  await updateDoc(gameDocRef(game.id), update);
+}
+
+/**
+ * Compute the effective remaining clocks as the client should display them.
+ * The "running" side's clock decreases in real time since turnStartedAt.
+ */
+export function getEffectiveClocks(game: MultiplayerGame): {
+  whiteMs: number | null;
+  blackMs: number | null;
+} {
+  if (!game.timeControl) {
+    return { whiteMs: null, blackMs: null };
+  }
+  const whiteStored = game.whiteTimeMs ?? game.timeControl.initialMs;
+  const blackStored = game.blackTimeMs ?? game.timeControl.initialMs;
+
+  // Only tick the clock if the game is actively running with a start timestamp
+  if (game.status !== "active" || !game.turnStartedAt) {
+    return { whiteMs: whiteStored, blackMs: blackStored };
+  }
+  const elapsed = Date.now() - game.turnStartedAt;
+  if (game.turn === "white") {
+    return {
+      whiteMs: Math.max(0, whiteStored - elapsed),
+      blackMs: blackStored,
+    };
+  } else {
+    return {
+      whiteMs: whiteStored,
+      blackMs: Math.max(0, blackStored - elapsed),
+    };
+  }
 }
 
 /** Resign the game for the given color. */

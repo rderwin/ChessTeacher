@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   createMultiplayerGame,
   listUserGames,
+  TIME_CONTROLS,
   type MultiplayerPlayer,
   type MultiplayerGame,
 } from "@/lib/multiplayer";
@@ -20,6 +21,7 @@ export default function PlayLobbyPage() {
   const [joinError, setJoinError] = useState<string | null>(null);
   const [recentGames, setRecentGames] = useState<MultiplayerGame[]>([]);
   const [loadingRecent, setLoadingRecent] = useState(true);
+  const [selectedTcId, setSelectedTcId] = useState<string>("5+3");
 
   // Load the user's recent games
   useEffect(() => {
@@ -47,7 +49,8 @@ export default function PlayLobbyPage() {
         name: user.displayName ?? "Anonymous",
         photoURL: user.photoURL ?? null,
       };
-      const gameId = await createMultiplayerGame(player);
+      const selectedTc = TIME_CONTROLS.find((t) => t.id === selectedTcId);
+      const gameId = await createMultiplayerGame(player, selectedTc?.tc ?? null);
       router.push(`/play/${gameId}`);
     } catch (e) {
       setJoinError(
@@ -112,6 +115,28 @@ export default function PlayLobbyPage() {
               You&apos;ll play White. Share the link with your opponent and
               they&apos;ll join as Black.
             </p>
+
+            {/* Time control picker */}
+            <label className="text-[10px] uppercase tracking-wider text-stone-500 font-medium block mb-2">
+              Time control
+            </label>
+            <div className="grid grid-cols-5 gap-1.5 mb-4">
+              {TIME_CONTROLS.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setSelectedTcId(t.id)}
+                  className={`px-1.5 py-1.5 rounded-md text-[11px] font-medium border transition-colors ${
+                    selectedTcId === t.id
+                      ? "bg-emerald-700/50 border-emerald-500/60 text-white"
+                      : "bg-stone-900/60 border-stone-700 text-stone-400 hover:text-stone-200 hover:border-stone-600"
+                  }`}
+                  title={`${t.category}${t.tc ? "" : " — no timer"}`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
             <button
               onClick={handleCreateGame}
               disabled={creating}
