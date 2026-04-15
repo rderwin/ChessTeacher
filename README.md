@@ -4,6 +4,17 @@ A hands-on chess learning app. Play the moves yourself and understand *why* each
 
 ## Features
 
+### Play Online (Multiplayer)
+Real-time chess against a friend. Create a game, share the link, and whoever opens it plays Black. Built on Firestore realtime listeners — no separate server needed. Includes:
+- Shareable invite links with copy-to-clipboard
+- Live board sync across both players
+- Move sounds, turn indicators, victory confetti
+- Resign, draw offers, accept/decline
+- Rematch button and "recent games" list on the lobby
+- Auto game-end detection (checkmate, stalemate, threefold, insufficient material, 50-move)
+
+Requires Firestore rules to be deployed — see [Firestore setup](#firestore-setup) below.
+
 ### Coach Mode
 Play against bots at 8 difficulty levels (~400 to full Stockfish) with a dog coach that watches every move. Different breeds per level — from a tiny puppy for beginners to a crowned wolf for experts. The coach gives specific, actionable feedback based on your level:
 
@@ -85,3 +96,17 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
 NEXT_PUBLIC_FIREBASE_APP_ID=...
 ```
+
+### Firestore setup
+
+Security rules for user progress and multiplayer games live in `firestore.rules`.
+Deploy them once with the Firebase CLI:
+
+```bash
+npm install -g firebase-tools
+firebase login
+firebase use --add  # link this directory to your Firebase project
+firebase deploy --only firestore:rules
+```
+
+The rules allow signed-in users to read any game, create a game as the white player, and update games they participate in (or join a waiting game as black). No game deletion is allowed — games are permanent.

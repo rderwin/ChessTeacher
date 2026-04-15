@@ -1,0 +1,56 @@
+rules_version = '2';
+
+// ChessTeacher Firestore security rules.
+//
+// Deploy with: firebase deploy --only firestore:rules
+// (requires `firebase-tools` installed and the project linked.)
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- User progress (single-player progress/achievements) ---------
+    // Path: /users/{uid}/**
+    // Only the owner can read or write their own progress.
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ---- Multiplayer games ------------------------------------------
+    // Path: /multiplayerGames/{gameId}
+    //
+    // Design:
+    //  - Anyone signed in can read a game (spectators + participants).
+    //  - Anyone signed in can CREATE a game, but only if they list
+    //    themselves as the white player and the game starts in the
+    //    waiting state with no moves played.
+    //  - Updates are allowed when the caller is one of the two players,
+    //    OR when a signed-in user is joining a waiting game (setting
+    //    themselves as black).
+    //  - No delete — games are permanent history.
+    match /multiplayerGames/{gameId} {
+
+      allow read: if request.auth != null;
+
+      allow create: if request.auth != null
+        && request.resource.data.white.uid == request.auth.uid
+        && request.resource.data.black == null
+        && request.resource.data.status == 'waiting'
+        && request.resource.data.moves.size() == 0;
+
+      allow update: if request.auth != null && (
+        // Existing participant updating (moves, resigns, draw offers, etc.)
+        resource.data.white.uid == request.auth.uid
+        || (resource.data.black != null && resource.data.black.uid == request.auth.uid)
+        // OR: a new player joining a waiting game as black
+        || (
+          resource.data.status == 'waiting'
+          && resource.data.black == null
+          && request.resource.data.black.uid == request.auth.uid
+          && request.resource.data.status == 'active'
+        )
+      );
+
+      allow delete: if false;
+    }
+  }
+}
