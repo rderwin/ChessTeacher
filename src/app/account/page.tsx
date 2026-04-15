@@ -10,7 +10,9 @@ import { getSavedGames, deleteGame } from "@/lib/saved-games";
 import type { SavedGame } from "@/lib/saved-games";
 import { usePuzzleProgress } from "@/hooks/usePuzzleProgress";
 import { getXPForNextLevel } from "@/lib/xp";
-import { ACHIEVEMENTS, getAchievement } from "@/data/achievements";
+import { ACHIEVEMENTS } from "@/data/achievements";
+import ActivityHeatmap from "@/components/account/ActivityHeatmap";
+import RatingGraph from "@/components/account/RatingGraph";
 
 const PREVIEW_FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4";
 
@@ -147,6 +149,19 @@ export default function AccountPage() {
             <span>📅</span>
             <span className="text-stone-300">Daily: <strong>{progress.dailyStreak}</strong></span>
           </div>
+        </div>
+
+        {/* Rating graph */}
+        <div className="bg-stone-900/50 rounded-lg p-4 mb-4">
+          <RatingGraph
+            history={progress.ratingHistory}
+            currentRating={progress.rating}
+          />
+        </div>
+
+        {/* Activity heatmap */}
+        <div className="bg-stone-900/50 rounded-lg p-4 mb-5">
+          <ActivityHeatmap dailyActivity={progress.dailyActivity} />
         </div>
 
         {/* Achievements */}
