@@ -21,6 +21,8 @@ export const DEFAULT_PUZZLE_PROGRESS: PuzzleProgressData = {
   totalTimeMs: 0,
   dailyActivity: {},
   ratingHistory: [],
+  solvedPuzzleIds: {},
+  fastestSolveMs: undefined,
 };
 
 // --- localStorage (guest fallback) ---

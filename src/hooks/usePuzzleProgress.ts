@@ -125,11 +125,30 @@ export function usePuzzleProgress() {
         newRatingHistory = newRatingHistory.slice(-90);
       }
 
+      // Track per-puzzle solves so set cards can show completion
+      const solvedIds = { ...(progress.solvedPuzzleIds ?? {}) };
+      let newTotalSolved = progress.totalSolved;
+      if (solved && !solvedIds[puzzle.id]) {
+        solvedIds[puzzle.id] = new Date().toISOString();
+        newTotalSolved = progress.totalSolved + 1;
+      } else if (solved) {
+        // Already solved before, keep totalSolved unchanged (don't double-count)
+        newTotalSolved = progress.totalSolved;
+      }
+
+      // Fastest solve tracking
+      let fastestSolveMs = progress.fastestSolveMs;
+      if (solved && firstAttempt && timeMs > 0) {
+        if (fastestSolveMs === undefined || timeMs < fastestSolveMs) {
+          fastestSolveMs = timeMs;
+        }
+      }
+
       const updatedProgress: PuzzleProgressData = {
         rating: ratingResult.newRating,
         xp: newXP,
         level: newLevel,
-        totalSolved: progress.totalSolved + (solved ? 1 : 0),
+        totalSolved: newTotalSolved,
         totalAttempted: progress.totalAttempted + 1,
         correctFirstAttempt: progress.correctFirstAttempt + (firstAttempt ? 1 : 0),
         currentStreak: newStreak,
@@ -141,6 +160,8 @@ export function usePuzzleProgress() {
         totalTimeMs: progress.totalTimeMs + timeMs,
         dailyActivity: newDailyActivity,
         ratingHistory: newRatingHistory,
+        solvedPuzzleIds: solvedIds,
+        fastestSolveMs,
       };
 
       // Check achievements

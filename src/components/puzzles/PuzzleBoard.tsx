@@ -19,6 +19,14 @@ interface Props {
   onBackToSet: () => void;
 }
 
+/** Format a duration in ms as M:SS (e.g., 1:23). */
+function formatTime(ms: number): string {
+  const totalSec = Math.floor(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 function StatusBadge({ status }: { status: PuzzleStatus }) {
   const map: Record<PuzzleStatus, { text: string; cls: string }> = {
     "waiting-for-user": { text: "Your move", cls: "bg-stone-700 text-stone-300" },
@@ -62,6 +70,24 @@ export default function PuzzleBoard({
   const [confettiKey, setConfettiKey] = useState(0);
   const resultRecordedRef = useRef(false);
   const prevStatusRef = useRef<PuzzleStatus>(status);
+  // Running timer for the current puzzle attempt
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const attemptStartRef = useRef<number>(Date.now());
+
+  // Reset the timer each time the user moves to a new puzzle
+  useEffect(() => {
+    attemptStartRef.current = Date.now();
+    setElapsedMs(0);
+  }, [puzzleIndex]);
+
+  // Tick the running timer while the puzzle is in progress
+  useEffect(() => {
+    if (status === "completed" || status === "opponent-moving") return;
+    const id = setInterval(() => {
+      setElapsedMs(Date.now() - attemptStartRef.current);
+    }, 100);
+    return () => clearInterval(id);
+  }, [status]);
 
   // Reset result tracking when puzzle changes
   useEffect(() => {
@@ -176,7 +202,7 @@ export default function PuzzleBoard({
             <StatusBadge status={status} />
           </div>
 
-          <div className="flex items-center gap-3 text-sm text-stone-400 mb-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-stone-400 mb-3">
             <span>
               Puzzle: <strong className="text-stone-300">{puzzle.rating}</strong>
             </span>
@@ -187,6 +213,10 @@ export default function PuzzleBoard({
             <span className="text-stone-600">|</span>
             <span>
               Moves: <strong className="text-stone-300">{playerMoveCount}</strong>
+            </span>
+            <span className="text-stone-600">|</span>
+            <span className="font-mono text-stone-300">
+              {formatTime(status === "completed" ? (solveTimeMs ?? elapsedMs) : elapsedMs)}
             </span>
             {attemptsUsed > 0 && (
               <>
@@ -236,10 +266,17 @@ export default function PuzzleBoard({
         )}
 
         {status === "completed" && (
-          <div className="bg-emerald-950/30 border border-emerald-800/50 rounded-xl p-4">
-            <p className="text-emerald-300 font-medium text-lg mb-2">
-              Puzzle solved! 🎉
-            </p>
+          <div className="bg-emerald-950/30 border border-emerald-800/50 rounded-xl p-4 animate-pop">
+            <div className="flex items-start justify-between mb-2 gap-3">
+              <p className="text-emerald-300 font-semibold text-lg">
+                Puzzle solved! 🎉
+              </p>
+              {solveTimeMs !== null && (
+                <span className="shrink-0 text-xs font-mono text-stone-400 bg-stone-900/60 border border-stone-700/50 rounded-full px-2.5 py-1">
+                  ⏱ {formatTime(solveTimeMs)}
+                </span>
+              )}
+            </div>
             <p className="text-sm text-stone-300 mb-3">{puzzle.explanation}</p>
 
             {/* XP / Rating / Level feedback */}

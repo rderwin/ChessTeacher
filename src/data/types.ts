@@ -130,6 +130,11 @@ export interface PuzzleProgressData {
   totalTimeMs: number;
   dailyActivity: Record<string, number>;
   ratingHistory: Array<{ date: string; rating: number }>;
+  /** Map of puzzle ID → ISO date solved (first solve only). Enables
+   *  per-set completion UI on puzzle cards. */
+  solvedPuzzleIds?: Record<string, string>;
+  /** Best solve time in ms (for "Speed demon" style stats). */
+  fastestSolveMs?: number;
 }
 
 export interface UnlockedAchievement {
