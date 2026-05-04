@@ -140,8 +140,18 @@ export function useQueenGauntlet(gauntletCount = 4) {
 
       const playedSan = result.san;
       const match = currentTurn.responses.find((r) => r.san === playedSan);
+      const isLastTurn = currentTurn.botResponse === null;
 
-      if (match) {
+      // The gauntlet only advances if:
+      //   - This is the LAST turn (any recognized response works), OR
+      //   - The player played the "best" canonical move (so the bot's
+      //     scripted next move makes sense in the resulting position).
+      // Other recognized moves get specific feedback but UNDO so the
+      // player retries with the canonical move. This prevents the bot
+      // from playing a now-blundering scripted move.
+      const advances = match && (isLastTurn || match.quality === "best");
+
+      if (advances) {
         // Correct! Apply, advance.
         chessRef.current.move({ from, to, promotion: "q" });
         playSound(getMoveSound(playedSan), isSoundEnabled());
@@ -156,10 +166,16 @@ export function useQueenGauntlet(gauntletCount = 4) {
           totalTurns: s.totalTurns + 1,
         }));
 
+        const prefix =
+          match.quality === "best"
+            ? "✅ Best!"
+            : match.quality === "good"
+              ? "👍 Good!"
+              : "OK.";
         pushLog({
           kind: "player-good",
           san: playedSan,
-          text: `${match.quality === "best" ? "✅ Best!" : match.quality === "good" ? "👍 Good!" : "OK."} ${match.feedback}`,
+          text: `${prefix} ${match.feedback}`,
         });
 
         setPhase("correct");
@@ -204,27 +220,29 @@ export function useQueenGauntlet(gauntletCount = 4) {
         }
         return true;
       } else {
-        // Wrong move — show briefly then undo
+        // Move not advancing — either recognized but non-canonical, or
+        // unrecognized. Show on the board briefly, then undo.
         chessRef.current.move({ from, to, promotion: "q" });
         playSound("wrong", isSoundEnabled());
         setFen(chessRef.current.fen());
         setTurnAttempts((n) => n + 1);
 
+        const feedback = match
+          ? match.feedback
+          : currentTurn.fallbackFeedback;
+        const prefix = match ? "🔄" : "❌";
+
         pushLog({
           kind: "player-wrong",
           san: playedSan,
-          text: `❌ ${playedSan} — ${currentTurn.fallbackFeedback}`,
+          text: `${prefix} ${playedSan} — ${feedback}`,
         });
 
         addTimer(() => {
           chessRef.current = new Chess(turnFenRef.current);
           setFen(turnFenRef.current);
-          // Show threat arrows if available
-          if (currentTurn.threat) {
-            // No specific arrows in turn data — could be added later
-          }
           setPhase("wrong");
-        }, 800);
+        }, 1200);
 
         return false;
       }
