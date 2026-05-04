@@ -42,7 +42,7 @@ export function useQueenDrill(scenarioCount = 10) {
   const [scenarios, setScenarios] = useState<QueenDrillScenario[]>([]);
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [attempts, setAttempts] = useState<DrillAttempt[]>([]);
-  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const [score, setScore] = useState({ correct: 0, firstTry: 0, total: 0 });
   const [arrows, setArrows] = useState<Arrow[]>([]);
 
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -152,8 +152,9 @@ export function useQueenDrill(scenarioCount = 10) {
         playSound("correct", isSoundEnabled());
 
         setScore((s) => ({
-          correct: s.correct + (attempts.length === 0 ? 1 : 0), // only first-try counts
-          total: s.total + (attempts.length === 0 ? 1 : 0),
+          correct: s.correct + 1,
+          firstTry: s.firstTry + (attempts.length === 0 ? 1 : 0),
+          total: s.total + 1,
         }));
 
         setPhase("correct");
@@ -185,10 +186,8 @@ export function useQueenDrill(scenarioCount = 10) {
         setFen(chessRef.current.fen());
         playSound("wrong", isSoundEnabled());
 
-        // Count as incorrect on first attempt
-        if (attempts.length === 0) {
-          setScore((s) => ({ correct: s.correct, total: s.total + 1 }));
-        }
+        // Don't count wrong moves in the total — we count when they
+        // eventually get it right. But track that this wasn't first-try.
 
         // After a beat, revert the board and show threat arrows
         addTimer(() => {
@@ -236,7 +235,7 @@ export function useQueenDrill(scenarioCount = 10) {
     const picked = pickRandomScenarios(scenarioCount);
     setScenarios(picked);
     setScenarioIndex(0);
-    setScore({ correct: 0, total: 0 });
+    setScore({ correct: 0, firstTry: 0, total: 0 });
     setAttempts([]);
     setArrows([]);
     setPhase("setup");

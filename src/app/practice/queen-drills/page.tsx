@@ -3,6 +3,9 @@
 import InteractiveBoard from "@/components/board/InteractiveBoard";
 import Confetti from "@/components/ui/Confetti";
 import { useQueenDrill } from "@/hooks/useQueenDrill";
+import { usePuzzleProgress } from "@/hooks/usePuzzleProgress";
+import { useToast } from "@/contexts/ToastContext";
+import { useSound } from "@/hooks/useSound";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -23,6 +26,56 @@ export default function QueenDrillsPage() {
 
   const [confettiKey, setConfettiKey] = useState(0);
   const logEndRef = useRef<HTMLDivElement | null>(null);
+  const { show: showToast } = useToast();
+  const { play: playFx } = useSound();
+  const { progress, recordPuzzleResult } = usePuzzleProgress();
+  const xpAwardedRef = useRef(false);
+
+  // Award XP when drills are finished
+  useEffect(() => {
+    if (phase !== "finished" || xpAwardedRef.current) return;
+    xpAwardedRef.current = true;
+
+    // Award XP for each correct drill as if it were a puzzle
+    // Use a synthetic puzzle object just for the XP/progress system
+    const drillsCompleted = score.correct;
+    if (drillsCompleted > 0) {
+      const syntheticPuzzle = {
+        id: `drill-queen-${Date.now()}`,
+        fen: "",
+        playerColor: "white" as const,
+        solution: [],
+        themes: ["fork" as const],
+        rating: 800,
+        difficulty: "beginner" as const,
+        hint: "",
+        explanation: "",
+        source: "handcrafted" as const,
+      };
+      recordPuzzleResult(
+        syntheticPuzzle,
+        true,
+        1,
+        0,
+      ).then((feedback) => {
+        const xpMsg = feedback.xpEarned > 0 ? `+${feedback.xpEarned} XP` : "";
+        showToast({
+          kind: "success",
+          title: `Drills complete! ${xpMsg}`,
+          description: `${score.correct}/${score.total} correct, ${score.firstTry} on first try.`,
+          icon: "🎯",
+        });
+        if (feedback.leveledUp) {
+          playFx("levelup");
+          showToast({
+            kind: "levelup",
+            title: `Level up! Lv.${feedback.newLevel}`,
+            icon: "⭐",
+          });
+        }
+      });
+    }
+  }, [phase, score, recordPuzzleResult, showToast, playFx]);
 
   const handlePieceDrop = useCallback(
     (from: string, to: string): boolean => {
@@ -66,6 +119,7 @@ export default function QueenDrillsPage() {
           onRestart={() => {
             restart();
             setConfettiKey(0);
+            xpAwardedRef.current = false;
           }}
         />
       ) : (
@@ -91,7 +145,12 @@ export default function QueenDrillsPage() {
                 </h3>
                 {score.total > 0 && (
                   <span className="text-xs font-bold px-2.5 py-1 rounded-full border bg-stone-900 border-stone-700 text-stone-300">
-                    {score.correct}/{score.total} first try
+                    {score.correct}/{score.total} ✓
+                    {score.firstTry > 0 && (
+                      <span className="text-emerald-400 ml-1">
+                        ({score.firstTry} first try)
+                      </span>
+                    )}
                   </span>
                 )}
               </div>
@@ -266,11 +325,11 @@ function FinishedScreen({
   score,
   onRestart,
 }: {
-  score: { correct: number; total: number };
+  score: { correct: number; firstTry: number; total: number };
   onRestart: () => void;
 }) {
   const pct =
-    score.total > 0 ? Math.round((score.correct / score.total) * 100) : 0;
+    score.total > 0 ? Math.round((score.firstTry / score.total) * 100) : 0;
   const message =
     pct >= 80
       ? "Excellent! You know how to handle queen attacks."
@@ -288,8 +347,13 @@ function FinishedScreen({
         <p className="text-3xl font-bold text-emerald-400 mb-1">
           {score.correct} / {score.total}
         </p>
-        <p className="text-sm text-stone-400 mb-4">correct on first try</p>
-        <p className="text-stone-300 mb-6">{message}</p>
+        <p className="text-sm text-stone-400 mb-1">scenarios solved</p>
+        {score.firstTry > 0 && (
+          <p className="text-sm text-amber-400">
+            ⭐ {score.firstTry} on first try ({pct}%)
+          </p>
+        )}
+        <p className="text-stone-300 mt-4 mb-6">{message}</p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
             onClick={onRestart}
@@ -298,10 +362,10 @@ function FinishedScreen({
             New drills (randomized)
           </button>
           <Link
-            href="/openings"
+            href="/drills"
             className="px-5 py-2.5 bg-stone-700 hover:bg-stone-600 text-stone-200 rounded-lg font-semibold transition-colors text-center"
           >
-            Back to openings
+            Back to drills
           </Link>
         </div>
       </div>
