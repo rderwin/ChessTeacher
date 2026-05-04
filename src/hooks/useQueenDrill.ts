@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Chess } from "chess.js";
+import type { Arrow } from "react-chessboard";
 import { playSound, getMoveSound } from "@/lib/sounds";
 import {
   type QueenDrillScenario,
@@ -20,26 +21,29 @@ function isSoundEnabled(): boolean {
 export type DrillPhase =
   | "setup"           // auto-playing the setup moves
   | "waiting"         // player's turn to respond
-  | "feedback"        // showing the result of their response
+  | "wrong"           // wrong answer — board reverts, try again
+  | "correct"         // got it right — showing feedback
   | "continuation"    // auto-playing follow-up moves
-  | "lesson"          // showing the key lesson before next drill
+  | "lesson"          // key lesson before next drill
   | "finished";       // all drills done
 
-export interface DrillFeedback {
+export interface DrillAttempt {
+  san: string;
   response: DrillResponse;
-  playedSan: string;
   wasCorrect: boolean;
 }
 
-export function useQueenDrill(scenarioCount = 8) {
+export function useQueenDrill(scenarioCount = 10) {
   const chessRef = useRef(new Chess());
+  /** FEN of the critical position (after setup, before player moves). */
+  const criticalFenRef = useRef("");
   const [fen, setFen] = useState(chessRef.current.fen());
   const [phase, setPhase] = useState<DrillPhase>("setup");
   const [scenarios, setScenarios] = useState<QueenDrillScenario[]>([]);
   const [scenarioIndex, setScenarioIndex] = useState(0);
-  const [feedback, setFeedback] = useState<DrillFeedback | null>(null);
+  const [attempts, setAttempts] = useState<DrillAttempt[]>([]);
   const [score, setScore] = useState({ correct: 0, total: 0 });
-  const [setupProgress, setSetupProgress] = useState(0);
+  const [arrows, setArrows] = useState<Arrow[]>([]);
 
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -71,8 +75,8 @@ export function useQueenDrill(scenarioCount = 8) {
     chessRef.current = new Chess();
     setFen(chessRef.current.fen());
     setPhase("setup");
-    setFeedback(null);
-    setSetupProgress(0);
+    setAttempts([]);
+    setArrows([]);
 
     const moves = currentScenario.setupMoves;
     moves.forEach((san, i) => {
@@ -82,15 +86,15 @@ export function useQueenDrill(scenarioCount = 8) {
         } catch { /* skip */ }
         playSound(getMoveSound(san), isSoundEnabled());
         setFen(chessRef.current.fen());
-        setSetupProgress(i + 1);
 
-        // After the last setup move, switch to waiting
         if (i === moves.length - 1) {
+          // Save the critical position FEN for reverting after wrong moves
+          criticalFenRef.current = chessRef.current.fen();
           addTimer(() => {
             setPhase("waiting");
-          }, 400);
+          }, 350);
         }
-      }, (i + 1) * 600);
+      }, (i + 1) * 550);
     });
   }, [currentScenario, clearTimers, addTimer]);
 
@@ -102,12 +106,17 @@ export function useQueenDrill(scenarioCount = 8) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenarios]);
 
-  /** Player attempts a move. Returns true if accepted (legal). */
+  /** Player attempts a move. Returns true if it was legal. */
   const makeMove = useCallback(
     (from: string, to: string): boolean => {
-      if (phase !== "waiting" || !currentScenario) return false;
+      if ((phase !== "waiting" && phase !== "wrong") || !currentScenario) {
+        return false;
+      }
 
-      const chess = new Chess(chessRef.current.fen());
+      // Make sure we're at the critical position (revert any prior wrong moves)
+      chessRef.current = new Chess(criticalFenRef.current);
+
+      const chess = new Chess(criticalFenRef.current);
       let result;
       try {
         result = chess.move({ from, to, promotion: "q" });
@@ -119,68 +128,87 @@ export function useQueenDrill(scenarioCount = 8) {
       const playedSan = result.san;
 
       // Find matching response in scenario data
-      const match = currentScenario.responses.find(
-        (r) => r.san === playedSan,
-      );
+      const match = currentScenario.responses.find((r) => r.san === playedSan);
+      const isCorrect = match?.quality === "best" || match?.quality === "good";
 
-      // Apply the move to the board
-      chessRef.current.move({ from, to, promotion: "q" });
-      playSound(getMoveSound(playedSan), isSoundEnabled());
-      setFen(chessRef.current.fen());
-
-      const wasCorrect =
-        match?.quality === "best" || match?.quality === "good";
-
-      const drillFeedback: DrillFeedback = {
+      const attempt: DrillAttempt = {
+        san: playedSan,
         response: match ?? {
           san: playedSan,
           quality: "mistake",
-          feedback: `That move isn't one of the main responses here. The best answer is ${currentScenario.responses.find((r) => r.quality === "best")?.san ?? "unknown"}.`,
+          feedback: `Not the best response here. Look for a move that directly addresses the queen's threat.`,
         },
-        playedSan,
-        wasCorrect,
+        wasCorrect: isCorrect,
       };
 
-      setFeedback(drillFeedback);
-      setScore((s) => ({
-        correct: s.correct + (wasCorrect ? 1 : 0),
-        total: s.total + 1,
-      }));
+      setAttempts((prev) => [...prev, attempt]);
 
-      if (wasCorrect) {
+      if (isCorrect) {
+        // Apply the correct move to the board
+        chessRef.current.move({ from, to, promotion: "q" });
+        playSound(getMoveSound(playedSan), isSoundEnabled());
+        setFen(chessRef.current.fen());
+        setArrows([]);
         playSound("correct", isSoundEnabled());
+
+        setScore((s) => ({
+          correct: s.correct + (attempts.length === 0 ? 1 : 0), // only first-try counts
+          total: s.total + (attempts.length === 0 ? 1 : 0),
+        }));
+
+        setPhase("correct");
+
+        // Play continuation if available
+        if (match?.continuation && match.continuation.length > 0) {
+          addTimer(() => {
+            setPhase("continuation");
+            match.continuation!.forEach((san, i) => {
+              addTimer(() => {
+                try {
+                  chessRef.current.move(san);
+                } catch { /* skip */ }
+                playSound(getMoveSound(san), isSoundEnabled());
+                setFen(chessRef.current.fen());
+
+                if (i === match.continuation!.length - 1) {
+                  addTimer(() => setPhase("lesson"), 500);
+                }
+              }, (i + 1) * 650);
+            });
+          }, 1200);
+        } else {
+          addTimer(() => setPhase("lesson"), 1500);
+        }
       } else {
+        // WRONG — show the move briefly, then revert the board
+        chessRef.current.move({ from, to, promotion: "q" });
+        setFen(chessRef.current.fen());
         playSound("wrong", isSoundEnabled());
-      }
 
-      setPhase("feedback");
+        // Count as incorrect on first attempt
+        if (attempts.length === 0) {
+          setScore((s) => ({ correct: s.correct, total: s.total + 1 }));
+        }
 
-      // If correct and there are continuation moves, auto-play them
-      if (wasCorrect && match?.continuation && match.continuation.length > 0) {
+        // After a beat, revert the board and show threat arrows
         addTimer(() => {
-          setPhase("continuation");
-          match.continuation!.forEach((san, i) => {
-            addTimer(() => {
-              try {
-                chessRef.current.move(san);
-              } catch { /* skip */ }
-              playSound(getMoveSound(san), isSoundEnabled());
-              setFen(chessRef.current.fen());
+          chessRef.current = new Chess(criticalFenRef.current);
+          setFen(criticalFenRef.current);
 
-              if (i === match.continuation!.length - 1) {
-                addTimer(() => setPhase("lesson"), 600);
-              }
-            }, (i + 1) * 700);
-          });
-        }, 1500);
-      } else {
-        // No continuation — go to lesson after a beat
-        addTimer(() => setPhase("lesson"), wasCorrect ? 2000 : 3000);
+          // Show threat arrows so they can SEE the danger
+          const threatArrows: Arrow[] = currentScenario.threatArrows.map((a) => ({
+            startSquare: a.from,
+            endSquare: a.to,
+            color: "rgba(239, 68, 68, 0.7)",
+          }));
+          setArrows(threatArrows);
+          setPhase("wrong");
+        }, 800);
       }
 
       return true;
     },
-    [phase, currentScenario, addTimer],
+    [phase, currentScenario, attempts, addTimer],
   );
 
   /** Move to the next scenario. */
@@ -192,10 +220,9 @@ export function useQueenDrill(scenarioCount = 8) {
       return;
     }
     setScenarioIndex(next);
-    // playSetup will be triggered by the useEffect below
   }, [clearTimers, scenarioIndex, scenarios.length]);
 
-  // When scenarioIndex changes, play the new scenario setup
+  // When scenarioIndex changes, play the new scenario
   useEffect(() => {
     if (scenarioIndex > 0 && scenarios.length > 0) {
       playSetup();
@@ -203,14 +230,15 @@ export function useQueenDrill(scenarioCount = 8) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenarioIndex]);
 
-  /** Restart all drills with fresh random scenarios. */
+  /** Restart with fresh random scenarios. */
   const restart = useCallback(() => {
     clearTimers();
     const picked = pickRandomScenarios(scenarioCount);
     setScenarios(picked);
     setScenarioIndex(0);
     setScore({ correct: 0, total: 0 });
-    setFeedback(null);
+    setAttempts([]);
+    setArrows([]);
     setPhase("setup");
   }, [clearTimers, scenarioCount]);
 
@@ -220,9 +248,9 @@ export function useQueenDrill(scenarioCount = 8) {
     scenario: currentScenario,
     scenarioIndex,
     scenarioCount: scenarios.length,
-    setupProgress,
-    feedback,
+    attempts,
     score,
+    arrows,
     makeMove,
     nextScenario,
     restart,
