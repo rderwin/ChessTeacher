@@ -6,12 +6,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePuzzleProgress } from "@/hooks/usePuzzleProgress";
 
 const NAV_LINKS = [
-  { href: "/play", label: "Play Online" },
-  { href: "/trainer", label: "Coach" },
-  { href: "/puzzles", label: "Puzzles" },
   { href: "/openings", label: "Openings" },
+  { href: "/puzzles", label: "Puzzles" },
+  { href: "/drills", label: "Drills" },
+  { href: "/trainer", label: "Play vs Bot" },
+  { href: "/play", label: "Play Online" },
   { href: "/analyze", label: "Analyze" },
-  { href: "/glossary", label: "Glossary" },
 ];
 
 export default function Navbar() {
