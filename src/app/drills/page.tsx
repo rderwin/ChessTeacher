@@ -7,11 +7,11 @@ export const metadata = {
 const DRILLS = [
   {
     href: "/practice/queen-drills",
-    title: "Queen Attack Drills",
+    title: "Queen Gauntlet",
     description:
-      "Face early queen attacks — Scholar's Mate, Wayward Queen, Parham, Scandinavian, and more. The bot plays annoying queen moves, you learn to handle them.",
+      "Play full mini-games against an opponent doing a queen attack — Scholar's Mate, Wayward Queen, Scandinavian, and more. Coach evaluates EVERY move, wrong moves undo so you can try again.",
     icon: "♛",
-    scenarios: 11,
+    scenarios: 4,
     colorClass: "from-rose-600/10 to-red-700/10 hover:border-rose-500/40",
   },
 ];
@@ -43,7 +43,7 @@ export default function DrillsPage() {
                   {drill.title}
                 </h2>
                 <p className="text-xs text-stone-500">
-                  {drill.scenarios} scenarios
+                  {drill.scenarios} mini-games
                 </p>
               </div>
             </div>
