@@ -38,6 +38,10 @@ export interface MoveLogEntry {
   attempted?: string;
   /** For wrong-move entries: specific feedback if the mistake is in the data. */
   specificFeedback?: string;
+  /** Escalating hint level: 1 = concept, 2 = piece type, 3 = full SAN. */
+  hintLevel?: 1 | 2 | 3;
+  /** Hint text shown alongside the wrong-move card. */
+  hintText?: string;
 }
 
 export type PracticeStatus =
@@ -52,6 +56,17 @@ interface PracticeOptions {
   /** When true, suppress the blue move-guide highlights — used by Surprise Mode
    *  where the player should figure out the right move without hints. */
   hideMoveGuides?: boolean;
+  /** When true, wrong moves don't auto-correct — the player has to figure
+   *  out and play the right move themselves, with escalating hints after
+   *  each wrong attempt. */
+  noAutoCorrect?: boolean;
+}
+
+export interface MoveLogEntryExtra {
+  /** For wrong-move entries: how many wrong attempts so far. */
+  attemptNumber?: number;
+  /** Escalating hint level: 0 (none) → 1 (concept) → 2 (piece) → 3 (full move) */
+  hintLevel?: 0 | 1 | 2 | 3;
 }
 
 // Animation delay before the opponent's piece slides (gives a visual beat)
@@ -64,6 +79,7 @@ let logIdCounter = 0;
 export function usePracticeSession(opening: OpeningLine, options?: PracticeOptions) {
   const startFen = options?.startFen;
   const hideMoveGuides = options?.hideMoveGuides ?? false;
+  const noAutoCorrect = options?.noAutoCorrect ?? false;
   const chessRef = useRef(startFen ? new Chess(startFen) : new Chess());
   const [fen, setFen] = useState(chessRef.current.fen());
   const [status, setStatus] = useState<PracticeStatus>("waiting-for-user");
@@ -77,6 +93,10 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
 
   const opponentTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wrongTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Tracks consecutive wrong attempts at the CURRENT move position.
+  // Resets to 0 when the player plays the correct move.
+  const wrongAttemptsRef = useRef(0);
 
   const clearTimers = useCallback(() => {
     if (opponentTimerRef.current) {
@@ -246,6 +266,7 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
       if (validation.correct) {
         // Cancel any pending wrong-move auto-play
         clearTimers();
+        wrongAttemptsRef.current = 0;
 
         try {
           chessRef.current.move({ from, to, promotion: "q" });
@@ -282,11 +303,96 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
         }
         return true;
       } else {
-        // Wrong move — add to log and keep the board active so the player
-        // can try again immediately. After a pause, the correct move will
-        // auto-play if they haven't fixed it.
+        // Wrong move — add to log so the player sees the explanation.
         clearTimers();
+        wrongAttemptsRef.current += 1;
 
+        if (noAutoCorrect) {
+          // Escalating hints — each wrong attempt reveals more.
+          //   1st mistake: just the explanation card (no hint)
+          //   2nd mistake: name the concept they're missing
+          //   3rd mistake: highlight the source square (which piece to move)
+          //   4th+ mistake: highlight both squares + arrow (full reveal)
+          const attemptsCount = wrongAttemptsRef.current;
+          let hintLevel: 1 | 2 | 3 | undefined;
+          let hintText: string | undefined;
+          const expSan = validation.expectedSan;
+          const squares = getSquaresForSan(expSan, chessRef.current);
+
+          if (attemptsCount >= 4 && squares) {
+            hintLevel = 3;
+            hintText = `The move is ${getMoveNum(idx)} ${expSan}.`;
+            setHighlightSquares({
+              [squares.from]: { backgroundColor: "rgba(0, 180, 0, 0.4)" },
+              [squares.to]: { backgroundColor: "rgba(0, 180, 0, 0.4)" },
+            });
+            setArrows([
+              {
+                startSquare: squares.from,
+                endSquare: squares.to,
+                color: "rgba(0, 180, 0, 0.6)",
+              },
+            ]);
+          } else if (attemptsCount === 3 && squares) {
+            hintLevel = 2;
+            // Name the piece type for clarity
+            const pieceMap: Record<string, string> = {
+              N: "knight", B: "bishop", R: "rook", Q: "queen", K: "king",
+            };
+            const firstChar = expSan[0];
+            const pieceName = pieceMap[firstChar] ?? "pawn";
+            hintText = `Hint: it's a ${pieceName} move. The piece is highlighted.`;
+            setHighlightSquares({
+              [squares.from]: { backgroundColor: "rgba(66, 135, 245, 0.4)" },
+            });
+            setArrows([]);
+          } else if (attemptsCount === 2) {
+            hintLevel = 1;
+            // Concept-based hint pulled from the explanation's concepts list
+            const concepts = validation.explanation.concepts ?? [];
+            const labels: Record<string, string> = {
+              "center-control": "central control",
+              development: "developing a piece",
+              "king-safety": "king safety",
+              space: "gaining space",
+              "pawn-structure": "pawn structure",
+              "piece-activity": "piece activity",
+              tempo: "tempo (forcing moves)",
+              prophylaxis: "prophylaxis",
+              attack: "attacking",
+              preparation: "preparation",
+            };
+            const conceptText = concepts
+              .slice(0, 2)
+              .map((c) => labels[c] ?? c)
+              .join(" + ");
+            hintText = conceptText
+              ? `Hint: think about ${conceptText}.`
+              : `Hint: the right move pursues a different idea.`;
+            setHighlightSquares({});
+            setArrows([]);
+          } else {
+            // 1st wrong attempt — no hint beyond the explanation card
+            setHighlightSquares({});
+            setArrows([]);
+          }
+
+          pushLog({
+            kind: "wrong-move",
+            explanation: validation.explanation,
+            moveNum: getMoveNum(idx),
+            attempted: validation.playedSan,
+            specificFeedback: validation.specificMistakeFeedback,
+            hintLevel,
+            hintText,
+          });
+
+          setStatus("wrong-move");
+          // Board stays at the pre-move position; player retries. No timer.
+          return false;
+        }
+
+        // Default behavior: log the wrong move + auto-correct path
         pushLog({
           kind: "wrong-move",
           explanation: validation.explanation,
@@ -295,7 +401,9 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
           specificFeedback: validation.specificMistakeFeedback,
         });
 
-        // Highlight the correct move's squares in green
+        setStatus("wrong-move");
+
+        // Otherwise: highlight the correct move and auto-play it after a pause.
         const squares = getSquaresForSan(validation.expectedSan, chessRef.current);
         if (squares) {
           setHighlightSquares({
@@ -309,9 +417,6 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
           }]);
         }
 
-        setStatus("wrong-move");
-
-        // Auto-play the correct move after the pause
         wrongTimerRef.current = setTimeout(() => {
           try {
             chessRef.current.move(validation.expectedSan);

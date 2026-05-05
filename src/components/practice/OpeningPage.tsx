@@ -93,6 +93,7 @@ export default function OpeningPage({ opening }: OpeningPageProps) {
           opening={surprise.line}
           progressKey={`${opening.id}:surprise`}
           hideMoveGuides
+          noAutoCorrect
         />
       </div>
     );

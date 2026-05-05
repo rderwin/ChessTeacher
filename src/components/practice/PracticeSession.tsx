@@ -50,6 +50,8 @@ interface PracticeSessionProps {
   onShowVariants?: () => void;
   /** When true, no blue move-guide hints — Surprise Mode uses this. */
   hideMoveGuides?: boolean;
+  /** When true, wrong moves don't auto-correct — escalating hints instead. */
+  noAutoCorrect?: boolean;
 }
 
 export default function PracticeSession({
@@ -58,6 +60,7 @@ export default function PracticeSession({
   progressKey,
   onShowVariants,
   hideMoveGuides,
+  noAutoCorrect,
 }: PracticeSessionProps) {
   const {
     fen,
@@ -70,7 +73,7 @@ export default function PracticeSession({
     makeMove,
     reset,
     completionPercent,
-  } = usePracticeSession(opening, { startFen, progressKey, hideMoveGuides });
+  } = usePracticeSession(opening, { startFen, progressKey, hideMoveGuides, noAutoCorrect });
 
   const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
     opening.playerColor,
@@ -287,6 +290,11 @@ function LogCard({
   playerColor: "white" | "black";
 }) {
   if (entry.kind === "wrong-move") {
+    // If the entry has a hintLevel, the player is in escalating-hint mode
+    // (Surprise Mode / noAutoCorrect). Don't reveal the correct move SAN
+    // until level 3 — let them figure it out.
+    const inHintMode = entry.hintLevel !== undefined;
+    const showAnswer = !inHintMode || entry.hintLevel === 3;
     return (
       <div className="bg-red-950/30 border border-red-800/40 rounded-lg px-3 py-2.5 text-sm animate-in fade-in slide-in-from-right-4 duration-300">
         <div className="flex items-center gap-2 mb-1">
@@ -295,11 +303,15 @@ function LogCard({
         </div>
         <p className="text-stone-300">
           You played{" "}
-          <span className="font-bold text-red-300">{entry.attempted}</span>.
-          The best move is{" "}
-          <span className="font-bold text-emerald-300">
-            {entry.moveNum} {entry.explanation.san}
-          </span>
+          <span className="font-bold text-red-300">{entry.attempted}</span>
+          {showAnswer && (
+            <>
+              . The best move is{" "}
+              <span className="font-bold text-emerald-300">
+                {entry.moveNum} {entry.explanation.san}
+              </span>
+            </>
+          )}
           .
         </p>
         {entry.specificFeedback && (
@@ -307,10 +319,30 @@ function LogCard({
             {entry.specificFeedback}
           </p>
         )}
-        <p className="text-xs text-stone-500 mt-1.5">
-          Try the highlighted move — or wait and the correct move will play
-          automatically.
-        </p>
+        {entry.hintText && (
+          <p
+            className={`text-xs mt-1.5 italic ${
+              entry.hintLevel === 3
+                ? "text-emerald-300"
+                : entry.hintLevel === 2
+                  ? "text-blue-300"
+                  : "text-amber-300"
+            }`}
+          >
+            💡 {entry.hintText}
+          </p>
+        )}
+        {inHintMode && entry.hintLevel !== 3 && (
+          <p className="text-[10px] text-stone-500 mt-1">
+            Try another move — more hints will show after each wrong attempt.
+          </p>
+        )}
+        {!inHintMode && (
+          <p className="text-xs text-stone-500 mt-1.5">
+            Try the highlighted move — or wait and the correct move will play
+            automatically.
+          </p>
+        )}
       </div>
     );
   }
