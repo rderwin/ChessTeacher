@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Chess } from "chess.js";
 import type { OpeningLine, MoveExplanation } from "@/data/types";
 import { playSound, getMoveSound } from "@/lib/sounds";
@@ -140,7 +140,9 @@ export function useOpeningTest(opening: OpeningLine) {
 
   /** Player attempts a move */
   const makeMove = useCallback((from: string, to: string): boolean => {
-    if (state.status !== "playing") return false;
+    // Allow moves in "playing" OR "wrong" state — wrong state lets the
+    // player retry by just making another move without waiting.
+    if (state.status !== "playing" && state.status !== "wrong") return false;
 
     const line = getCurrentLine();
     const expected = line.moves[state.currentMoveIndex];
@@ -256,6 +258,39 @@ export function useOpeningTest(opening: OpeningLine) {
       status: "picking",
     }));
   }, []);
+
+  /**
+   * Auto-advance: after a wrong move, briefly show feedback then auto-retry.
+   * After a line is done, briefly show the result then go to the next line.
+   * No buttons needed — flow is smooth.
+   */
+  const wrongTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lineDoneTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (state.status === "wrong") {
+      if (wrongTimerRef.current) clearTimeout(wrongTimerRef.current);
+      wrongTimerRef.current = setTimeout(() => {
+        retry();
+      }, 2800); // give time to read the feedback
+    }
+    if (state.status === "line-done") {
+      if (lineDoneTimerRef.current) clearTimeout(lineDoneTimerRef.current);
+      lineDoneTimerRef.current = setTimeout(() => {
+        nextLine();
+      }, 2200);
+    }
+    return () => {
+      if (wrongTimerRef.current && state.status !== "wrong") {
+        clearTimeout(wrongTimerRef.current);
+        wrongTimerRef.current = null;
+      }
+      if (lineDoneTimerRef.current && state.status !== "line-done") {
+        clearTimeout(lineDoneTimerRef.current);
+        lineDoneTimerRef.current = null;
+      }
+    };
+  }, [state.status, retry, nextLine]);
 
   /** Restart the whole test */
   const restart = useCallback(() => {

@@ -26,7 +26,9 @@ export default function OpeningTest({ opening, onBack }: Props) {
   );
 
   const orientation = opening.playerColor === "white" ? "white" : "black";
-  const isInteractive = test.status === "playing";
+  // Keep board interactive in "wrong" state too — player can play another
+  // move immediately to retry without waiting for the auto-retry timer.
+  const isInteractive = test.status === "playing" || test.status === "wrong";
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
@@ -95,59 +97,48 @@ export default function OpeningTest({ opening, onBack }: Props) {
         )}
 
         {test.status === "wrong" && (
-          <div className="bg-red-950/30 border border-red-800/50 rounded-xl p-4">
+          <div className="bg-red-950/30 border border-red-800/50 rounded-xl p-4 animate-in fade-in duration-200">
             <p className="text-red-300 font-medium mb-2">
               You played <span className="font-bold">{test.wrongSan}</span> — the best move was{" "}
               <span className="font-bold text-emerald-300">{test.expectedSan}</span>
             </p>
 
             {test.wrongFeedback && (
-              <div className="bg-stone-800/50 rounded-lg p-3 mb-3 border border-stone-700/50">
+              <div className="bg-stone-800/50 rounded-lg p-3 mb-2 border border-stone-700/50">
                 <p className="text-xs text-stone-500 mb-1">Why not {test.wrongSan}?</p>
                 <p className="text-sm text-stone-300">{test.wrongFeedback}</p>
               </div>
             )}
 
             {test.expectedWhy && (
-              <div className="bg-stone-800/50 rounded-lg p-3 mb-3 border border-stone-700/50">
+              <div className="bg-stone-800/50 rounded-lg p-3 mb-2 border border-stone-700/50">
                 <p className="text-xs text-stone-500 mb-1">Why {test.expectedSan}?</p>
                 <p className="text-sm text-stone-300">{test.expectedWhy}</p>
               </div>
             )}
 
-            <button
-              onClick={test.retry}
-              className="px-4 py-2 bg-stone-700 text-white rounded-lg hover:bg-stone-600 transition-colors text-sm"
-            >
-              Try again
-            </button>
+            <p className="text-xs text-stone-500 italic mt-2 flex items-center gap-1.5">
+              <span className="inline-block w-1.5 h-1.5 bg-stone-400 rounded-full animate-pulse" />
+              Auto-retrying in a moment — or just play another move now
+            </p>
           </div>
         )}
 
         {test.status === "line-done" && (
-          <div className="bg-emerald-950/30 border border-emerald-800/50 rounded-xl p-4">
+          <div className="bg-emerald-950/30 border border-emerald-800/50 rounded-xl p-4 animate-pop">
             <p className="text-emerald-300 font-medium text-lg mb-2">
               Line complete! ✓
             </p>
-            <p className="text-sm text-stone-400 mb-3">
+            <p className="text-sm text-stone-400 mb-2">
               Finished &quot;{test.lineName}&quot;
               {test.lineNumber < test.totalLines && ` — ${test.totalLines - test.lineNumber} more to go`}
             </p>
-            {test.lineNumber < test.totalLines ? (
-              <button
-                onClick={() => { test.nextLine(); }}
-                className="px-5 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors font-medium"
-              >
-                Next Line →
-              </button>
-            ) : (
-              <button
-                onClick={() => { test.nextLine(); }}
-                className="px-5 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors font-medium"
-              >
-                See Results
-              </button>
-            )}
+            <p className="text-xs text-stone-500 italic flex items-center gap-1.5">
+              <span className="inline-block w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+              {test.lineNumber < test.totalLines
+                ? "Loading next line..."
+                : "Loading results..."}
+            </p>
           </div>
         )}
 
