@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import type { OpeningLine, OpeningVariant } from "@/data/types";
-import { buildVariantSession } from "@/lib/engine";
+import { buildVariantSession, buildSurpriseLine } from "@/lib/engine";
 import { useProgress } from "@/hooks/useProgress";
 import OpeningIntro from "./OpeningIntro";
 import PracticeSession from "./PracticeSession";
@@ -21,21 +21,6 @@ type Mode =
   | { type: "drill"; variantId: string }
   | { type: "surprise"; sessionKey: number };
 
-/** Pick main line or a random variant. Used for Surprise Mode. */
-function pickRandomLine(opening: OpeningLine): {
-  isMainLine: boolean;
-  variant: OpeningVariant | null;
-} {
-  // 30% chance of main line, 70% chance of a variant (so the player faces
-  // variant deviations more often — they're the "surprise")
-  const variants = opening.variants ?? [];
-  if (variants.length === 0) return { isMainLine: true, variant: null };
-  const useMain = Math.random() < 0.3;
-  if (useMain) return { isMainLine: true, variant: null };
-  const variant = variants[Math.floor(Math.random() * variants.length)];
-  return { isMainLine: false, variant };
-}
-
 export default function OpeningPage({ opening }: OpeningPageProps) {
   const [mode, setMode] = useState<Mode>({ type: "intro" });
   const { getCompletionPercent } = useProgress(opening.id);
@@ -46,20 +31,13 @@ export default function OpeningPage({ opening }: OpeningPageProps) {
     return buildVariantSession(opening, mode.variant);
   }, [mode, opening]);
 
-  // For Surprise Mode: pick a random line each session
-  const surpriseSession = useMemo(() => {
+  // For Surprise Mode: build a synthetic line that starts from move 1 and
+  // randomly diverges into a variant at one branch point. The player has
+  // NO ADVANCE WARNING which variant — they discover it as the bot plays.
+  const surprise = useMemo(() => {
     if (mode.type !== "surprise") return null;
-    const pick = pickRandomLine(opening);
-    if (pick.isMainLine || !pick.variant) {
-      return { line: opening, startFen: undefined, isMainLine: true, variantName: null };
-    }
-    const built = buildVariantSession(opening, pick.variant);
-    return {
-      line: built.line,
-      startFen: built.startFen,
-      isMainLine: false,
-      variantName: pick.variant.name,
-    };
+    return buildSurpriseLine(opening);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, opening]);
 
   if (mode.type === "test") {
@@ -82,7 +60,9 @@ export default function OpeningPage({ opening }: OpeningPageProps) {
     );
   }
 
-  if (mode.type === "surprise" && surpriseSession) {
+  if (mode.type === "surprise" && surprise) {
+    const reRoll = () =>
+      setMode({ type: "surprise", sessionKey: mode.sessionKey + 1 });
     return (
       <div className="px-4 py-8 max-w-6xl mx-auto">
         <div className="mb-4 flex items-center justify-between">
@@ -93,28 +73,26 @@ export default function OpeningPage({ opening }: OpeningPageProps) {
             ← Back to {opening.name}
           </button>
           <button
-            onClick={() => setMode({ type: "surprise", sessionKey: mode.sessionKey + 1 })}
+            onClick={reRoll}
             className="text-sm px-3 py-1.5 bg-blue-700 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
           >
-            🎲 Re-roll
+            🎲 New game
           </button>
         </div>
         <div className="mb-4 bg-blue-950/30 border border-blue-800/50 rounded-xl px-4 py-3">
           <p className="text-sm text-blue-200">
-            <span className="font-semibold">🎲 Surprise Mode:</span>{" "}
-            {surpriseSession.isMainLine
-              ? "Main line this round."
-              : `The opponent will play ${surpriseSession.variantName}.`}
-            {" "}Play your moves — wrong moves get explained, then the line auto-corrects so
-            you can keep going.
+            <span className="font-semibold">🎲 Surprise Mode</span> —
+            play your moves. The opponent might follow the main line or
+            switch to a variant at any point. No hints. Wrong moves get
+            explained so you can learn what to do next time.
           </p>
         </div>
         <PracticeSession
-          // sessionKey forces the practice session to remount on re-roll
+          // sessionKey forces a fresh game on re-roll
           key={`surprise-${mode.sessionKey}`}
-          opening={surpriseSession.line}
-          startFen={surpriseSession.startFen}
+          opening={surprise.line}
           progressKey={`${opening.id}:surprise`}
+          hideMoveGuides
         />
       </div>
     );

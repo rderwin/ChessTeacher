@@ -111,3 +111,51 @@ export function buildVariantSession(
 
   return { startFen, line };
 }
+
+/**
+ * Build a "surprise" line — starts from move 1, plays through the main line,
+ * and at one randomly-chosen branch point splices in a variant. The player
+ * doesn't know in advance which variant (if any) will be triggered.
+ *
+ * Returns a synthetic OpeningLine starting from the standard initial
+ * position. Also returns the variant name (for post-game debrief) and
+ * the move index where the branch occurred.
+ */
+export function buildSurpriseLine(opening: OpeningLine): {
+  line: OpeningLine;
+  variantName: string | null;
+  branchedAt: number | null;
+} {
+  const variants = opening.variants ?? [];
+  if (variants.length === 0) {
+    return { line: opening, variantName: null, branchedAt: null };
+  }
+
+  // 30% chance of staying on the main line
+  if (Math.random() < 0.3) {
+    return { line: opening, variantName: null, branchedAt: null };
+  }
+
+  // Pick a random variant
+  const variant = variants[Math.floor(Math.random() * variants.length)];
+
+  // Build a synthetic move list: main moves up to branchesAt, then opponentMove
+  // (which replaces the main line move at that index), then variant.moves
+  const mainPrefix = opening.moves.slice(0, variant.branchesAt);
+  const synthMoves: MoveExplanation[] = [
+    ...mainPrefix,
+    variant.opponentMove,
+    ...variant.moves,
+  ];
+
+  const line: OpeningLine = {
+    ...opening,
+    id: `${opening.id}:surprise:${variant.id}`,
+    name: opening.name,
+    fullName: `${opening.fullName} — Surprise (${variant.name})`,
+    moves: synthMoves,
+    variants: undefined,
+  };
+
+  return { line, variantName: variant.name, branchedAt: variant.branchesAt };
+}

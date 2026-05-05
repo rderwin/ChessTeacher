@@ -49,6 +49,9 @@ export type PracticeStatus =
 interface PracticeOptions {
   startFen?: string;
   progressKey?: string;
+  /** When true, suppress the blue move-guide highlights — used by Surprise Mode
+   *  where the player should figure out the right move without hints. */
+  hideMoveGuides?: boolean;
 }
 
 // Animation delay before the opponent's piece slides (gives a visual beat)
@@ -60,6 +63,7 @@ let logIdCounter = 0;
 
 export function usePracticeSession(opening: OpeningLine, options?: PracticeOptions) {
   const startFen = options?.startFen;
+  const hideMoveGuides = options?.hideMoveGuides ?? false;
   const chessRef = useRef(startFen ? new Chess(startFen) : new Chess());
   const [fen, setFen] = useState(chessRef.current.fen());
   const [status, setStatus] = useState<PracticeStatus>("waiting-for-user");
@@ -99,6 +103,8 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
 
   const showMoveGuide = useCallback(
     (moveIndex: number) => {
+      // Skip showing hints in "no hints" modes (Surprise Mode)
+      if (hideMoveGuides) return;
       const expected = opening.moves[moveIndex];
       if (!expected || expected.color !== opening.playerColor) return;
       const squares = getSquaresForSan(expected.san, chessRef.current);
@@ -109,7 +115,7 @@ export function usePracticeSession(opening: OpeningLine, options?: PracticeOptio
         });
       }
     },
-    [opening],
+    [opening, hideMoveGuides],
   );
 
   const movesPlayed = useCallback(

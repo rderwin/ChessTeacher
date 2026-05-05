@@ -48,6 +48,8 @@ interface PracticeSessionProps {
   startFen?: string;
   progressKey?: string;
   onShowVariants?: () => void;
+  /** When true, no blue move-guide hints — Surprise Mode uses this. */
+  hideMoveGuides?: boolean;
 }
 
 export default function PracticeSession({
@@ -55,6 +57,7 @@ export default function PracticeSession({
   startFen,
   progressKey,
   onShowVariants,
+  hideMoveGuides,
 }: PracticeSessionProps) {
   const {
     fen,
@@ -67,7 +70,7 @@ export default function PracticeSession({
     makeMove,
     reset,
     completionPercent,
-  } = usePracticeSession(opening, { startFen, progressKey });
+  } = usePracticeSession(opening, { startFen, progressKey, hideMoveGuides });
 
   const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
     opening.playerColor,

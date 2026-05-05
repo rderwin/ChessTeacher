@@ -10,10 +10,19 @@ interface Props {
   onBack: () => void;
   /** If set, drill ONLY this variant (no random shuffling). */
   focusVariantId?: string;
+  /** Override the result screen — used by Surprise Mode to auto-re-roll. */
+  onAllLinesDone?: (score: number, mistakes: number) => void;
 }
 
-export default function OpeningTest({ opening, onBack, focusVariantId }: Props) {
+export default function OpeningTest({ opening, onBack, focusVariantId, onAllLinesDone }: Props) {
   const test = useOpeningTest(opening, focusVariantId);
+
+  // Notify parent when all lines done (used for Surprise Mode auto re-roll)
+  useEffect(() => {
+    if (test.status === "test-done" && onAllLinesDone) {
+      onAllLinesDone(test.score, test.mistakes);
+    }
+  }, [test.status, test.score, test.mistakes, onAllLinesDone]);
 
   // Auto-start the first line
   useEffect(() => {
