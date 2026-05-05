@@ -31,6 +31,12 @@ interface InteractiveBoardProps {
    * practice/puzzle flows with pre-determined moves keep working.
    */
   enablePromotionPicker?: boolean;
+  /**
+   * If true, the player can select pieces of EITHER color (whichever side
+   * is to move). Used in test mode where the player drills both sides.
+   * Board orientation stays fixed by `playerColor`.
+   */
+  allowAnyMover?: boolean;
 }
 
 const SELECTED_STYLE: CSSProperties = {
@@ -66,6 +72,7 @@ export default function InteractiveBoard({
   arrows = [],
   disabled = false,
   enablePromotionPicker = false,
+  allowAnyMover = false,
 }: InteractiveBoardProps) {
   const { boardTheme, pieceStyle } = usePreferences();
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
@@ -122,6 +129,14 @@ export default function InteractiveBoard({
       if (disabled) return;
       if (pendingPromotion) return; // ignore clicks while the picker is open
 
+      // Compute the color we're allowed to select. Normally the player's
+      // color, but in `allowAnyMover` mode (test/drill) it's whichever side
+      // is to move.
+      const chessForSelectability = new Chess(fen);
+      const requiredColor = allowAnyMover
+        ? chessForSelectability.turn()
+        : (playerColor === "white" ? "w" : "b");
+
       // If a piece is already selected and we click a target square, try the move
       if (selectedSquare && selectedSquare !== square) {
         const success = submitMove(selectedSquare, square);
@@ -133,7 +148,7 @@ export default function InteractiveBoard({
         // If the move failed, check if we clicked a different own piece to reselect
         const chess = new Chess(fen);
         const piece = chess.get(square as never);
-        if (piece && piece.color === (playerColor === "white" ? "w" : "b")) {
+        if (piece && piece.color === requiredColor) {
           setSelectedSquare(square);
           setClickStyles(getLegalMoveStyles(square));
           return;
@@ -154,7 +169,7 @@ export default function InteractiveBoard({
       // Select a new piece
       const chess = new Chess(fen);
       const piece = chess.get(square as never);
-      if (piece && piece.color === (playerColor === "white" ? "w" : "b")) {
+      if (piece && piece.color === requiredColor) {
         setSelectedSquare(square);
         setClickStyles(getLegalMoveStyles(square));
       }
@@ -165,6 +180,7 @@ export default function InteractiveBoard({
       selectedSquare,
       fen,
       playerColor,
+      allowAnyMover,
       submitMove,
       getLegalMoveStyles,
     ],

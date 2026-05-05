@@ -24,7 +24,25 @@ interface ChallengeLine {
 }
 
 /** Build all challenge lines from an opening (main line + variants) */
-function buildChallengeLines(opening: OpeningLine): ChallengeLine[] {
+function buildChallengeLines(opening: OpeningLine, focusVariantId?: string): ChallengeLine[] {
+  // If focused on a specific variant, return only that one
+  if (focusVariantId && opening.variants) {
+    const v = opening.variants.find((x) => x.id === focusVariantId);
+    if (v) {
+      const chess = new Chess();
+      for (let i = 0; i < v.branchesAt; i++) {
+        const m = opening.moves[i];
+        if (!m) break;
+        try { chess.move(m.san); } catch { break; }
+      }
+      return [{
+        name: v.name,
+        moves: [v.opponentMove, ...v.moves],
+        startFen: chess.fen(),
+      }];
+    }
+  }
+
   const lines: ChallengeLine[] = [
     { name: "Main Line", moves: opening.moves },
   ];
@@ -71,8 +89,8 @@ interface TestState {
   wrongFeedback: string | null;
 }
 
-export function useOpeningTest(opening: OpeningLine) {
-  const lines = useRef(buildChallengeLines(opening)).current;
+export function useOpeningTest(opening: OpeningLine, focusVariantId?: string) {
+  const lines = useRef(buildChallengeLines(opening, focusVariantId)).current;
   const shuffledOrder = useRef(
     [...Array(lines.length).keys()].sort(() => Math.random() - 0.5)
   ).current;
@@ -119,24 +137,9 @@ export function useOpeningTest(opening: OpeningLine) {
       expectedWhy: null,
       wrongFeedback: null,
     }));
-
-    // If first move is opponent's, auto-play it
-    const firstMove = line.moves[0];
-    if (firstMove && firstMove.color !== opening.playerColor) {
-      setTimeout(() => {
-        try {
-          chessRef.current.move(firstMove.san);
-          playSound(getMoveSound(firstMove.san), isSoundEnabled());
-        } catch { /* bad data */ }
-        setState((s) => ({
-          ...s,
-          fen: chessRef.current.fen(),
-          currentMoveIndex: 1,
-          status: "playing",
-        }));
-      }, 500);
-    }
-  }, [state.currentLineIndex, getCurrentLine, opening.playerColor, lines.length]);
+    // Player plays EVERY move (both colors) for full muscle-memory drilling.
+    // No auto-play of opponent moves.
+  }, [state.currentLineIndex, getCurrentLine, lines.length]);
 
   /** Player attempts a move */
   const makeMove = useCallback((from: string, to: string): boolean => {
@@ -186,36 +189,7 @@ export function useOpeningTest(opening: OpeningLine) {
         return true;
       }
 
-      // Auto-play opponent's response
-      const nextMove = line.moves[nextIdx];
-      if (nextMove && nextMove.color !== opening.playerColor) {
-        setState((s) => ({ ...s, status: "opponent" }));
-        setTimeout(() => {
-          try {
-            chessRef.current.move(nextMove.san);
-            playSound(getMoveSound(nextMove.san), isSoundEnabled());
-          } catch { /* bad data */ }
-
-          const afterIdx = nextIdx + 1;
-          if (afterIdx >= line.moves.length) {
-            playSound("complete", isSoundEnabled());
-            setState((s) => ({
-              ...s,
-              fen: chessRef.current.fen(),
-              currentMoveIndex: afterIdx,
-              status: "line-done",
-            }));
-          } else {
-            setState((s) => ({
-              ...s,
-              fen: chessRef.current.fen(),
-              currentMoveIndex: afterIdx,
-              status: "playing",
-            }));
-          }
-        }, 600);
-      }
-
+      // Player plays EVERY move (both colors). Don't auto-play opponent.
       return true;
     } else {
       // Wrong move

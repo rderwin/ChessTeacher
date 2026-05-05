@@ -17,7 +17,8 @@ type Mode =
   | { type: "intro" }
   | { type: "main-line" }
   | { type: "variant"; variant: OpeningVariant }
-  | { type: "test" };
+  | { type: "test" }
+  | { type: "drill"; variantId: string };
 
 export default function OpeningPage({ opening }: OpeningPageProps) {
   const [mode, setMode] = useState<Mode>({ type: "intro" });
@@ -33,6 +34,18 @@ export default function OpeningPage({ opening }: OpeningPageProps) {
     return (
       <div className="px-4 py-8 max-w-6xl mx-auto">
         <OpeningTest opening={opening} onBack={() => setMode({ type: "intro" })} />
+      </div>
+    );
+  }
+
+  if (mode.type === "drill") {
+    return (
+      <div className="px-4 py-8 max-w-6xl mx-auto">
+        <OpeningTest
+          opening={opening}
+          focusVariantId={mode.variantId}
+          onBack={() => setMode({ type: "intro" })}
+        />
       </div>
     );
   }
@@ -57,13 +70,18 @@ export default function OpeningPage({ opening }: OpeningPageProps) {
                 ? "You've mastered the main line. Now learn what to do when your opponent deviates."
                 : "What if your opponent plays something different? Practice these common alternatives."}
             </p>
+            <div className="bg-stone-800/30 border border-stone-700/50 rounded-lg p-3 mb-4 text-xs text-stone-400">
+              <strong className="text-stone-300">Learn</strong> = guided practice with hints and explanations.
+              <strong className="text-emerald-400 ml-2">Drill 🎯</strong> = test mode for muscle memory — play every move yourself, no hints.
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {opening.variants.map((v) => (
                 <VariantCard
                   key={v.id}
                   opening={opening}
                   variant={v}
-                  onStart={() => setMode({ type: "variant", variant: v })}
+                  onLearn={() => setMode({ type: "variant", variant: v })}
+                  onDrill={() => setMode({ type: "drill", variantId: v.id })}
                 />
               ))}
             </div>

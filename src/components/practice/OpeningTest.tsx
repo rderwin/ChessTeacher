@@ -8,10 +8,12 @@ import { useOpeningTest } from "@/hooks/useOpeningTest";
 interface Props {
   opening: OpeningLine;
   onBack: () => void;
+  /** If set, drill ONLY this variant (no random shuffling). */
+  focusVariantId?: string;
 }
 
-export default function OpeningTest({ opening, onBack }: Props) {
-  const test = useOpeningTest(opening);
+export default function OpeningTest({ opening, onBack, focusVariantId }: Props) {
+  const test = useOpeningTest(opening, focusVariantId);
 
   // Auto-start the first line
   useEffect(() => {
@@ -29,6 +31,8 @@ export default function OpeningTest({ opening, onBack }: Props) {
   // Keep board interactive in "wrong" state too — player can play another
   // move immediately to retry without waiting for the auto-retry timer.
   const isInteractive = test.status === "playing" || test.status === "wrong";
+  // Test mode = drill BOTH sides (player plays every move for muscle memory)
+  const allowAnyMover = true;
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
@@ -39,6 +43,7 @@ export default function OpeningTest({ opening, onBack }: Props) {
           playerColor={orientation}
           onPieceDrop={handleDrop}
           disabled={!isInteractive}
+          allowAnyMover={allowAnyMover}
         />
       </div>
 
