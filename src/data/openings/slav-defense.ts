@@ -267,5 +267,21 @@ export const slavDefense: OpeningLine = {
         { san: "Nbd7", color: "black", why: "Develop the knight and prepare ...dxc4 followed by ...b5 (the Meran system) or ...e5. Nbd7 also avoids blocking the c-pawn.", concepts: ["development", "preparation"], commonMistakes: [{ san: "Be7", whyBad: "Passive development doesn't address the center. Nbd7 prepares the dynamic ...dxc4 and ...b5 Meran system, which gives Black active counterplay. Develop with a plan, not just to develop." }] }
       ],
     },
+    {
+      id: "slav-exchange",
+      name: "Slav Exchange (3.cxd5)",
+      description: "White trades on d5 — symmetric, drawish. Equalize easily.",
+      branchesAt: 4,
+      opponentMove: { san: "cxd5", color: "white", why: "Exchange variation — drawish symmetry.", concepts: ["center-control"] },
+      moves: [
+        { san: "cxd5", color: "black", why: "Recapture.", concepts: ["pawn-structure"] },
+        { san: "Nc3", color: "white", why: "Develop.", concepts: ["development"] },
+        { san: "Nf6", color: "black", why: "Develop.", concepts: ["development"] },
+        { san: "Nf3", color: "white", why: "Develop.", concepts: ["development"] },
+        { san: "Nc6", color: "black", why: "Develop.", concepts: ["development"] },
+        { san: "Bf4", color: "white", why: "Hallmark of the Slav Exchange — targets c7.", concepts: ["development"] },
+        { san: "a6", color: "black", why: "Prepare ...Bf5 without tempo loss to Nb5.", concepts: ["preparation"] },
+      ],
+    },
   ],
 };

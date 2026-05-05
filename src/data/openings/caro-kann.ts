@@ -430,5 +430,21 @@ export const caroKann: OpeningLine = {
         },
       ],
     },
+    {
+      id: "panov-attack",
+      name: "Panov Attack (3.exd5 cxd5 4.c4)",
+      description: "White plays the aggressive Panov, transposing into isolated queen pawn structures. Develop solidly with Nf6 and equalize.",
+      branchesAt: 4,
+      opponentMove: { san: "exd5", color: "white", why: "White starts the Panov by capturing on d5.", concepts: ["center-control"] },
+      moves: [
+        { san: "cxd5", color: "black", why: "Recapture toward the center.", concepts: ["pawn-structure"] },
+        { san: "c4", color: "white", why: "The Panov! White attacks d5 and prepares an IQP structure.", concepts: ["attack"] },
+        { san: "Nf6", color: "black", why: "Develop and defend d5.", concepts: ["development"] },
+        { san: "Nc3", color: "white", why: "Develop.", concepts: ["development"] },
+        { san: "e6", color: "black", why: "Solidify d5.", concepts: ["pawn-structure"] },
+        { san: "Nf3", color: "white", why: "Develop.", concepts: ["development"] },
+        { san: "Be7", color: "black", why: "Develop the bishop.", concepts: ["development"] },
+      ],
+    },
   ],
 };
