@@ -148,11 +148,12 @@ export function buildSurpriseLine(opening: OpeningLine): {
     ...variant.moves,
   ];
 
+  // Keep the line's name and fullName as the bare opening — DO NOT reveal
+  // which variant was picked. The whole point of Surprise Mode is for the
+  // player to discover the deviation themselves.
   const line: OpeningLine = {
     ...opening,
     id: `${opening.id}:surprise:${variant.id}`,
-    name: opening.name,
-    fullName: `${opening.fullName} — Surprise (${variant.name})`,
     moves: synthMoves,
     variants: undefined,
   };
