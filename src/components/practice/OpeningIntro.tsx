@@ -6,9 +6,10 @@ interface OpeningIntroProps {
   opening: OpeningLine;
   onStart: () => void;
   onTest?: () => void;
+  onSurprise?: () => void;
 }
 
-export default function OpeningIntro({ opening, onStart, onTest }: OpeningIntroProps) {
+export default function OpeningIntro({ opening, onStart, onTest, onSurprise }: OpeningIntroProps) {
   const { history } = opening;
 
   return (
@@ -73,24 +74,44 @@ export default function OpeningIntro({ opening, onStart, onTest }: OpeningIntroP
         </section>
       </div>
 
-      <div className="mt-8 text-center">
-        <div className="flex gap-3 justify-center">
+      <div className="mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto">
           <button
             onClick={onStart}
-            className="px-8 py-3.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-500 transition-colors text-lg font-medium"
+            className="bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl px-5 py-4 transition-colors text-left"
           >
-            Practice with Guides
+            <p className="font-semibold text-base">📘 Practice with Guides</p>
+            <p className="text-xs text-emerald-100 mt-1 opacity-90">
+              Walk through the main line. Hints, explanations, and move arrows help you learn.
+            </p>
           </button>
+
+          {onSurprise && (
+            <button
+              onClick={onSurprise}
+              className="bg-blue-700 hover:bg-blue-600 text-white rounded-xl px-5 py-4 transition-colors text-left"
+            >
+              <p className="font-semibold text-base">🎲 Surprise Mode</p>
+              <p className="text-xs text-blue-100 mt-1 opacity-90">
+                You play your side, the bot plays the opponent — and surprises you with random
+                variants. Wrong moves get explained.
+              </p>
+            </button>
+          )}
+
           {onTest && (
             <button
               onClick={onTest}
-              className="px-8 py-3.5 bg-amber-700 text-white rounded-xl hover:bg-amber-600 transition-colors text-lg font-medium"
+              className="bg-amber-700 hover:bg-amber-600 text-white rounded-xl px-5 py-4 transition-colors text-left"
             >
-              Test Yourself
+              <p className="font-semibold text-base">🎯 Test Yourself</p>
+              <p className="text-xs text-amber-100 mt-1 opacity-90">
+                You play every move (both sides), shuffled through main + all variants. No hints.
+              </p>
             </button>
           )}
         </div>
-        <p className="text-sm text-stone-500 mt-3">
+        <p className="text-sm text-stone-500 mt-4 text-center">
           Playing as{" "}
           <span className="text-stone-300">{opening.playerColor}</span>
           {" / "}
