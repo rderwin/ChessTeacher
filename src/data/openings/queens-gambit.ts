@@ -85,11 +85,7 @@ export const queensGambit: OpeningLine = {
         {
           san: "cxd5",
           whyBad: "Taking on d5 too early (before developing) releases the tension and lets Black equalize with ...exd5 or ...Nxd5. Keep the pawn on c4 to maintain pressure — the threat is stronger than the execution.",
-        },
-        {
-          san: "Bd3",
-          whyBad: "Bd3 develops but doesn't fight for d5. Nc3 adds a direct attacker to d5, forcing Black to keep defending. Develop with threats, not just 'getting pieces out.'",
-        },
+        }
       ],
     },
     {
@@ -108,7 +104,6 @@ export const queensGambit: OpeningLine = {
       prevents: "Black from freely using the Nf6 to support central breaks",
       commonMistakes: [
         { san: "Bf4", whyBad: "Bf4 develops but doesn't create any pressure on Black's position. Bg5 pins the knight that defends d5 — that's a concrete threat. Always choose the move that creates problems for your opponent." },
-        { san: "Bd3", whyBad: "Bd3 looks natural but it blocks the d-file and doesn't address the key battle over d5. Bg5 pins a defender of d5 — that's directly connected to your strategic plan. Develop pieces where they support your goals." },
         { san: "e3", whyBad: "e3 right away locks the dark-squared bishop behind the pawn chain. Get the bishop OUT first (Bg5), THEN play e3. Same principle as the London System — bishop before e3, always." },
       ],
     },
@@ -133,10 +128,6 @@ export const queensGambit: OpeningLine = {
             "Pushing e4 immediately looks aggressive but after ...dxe4 Nxe4 Nxe4 Bxe7 Qxe7, the position simplifies and White has lost the tension on d5 that is the backbone of the Queen's Gambit. Slow preparation with e3 maintains lasting pressure.",
         },
         {
-          san: "Bd3",
-          whyBad: "Bd3 before e3 puts the bishop where the pawn wants to go. After e3, the bishop on d3 is fine — but you need e3 FIRST to support d4. If you play Bd3 now, e3 later blocks nothing but the bishop is already committed.",
-        },
-        {
           san: "Qc2",
           whyBad: "Don't bring the queen out when you have minor pieces to develop. e3 quietly strengthens the center and prepares Bd3. The queen on c2 is a target for Black's pieces — develop quietly first.",
         },
@@ -157,7 +148,6 @@ export const queensGambit: OpeningLine = {
       controls: "d4, e5 squares",
       commonMistakes: [
         { san: "Bd3", whyBad: "Bd3 develops but the knight should come first. Nf3 prepares castling (king safety is urgent!) and controls e5. Knights before bishops — especially when you need to castle." },
-        { san: "O-O-O", whyBad: "Queenside castling is risky here — your queen is on d1 and the c-file will open after ...dxc4. Kingside castling (after Nf3) is much safer in the QGD. Don't castle into the line of fire." },
         { san: "f3", whyBad: "f3 looks like it prepares e4, but it weakens the kingside horribly and takes away the knight's best square. Nf3 does the same job of supporting e4 while developing a piece. Never weaken your king position for a pawn push." },
       ],
     },
@@ -176,7 +166,6 @@ export const queensGambit: OpeningLine = {
       concepts: ["piece-activity", "prophylaxis", "preparation"],
       controls: "c-file — prepares for the opening of the file",
       commonMistakes: [
-        { san: "O-O", whyBad: "Castling is fine but Rc1 is more accurate. The rook goes to the c-file where it will be needed after ...dxc4. If you castle first, you might need an extra tempo to reroute the rook. Anticipate where your rooks belong." },
         { san: "Bd3", whyBad: "Bd3 develops but Rc1 is more urgent here. The c-file is about to open and the rook needs to be there. The bishop can wait one move — positional priorities matter." },
         { san: "cxd5", whyBad: "Taking on d5 prematurely releases the tension. Black recaptures with ...exd5 or ...Nxd5 and gets easy play. Keep the pressure with Rc1 — the threat of taking on d5 is stronger when your rook is already on the c-file." },
       ],
@@ -196,8 +185,7 @@ export const queensGambit: OpeningLine = {
       controls: "h7 square, b1-h7 diagonal",
       commonMistakes: [
         { san: "Be2", whyBad: "Be2 is passive — the bishop sits on a dead diagonal with no targets. Bd3 aims at h7, creating real attacking potential against Black's castled king. Active bishops win games; passive bishops watch." },
-        { san: "cxd5", whyBad: "Still premature to release the tension. Bd3 develops your last minor piece and prepares castling. Once fully developed, THEN you can consider exchanges. Complete development first." },
-        { san: "O-O", whyBad: "Castling before developing the bishop means the bishop goes to a worse square later. Bd3 first, THEN castle. The order matters — the bishop needs d3, and the king can wait one more move." },
+        { san: "cxd5", whyBad: "Still premature to release the tension. Bd3 develops your last minor piece and prepares castling. Once fully developed, THEN you can consider exchanges. Complete development first." }
       ],
     },
     {

@@ -197,8 +197,7 @@ export const scotchGame: OpeningLine = {
           why: "Counter the queen by blocking with your own. This leads to complex middlegame positions.",
           concepts: ["piece-activity"],
           commonMistakes: [
-            { san: "Be2", whyBad: "Be2 blocks the queen and is passive. Qe2 supports the e5 pawn and faces Black's queen directly. In this specific position, the queen belongs on e2 to maintain the central pawn." },
-            { san: "exf6", whyBad: "Taking on f6 releases all the pressure. The pawn on e5 is cramping Black's position — keep it there! After Qe2, the pawn is defended and Black stays cramped." },
+            { san: "Be2", whyBad: "Be2 blocks the queen and is passive. Qe2 supports the e5 pawn and faces Black's queen directly. In this specific position, the queen belongs on e2 to maintain the central pawn." }
           ],
         },
         { san: "Nd5", color: "black", why: "The knight jumps to a powerful central outpost. Black has active play despite the structural damage.", concepts: ["center-control", "piece-activity"] },

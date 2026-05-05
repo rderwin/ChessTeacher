@@ -178,10 +178,7 @@ export const ruyLopez: OpeningLine = {
       concepts: ["piece-activity", "prophylaxis"],
       controls: "d5 square, f7 pawn, a2-g8 diagonal",
       commonMistakes: [
-        { san: "Bc4", whyBad: "Bc4 looks natural but b3 is actually better here. On b3, the bishop is safe from ...Na5 attacks and still controls the same diagonal. Sometimes the 'further back' square is the stronger one." },
-        { san: "Be2", whyBad: "Be2 puts the bishop on a completely passive diagonal. Bb3 keeps it on the powerful a2-g8 diagonal targeting f7 and d5. Never retreat a bishop to a dead diagonal when an active one is available." },
-        { san: "Bxc6", whyBad: "STILL don't take on c6! The bishop on b3 is a long-term asset targeting f7 and d5. Giving it up now just helps Black. Maintain the pressure." },
-      ],
+],
     },
     {
       san: "d6",
@@ -338,17 +335,7 @@ export const ruyLopez: OpeningLine = {
           color: "black",
           why: "The knight goes to e7 rather than f6 (which would block the f-pawn). From e7 it can go to g6, supporting the kingside, or to d5 if the center opens.",
           concepts: ["development", "piece-activity"],
-        },
-        {
-          san: "Nd2",
-          color: "white",
-          why: "Reroute the knight toward better squares (c4 or f1-g3). White methodically improves piece placement while Black struggles with the long-term pawn weakness.",
-          concepts: ["piece-activity", "preparation"],
-          commonMistakes: [
-            { san: "Nc3", whyBad: "Nc3 is the natural square but Nd2 is more flexible in this structure. From d2, the knight can go to c4 (attacking d6 and e5) or f1-g3 (supporting a kingside attack). Nd2 gives more options." },
-            { san: "c4", whyBad: "c4 is part of the plan but Nd2 first is more accurate. The knight wants to reach c4 — so send it on its way before committing the c-pawn. Piece development before pawn moves." },
-          ],
-        },
+        }
       ],
     },
   ],

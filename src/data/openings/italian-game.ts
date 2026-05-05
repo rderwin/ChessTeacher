@@ -295,11 +295,7 @@ export const italianGame: OpeningLine = {
           concepts: ["center-control", "tempo"],
           controls: "d4 square, attacks Bb4",
           commonMistakes: [
-            {
-              san: "d4",
-              whyBad: "d4 immediately looks aggressive but after exd4, you can't recapture favorably. c3 first gains a tempo on the bishop AND prepares d4 with the c-pawn ready to recapture.",
-            },
-          ],
+],
         },
         {
           san: "Ba5",
@@ -326,11 +322,7 @@ export const italianGame: OpeningLine = {
           why: "Castle immediately! Don't recapture on d4 yet. By castling, you get your king to safety and bring the rook to the center. The d4 pawn can be recaptured later — development and king safety come first in gambit play.",
           concepts: ["king-safety", "development"],
           commonMistakes: [
-            {
-              san: "cxd4",
-              whyBad: "Recapturing immediately is natural but misses the point. O-O develops with tempo — you'll pick up d4 later while your pieces pour into the center. In gambits, speed beats material.",
-            },
-          ],
+],
         },
         {
           san: "d6",

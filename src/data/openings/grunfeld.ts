@@ -156,12 +156,7 @@ export const grunfeld: OpeningLine = {
           san: "c5",
           whyBad:
             "Striking at d4 before developing the bishop misses the point. The Bg7 fianchetto is the cornerstone of the Grunfeld — the bishop on g7 provides the sustained diagonal pressure that makes ...c5 truly devastating. Without the bishop in place, ...c5 lacks teeth and White can comfortably recapture.",
-        },
-        {
-          san: "O-O",
-          whyBad:
-            "Castling before Bg7 makes no sense — the bishop hasn't even left the back rank yet. Bg7 first completes the fianchetto, activates the most important piece in the Grunfeld, and prepares castling on the very next move if needed.",
-        },
+        }
       ],
     },
     {
@@ -344,60 +339,7 @@ export const grunfeld: OpeningLine = {
                 "Qa5 is premature here because White has Qd2 already placed to defend c3 and connect with Rc1. Nc6 first adds a real attacker to d4, and the Qa5 idea can come later at a more opportune moment after the knight develops.",
             },
           ],
-        },
-        {
-          san: "Rc1",
-          color: "white",
-          why: "White places the rook on the c-file, supporting the c3 pawn and preparing to castle queenside. The rook on c1 also eyes c5 if Black exchanges on d4.",
-          concepts: ["development", "preparation"],
-          controls: "c-file, supports c3",
-        },
-        {
-          san: "cxd4",
-          color: "black",
-          why: "Black captures, opening lines against White's center and the c3 pawn. After cxd4, White must recapture with a piece or the c-pawn, and Black's g7 bishop roars to life on the open diagonal.",
-          concepts: ["center-control", "piece-activity"],
-          controls: "Opens the long diagonal for Bg7",
-          commonMistakes: [
-            {
-              san: "O-O",
-              whyBad:
-                "Castling instead of capturing allows White to play d5, pushing the Nc6 away and seizing space on White's terms. The timing of ...cxd4 is crucial — it must happen now while Nc6 is in place to maximize the opening of the long diagonal for the g7 bishop.",
-            },
-            {
-              san: "Qa5",
-              whyBad:
-                "Qa5 before cxd4 puts the queen out before the center is opened. After ...cxd4, the g7 bishop becomes a monster on the long diagonal — that positional transformation should come first. Then ...Qa5 can follow with even greater effect.",
-            },
-          ],
-        },
-        {
-          san: "cxd4",
-          color: "white",
-          why: "Recapture with the pawn, maintaining the central presence. White still has the d4+e4 duo, but now the dark squares around White's center (c3, d4) are more exposed without the c3 pawn.",
-          concepts: ["center-control"],
-        },
-        {
-          san: "Qa5",
-          color: "black",
-          why: "The queen comes to a5 with pressure against White's position. It eyes the a2 pawn, threatens to harass White's kingside setup, and pins the d2 queen to defensive duties. This is typical Grunfeld counterplay — combining queen activity with the g7 bishop's diagonal pressure.",
-          concepts: ["attack", "piece-activity"],
-          controls: "a2 pawn, creates threats against White's position",
-          commonMistakes: [
-            {
-              san: "O-O",
-              whyBad:
-                "Castling passively allows White to consolidate with O-O-O and launch a kingside attack. ...Qa5 is more dynamic — it creates immediate threats that force White to respond, keeping the initiative on Black's side.",
-            },
-          ],
-        },
-        {
-          san: "d5",
-          color: "white",
-          why: "White pushes d5 to gain space and deflect the c6 knight. This stabilizes the center but gives Black active piece play and the e5 square. The battle shifts from center control to a strategic fight over key squares.",
-          concepts: ["space", "center-control"],
-          controls: "c6 — displaces Black's knight",
-        },
+        }
       ],
     },
   ],

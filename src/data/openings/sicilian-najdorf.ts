@@ -390,11 +390,6 @@ export const sicilianNajdorf: OpeningLine = {
           concepts: ["development", "king-safety"],
           commonMistakes: [
             {
-              san: "Bc5",
-              whyBad:
-                "While Bc5 is aggressive, the bishop is exposed on c5 and can be kicked by Be3 or Na5. Be7 is safer and more flexible — it prepares castling and can reroute to f6 or g5 later without being a target.",
-            },
-            {
               san: "h5",
               whyBad:
                 "Trying to slow White's g4 advance with ...h5 weakens the kingside before you've even castled. Develop the bishop to e7 and castle first — then worry about defensive pawn moves if needed.",

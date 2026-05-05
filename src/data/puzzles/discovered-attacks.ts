@@ -9,18 +9,6 @@ export const discoveredAttacks: PuzzleSet = {
   difficulty: "intermediate",
   puzzles: [
     {
-      id: "da-001",
-      fen: "4k3/8/8/3q4/4B3/8/8/R3K3 w - - 0 1",
-      playerColor: "white",
-      solution: ["Bc6+"],
-      themes: ["discovered-attack"],
-      rating: 900,
-      difficulty: "intermediate",
-      hint: "Move the bishop to discover an attack from the rook.",
-      explanation: "Bc6+ gives check with the bishop, but also discovers an attack from the rook on a1 along the first rank. The queen on d5 is no longer shielded.",
-      source: "handcrafted",
-    },
-    {
       id: "da-002",
       fen: "r1b1k3/pppp1ppp/8/4N3/4n3/8/PPPP1PPP/R1B1K3 w - - 0 1",
       playerColor: "white",

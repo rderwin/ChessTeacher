@@ -173,11 +173,6 @@ export const caroKann: OpeningLine = {
       controls: "Supports ...c5 break, flexible knight placement",
       commonMistakes: [
         {
-          san: "Nc6",
-          whyBad:
-            "Nc6 looks natural but blocks the c-pawn, preventing the crucial ...c5 break against White's d4 pawn. Nd7 keeps the c-file clear for counterplay and allows the knight to reroute to f6 or e5 flexibly.",
-        },
-        {
           san: "Nf6",
           whyBad:
             "While Nf6 is a common developing move, in this specific position White can play h5 immediately, pushing the bishop to h7 and gaining tempo. Nd7 is more flexible, preparing ...Ngf6 at a better moment.",
@@ -265,11 +260,6 @@ export const caroKann: OpeningLine = {
           concepts: ["center-control", "pawn-structure"],
           controls: "d5 pawn support",
           commonMistakes: [
-            {
-              san: "Nc6",
-              whyBad:
-                "Developing the knight before solidifying the center with ...e6 is inaccurate. You need ...e6 to support d5 and open the dark-squared bishop's diagonal. The knight will come out naturally after the center is secure.",
-            },
             {
               san: "c5",
               whyBad:

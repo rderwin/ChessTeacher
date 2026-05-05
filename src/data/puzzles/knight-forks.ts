@@ -167,38 +167,6 @@ export const knightForks: PuzzleSet = {
       explanation:
         "Ne5 attacks both the queen on c6 and the rook on f7 simultaneously. Black must lose one of them.",
       source: "handcrafted",
-    },
-    // --- Double rook fork (11) ---
-    {
-      // White Nh4 -> Ng6 forks Re7 and Rh8
-      // h4->g6: (1,2) valid. g6 attacks e7 (2,1) and h8 (1,2).
-      id: "kf-011",
-      fen: "4k2r/4r3/8/8/7N/8/8/4K3 w - - 0 1",
-      playerColor: "white",
-      solution: ["Ng6"],
-      themes: ["fork"],
-      rating: 1000,
-      difficulty: "intermediate",
-      hint: "Can your knight hit both rooks at once?",
-      explanation:
-        "Ng6 forks both black rooks on e7 and h8. Neither rook can capture the knight, and Black cannot save both, so White wins the exchange.",
-      source: "handcrafted",
-    },
-    // --- Family fork: king + queen + rook (12) ---
-    {
-      // White Ne4 -> Nf6+ forks Kg8, Qe8, and Rh7
-      // e4->f6: (1,2) valid. f6 attacks g8 (1,2), e8 (1,2), h7 (2,1).
-      id: "kf-012",
-      fen: "4q1k1/7r/8/8/4N3/8/8/4K3 w - - 0 1",
-      playerColor: "white",
-      solution: ["Nf6+", "Kf8", "Nxe8"],
-      themes: ["fork"],
-      rating: 1100,
-      difficulty: "intermediate",
-      hint: "This knight move attacks the king and more than one other piece.",
-      explanation:
-        "Nf6+ is a family fork! The knight checks the king on g8 while simultaneously attacking the queen on e8 and the rook on h7. After the king moves, White captures the queen.",
-      source: "handcrafted",
-    },
+    }
   ],
 };

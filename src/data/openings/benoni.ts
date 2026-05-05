@@ -125,12 +125,7 @@ export const modernBenoni: OpeningLine = {
           san: "d6",
           whyBad:
             "Delaying the capture with ...d6 lets White consolidate with e4, building an overwhelming center. You must capture on d5 now to open the e-file and create the Benoni pawn structure that gives you counterplay.",
-        },
-        {
-          san: "Bg7",
-          whyBad:
-            "Developing the bishop before capturing on d5 is the wrong priority. Capture now to establish the Benoni structure and open lines. The bishop will go to g7 soon enough, but the pawn structure must come first.",
-        },
+        }
       ],
     },
     {
@@ -336,12 +331,7 @@ export const modernBenoni: OpeningLine = {
               san: "b5",
               whyBad:
                 "Pushing ...b5 without piece support is premature. Develop Nbd7 first to support the break and have the knight ready to reroute to c5 or e5 once the queenside opens.",
-            },
-            {
-              san: "Na6",
-              whyBad:
-                "Na6 puts the knight on the rim where it's less effective. Nbd7 is more flexible — from d7, the knight can go to c5 (pressuring d3 and e4) or e5 (a powerful central outpost).",
-            },
+            }
           ],
         },
       ],

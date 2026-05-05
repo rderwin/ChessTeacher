@@ -161,11 +161,6 @@ export const slavDefense: OpeningLine = {
       prevents: "Any tactics against d5 or f7, solidifying the center",
       commonMistakes: [
         {
-          san: "Bb4",
-          whyBad:
-            "Developing Bb4 before playing ...e6 is premature. You need ...e6 first to solidify the center, open the dark-squared bishop's diagonal, and prepare castling. The pin on c3 is more effective when your position is already solid.",
-        },
-        {
           san: "g6",
           whyBad:
             "A fianchetto setup with ...g6 is inconsistent with the Slav structure. You already have the bishop on f5, so play ...e6 to complete a harmonious setup: solid center, both bishops developed, and ready to castle.",
@@ -269,11 +264,7 @@ export const slavDefense: OpeningLine = {
       opponentMove: { san: "e6", color: "black", why: "The Semi-Slav! Black reinforces d5 with BOTH c6 and e6, creating an incredibly solid pawn triangle. The downside: the light-squared bishop is now blocked behind e6 (the same problem as the QGD). But the upside: d5 is defended three times and the position is nearly impregnable. Black plans to break out with ...dxc4 and ...b5 (the Meran) or ...e5.", concepts: ["center-control", "pawn-structure"] },
       moves: [
         { san: "Nc3", color: "white", why: "Develop and add pressure to d5. White plans e4 to blow open the center before Black can solidify.", concepts: ["development", "center-control"] },
-        { san: "Nbd7", color: "black", why: "Develop the knight and prepare ...dxc4 followed by ...b5 (the Meran system) or ...e5. Nbd7 also avoids blocking the c-pawn.", concepts: ["development", "preparation"], commonMistakes: [{ san: "Nc6", whyBad: "Nc6 blocks the c-pawn, preventing the ...c5 break that Black often needs. Nbd7 keeps the c-file clear and supports both ...e5 and ...c5 central breaks." }, { san: "Be7", whyBad: "Passive development doesn't address the center. Nbd7 prepares the dynamic ...dxc4 and ...b5 Meran system, which gives Black active counterplay. Develop with a plan, not just to develop." }] },
-        { san: "Bd3", color: "white", why: "Develop the bishop toward the kingside. White prepares e4 to challenge the center.", concepts: ["development", "piece-activity"] },
-        { san: "dxc4", color: "black", why: "Take the pawn! This is the Meran system — Black captures on c4 and follows up with ...b5, trying to hold the extra pawn or expand on the queenside.", concepts: ["center-control"], commonMistakes: [{ san: "Be7", whyBad: "Be7 is too passive. The Meran idea (dxc4 + b5) gives Black active counterplay. Don't just develop quietly — fight for the initiative!" }] },
-        { san: "Bxc4", color: "white", why: "Recapture with the bishop, which is now actively placed on the a2-g8 diagonal.", concepts: ["development", "piece-activity"] },
-        { san: "b5", color: "black", why: "The Meran! Black pushes b5, attacking the bishop and preparing ...Bb7 to develop the 'problem bishop' via b7. This is one of the most dynamic ideas in the Semi-Slav — Black sacrifices pawn structure for active play.", concepts: ["space", "attack", "piece-activity"], commonMistakes: [{ san: "Bb7", whyBad: "Developing the bishop before ...b5 doesn't achieve anything — the bishop needs the b7 square to be supported by a pawn on b5 or c6. Push ...b5 first to attack the bishop on c4 and create space, then develop Bb7." }, { san: "Be7", whyBad: "Quiet development misses the chance for the dynamic Meran counterplay. Push ...b5 now to seize queenside space, attack the bishop, and prepare to activate your light-squared bishop via b7." }] },
+        { san: "Nbd7", color: "black", why: "Develop the knight and prepare ...dxc4 followed by ...b5 (the Meran system) or ...e5. Nbd7 also avoids blocking the c-pawn.", concepts: ["development", "preparation"], commonMistakes: [{ san: "Be7", whyBad: "Passive development doesn't address the center. Nbd7 prepares the dynamic ...dxc4 and ...b5 Meran system, which gives Black active counterplay. Develop with a plan, not just to develop." }] }
       ],
     },
   ],

@@ -123,11 +123,6 @@ export const londonSystem: OpeningLine = {
       prevents: "Nothing directly, but the knight from d2 is incredibly flexible",
       commonMistakes: [
         {
-          san: "Nc3",
-          whyBad:
-            "Again, Nc3 blocks the c3 pawn. If you've already played c3, then Nc3 is simply illegal. The whole London structure depends on the c-pawn being on c3, so the knight must go to d2. This is a fundamental pattern to internalize.",
-        },
-        {
           san: "Bd3",
           whyBad:
             "Bd3 develops but the knight should come first. Nd2 keeps options open — the knight can reroute to f3, b3, or even e4 later. Develop knights before bishops when possible because knights have fewer good squares.",
@@ -174,8 +169,7 @@ export const londonSystem: OpeningLine = {
       prevents: "Black from trading off the London bishop, which would ease their position significantly",
       commonMistakes: [
         { san: "Bxd6", whyBad: "Trading your London bishop voluntarily is a strategic mistake! The dark-squared bishop is your most important piece in this system. After Bxd6 Qxd6, Black gets a great queen position and you've given up the piece your entire opening revolves around." },
-        { san: "Be5", whyBad: "Be5 looks aggressive but the bishop is exposed and will be chased with ...f6 or ...Nd7. Bg3 is safer — the bishop stays active on the diagonal but can't be easily attacked. Don't overextend pieces." },
-        { san: "O-O", whyBad: "Castling before dealing with the bishop threat is sloppy. After ...Bxf4 exf4, your pawn structure is wrecked with a doubled f-pawn. Handle the bishop situation first (Bg3), THEN castle." },
+        { san: "Be5", whyBad: "Be5 looks aggressive but the bishop is exposed and will be chased with ...f6 or ...Nd7. Bg3 is safer — the bishop stays active on the diagonal but can't be easily attacked. Don't overextend pieces." }
       ],
     },
     {
@@ -193,7 +187,6 @@ export const londonSystem: OpeningLine = {
       controls: "h7 square, b1-h7 diagonal",
       commonMistakes: [
         { san: "Be2", whyBad: "Be2 is the classic passive bishop mistake. On e2, the bishop has no target and just blocks your pieces. On d3, it aims directly at h7 — a real attacking threat against Black's castled king. Active vs passive is a huge difference." },
-        { san: "O-O", whyBad: "Castling is close to happening, but developing Bd3 first is more accurate. The bishop needs to get to d3 before you castle — once you castle, you might need the f1 square for rook maneuvers. Develop first, castle when ready." },
         { san: "Qc2", whyBad: "Don't bring the queen out early when you still have a bishop to develop! Bd3 develops a piece AND creates the Bxh7+ threat. Qc2 does support e4 but the queen is exposed to attacks from Black's pieces." },
       ],
     },
@@ -329,8 +322,7 @@ export const londonSystem: OpeningLine = {
           why: "Meet the queen with the queen! Qb3 defends b2 and offers a queen trade. If Black trades, the b-file opens for your rook. If they decline, the queens stare each other down.",
           concepts: ["prophylaxis", "development"],
           commonMistakes: [
-            { san: "Qc2", whyBad: "Qc2 defends b2 but passively. Qb3 is better because it directly confronts Black's queen, offers an exchange that favors White (opening the b-file for your rook), and puts pressure on the b7 pawn." },
-            { san: "Rb1", whyBad: "Rb1 defends b2 but wastes a whole rook on a passive task. Qb3 defends AND creates counterplay. Don't use your most powerful pieces for defensive chores when the queen can do it while attacking." },
+            { san: "Qc2", whyBad: "Qc2 defends b2 but passively. Qb3 is better because it directly confronts Black's queen, offers an exchange that favors White (opening the b-file for your rook), and puts pressure on the b7 pawn." }
           ],
         },
         {

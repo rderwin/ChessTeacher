@@ -47,7 +47,7 @@ export const dutchDefense: OpeningLine = {
         { san: "Nf3", color: "white", why: "Develop and prepare to challenge the wall with b3+Bb2 or Ne5.", concepts: ["development"] },
         { san: "Bd6", color: "black", why: "Develop the bishop to an active diagonal aimed at the kingside. Bd6 supports an ...e5 or ...Qe8-h5 attacking plan.", concepts: ["development", "attack"], commonMistakes: [{ san: "Be7", whyBad: "Be7 is passive. In the Stonewall, the bishop belongs on d6 where it supports the attack. Don't be timid!" }] },
         { san: "O-O", color: "white", why: "Castle. Both sides prepare for the middlegame.", concepts: ["king-safety"] },
-        { san: "O-O", color: "black", why: "Castle and prepare the kingside attack with Qe8, Qh5, or Rf6-h6.", concepts: ["king-safety", "preparation"], commonMistakes: [{ san: "Qe8", whyBad: "Moving the queen before castling leaves the king in the center. Castle first for safety, then maneuver the queen to h5 for the attack. King safety always comes before attacking plans." }, { san: "Nbd7", whyBad: "Developing the knight before castling delays king safety. With the f-pawn already advanced, the king needs to get to g8 quickly. Castle, then develop remaining pieces." }] },
+        { san: "O-O", color: "black", why: "Castle and prepare the kingside attack with Qe8, Qh5, or Rf6-h6.", concepts: ["king-safety", "preparation"], commonMistakes: [{ san: "Nbd7", whyBad: "Developing the knight before castling delays king safety. With the f-pawn already advanced, the king needs to get to g8 quickly. Castle, then develop remaining pieces." }] },
       ],
     },
     {
@@ -59,10 +59,7 @@ export const dutchDefense: OpeningLine = {
       moves: [
         { san: "g3", color: "white", why: "White fianchettoes regardless of Black's setup.", concepts: ["development", "preparation"] },
         { san: "Be7", color: "black", why: "Develop the bishop solidly. Be7 prepares castling and keeps the position flexible.", concepts: ["development", "king-safety"], commonMistakes: [{ san: "Bb4+", whyBad: "Bb4+ checks the king but White simply blocks with Nd2 or Bd2, and your bishop must retreat. Be7 is more productive — it prepares castling and keeps the position solid." }, { san: "d5", whyBad: "Jumping to ...d5 before developing the bishop leaves you behind in development. Get Be7 out first to prepare castling, then set up the center at the right moment." }] },
-        { san: "Bg2", color: "white", why: "Complete the fianchetto, eyeing the long diagonal.", concepts: ["development", "piece-activity"] },
-        { san: "O-O", color: "black", why: "Castle and prepare the attack. Black's plan: ...d6, ...Qe8, ...Qh5 or ...Qg6.", concepts: ["king-safety"], commonMistakes: [{ san: "d5", whyBad: "Setting up the center before castling is risky with the f-pawn already advanced. Your king is exposed — castle first to get safe, then build the center." }, { san: "d6", whyBad: "While ...d6 is part of the plan, castling is more urgent. With the f-pawn advanced, the king needs to reach g8 quickly. Safety first, pawn structure second." }] },
-        { san: "Nf3", color: "white", why: "Natural development.", concepts: ["development"] },
-        { san: "d6", color: "black", why: "Support ...e5 and keep the center flexible. The Classical Dutch builds up more slowly than the Leningrad.", concepts: ["center-control", "preparation"], commonMistakes: [{ san: "d5", whyBad: "Playing ...d5 creates a Stonewall structure, which is different from the Classical Dutch plan. With ...d6, you keep the ...e5 break option alive for a dynamic central challenge." }, { san: "Nc6", whyBad: "Developing the knight blocks the c-pawn and doesn't support the central plan. Play ...d6 first to prepare ...e5, which is the key central break in the Classical Dutch." }] },
+        { san: "Bg2", color: "white", why: "Complete the fianchetto, eyeing the long diagonal.", concepts: ["development", "piece-activity"] }
       ],
     },
   ],

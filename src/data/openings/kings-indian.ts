@@ -83,12 +83,7 @@ export const kingsIndian: OpeningLine = {
       concepts: ["development", "piece-activity", "king-safety"],
       controls: "h8-a1 diagonal, pressures d4",
       commonMistakes: [
-        {
-          san: "Bg4",
-          whyBad:
-            "Developing the light-squared bishop to g4 before completing the fianchetto misses the whole point of the King's Indian. The g7 bishop is the cornerstone of Black's position. Also, after Be2, the bishop on g4 has no great prospects and may be forced to retreat, wasting time.",
-        },
-      ],
+],
     },
     {
       san: "e4",
@@ -183,12 +178,7 @@ export const kingsIndian: OpeningLine = {
           san: "Nbd7",
           whyBad:
             "Nbd7 is passive and doesn't put any pressure on d4. Nc6 is the correct square — it directly attacks d4, forces White to make a decision about the center, and the knight is more actively placed. In the KID, you need maximum pressure on d4.",
-        },
-        {
-          san: "f5",
-          whyBad:
-            "Playing ...f5 immediately without developing Nc6 first is premature. You need all your pieces in the game before launching the kingside pawn storm. Nc6 completes development and pressures d4 — then ...f5 will be far more effective.",
-        },
+        }
       ],
     },
     {
@@ -227,7 +217,7 @@ export const kingsIndian: OpeningLine = {
         { san: "Be3", color: "white", why: "Develop the bishop and prepare Qd2. The Sämisch setup is taking shape.", concepts: ["development", "preparation"] },
         { san: "e5", color: "black", why: "The key break! Challenge d4 even though White's center looks massive. Without ...e5, Black's position becomes too passive.", concepts: ["center-control", "attack"], commonMistakes: [{ san: "c5", whyBad: "c5 is the wrong break in the Sämisch. Black needs e5 to activate the g7 bishop and create kingside counterplay. c5 plays into White's hands." }] },
         { san: "d5", color: "white", why: "Close the center. Now it's a race: White on the queenside (c5), Black on the kingside (f5, g5).", concepts: ["space", "center-control"] },
-        { san: "Nh5", color: "black", why: "The knight heads to f4 via h5, a powerful outpost. From f4, it attacks d3 and supports the ...f5 break.", concepts: ["piece-activity", "preparation"], commonMistakes: [{ san: "Ne8", whyBad: "Ne8 is too passive — the knight retreats backward with no clear plan. Nh5 heads to the powerful f4 outpost where it supports the ...f5 break and pressures d3. Aim forward, not backward." }, { san: "f5", whyBad: "Playing ...f5 immediately without first rerouting the knight via h5 to f4 means the f5 break lacks piece support. Get the knight to f4 first, then ...f5 will be much more powerful with the knight backing it up." }] },
+        { san: "Nh5", color: "black", why: "The knight heads to f4 via h5, a powerful outpost. From f4, it attacks d3 and supports the ...f5 break.", concepts: ["piece-activity", "preparation"], commonMistakes: [{ san: "Ne8", whyBad: "Ne8 is too passive — the knight retreats backward with no clear plan. Nh5 heads to the powerful f4 outpost where it supports the ...f5 break and pressures d3. Aim forward, not backward." }] },
         { san: "Qd2", color: "white", why: "Connect the rooks and prepare O-O-O. The race is about to begin.", concepts: ["development", "attack"] },
       ],
     },

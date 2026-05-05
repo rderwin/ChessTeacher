@@ -160,11 +160,6 @@ export const defendEarlyQueen: OpeningLine = {
             "Defending f7 for the third time is too passive. Nd4 is the KILLER move — it attacks the queen AND threatens Nxc2+ winning material. When you can counter-attack, always prefer that to defense.",
         },
         {
-          san: "O-O",
-          whyBad:
-            "Castling is good in general but Nd4 is more forcing. It attacks the queen and creates concrete threats. Castle next move after White deals with the knight. Priority: active moves first, then king safety.",
-        },
-        {
           san: "d6",
           whyBad:
             "d6 is passive. You have a chance to launch a tactical counter-attack with Nd4 — don't waste it. The queen on b3 is exposed and the knight jump creates multiple threats.",
@@ -187,12 +182,7 @@ export const defendEarlyQueen: OpeningLine = {
           san: "Nxc2+",
           whyBad:
             "Grabbing the rook looks tempting but you're losing a knight for a rook — a small gain. d5 is MUCH stronger: it attacks the bishop AND opens your position with a commanding development lead. Strategy beats tactics here.",
-        },
-        {
-          san: "O-O",
-          whyBad:
-            "Castling is fine but d5 is more aggressive. You're winning — press the advantage! When you have a huge development lead, open the position to maximize your piece activity.",
-        },
+        }
       ],
     },
     {
@@ -207,12 +197,7 @@ export const defendEarlyQueen: OpeningLine = {
       why: "Recapture with the knight, landing on a dominant central square. Your position is now completely winning — you have three developed pieces, a central knight, and White's queen is STILL running around. This is the reward for correct defense against the early queen.",
       concepts: ["center-control", "piece-activity"],
       commonMistakes: [
-        {
-          san: "exd5",
-          whyBad:
-            "Recapturing with the e-pawn is OK but the knight on d5 is MUCH more active than a pawn. Pieces in the center are worth their weight in gold. Always prefer a centralized piece to a pawn when you have the choice.",
-        },
-      ],
+],
     },
   ],
   summary:
@@ -374,12 +359,7 @@ export const defendEarlyQueen: OpeningLine = {
           why: "King takes the bishop. Yes, you lose castling rights, but you're up a piece and White's attack is over. White has 0 pieces developed while you have 3. Totally winning.",
           concepts: ["king-safety"],
           commonMistakes: [
-            {
-              san: "Kxf7",
-              whyBad:
-                "Kxf7 is OK but Ke7 is SAFER — it avoids any discovered check ideas and keeps the king more protected. Kxf7 also loses the queen after Qxd4+. Always check if moving the king exposes it to more threats.",
-            },
-          ],
+],
         },
       ],
     },
@@ -538,51 +518,7 @@ export const defendEarlyQueen: OpeningLine = {
         concepts: ["development"],
       },
       moves: [
-        {
-          san: "dxe4",
-          color: "black",
-          why: "Capture the center pawn, leading to an open position.",
-          concepts: ["center-control"],
-        },
-        {
-          san: "Nxe4",
-          color: "white",
-          why: "Standard recapture.",
-          concepts: ["development"],
-        },
-        {
-          san: "Nf6",
-          color: "black",
-          why: "Develop the knight, attacking the white knight on e4. This also defends against any Qg4 tricks since Nf6 controls g4.",
-          concepts: ["development", "attack"],
-          commonMistakes: [
-            {
-              san: "Bf5",
-              whyBad:
-                "Bf5 develops but allows Qg4 attacking your bishop AND g7 at the same time. Nf6 is safer because it controls g4 and prevents the queen sortie.",
-            },
-          ],
-        },
-        {
-          san: "Nxf6+",
-          color: "white",
-          why: "White trades knights.",
-          concepts: ["center-control"],
-        },
-        {
-          san: "gxf6",
-          color: "black",
-          why: "Recapture with the g-pawn. Yes, this damages your kingside pawn structure, but it opens the g-file for your rook and prevents Qg4 ideas. Sometimes accepting structural damage is better than letting the opponent attack your king.",
-          concepts: ["pawn-structure", "king-safety"],
-          commonMistakes: [
-            {
-              san: "exf6",
-              whyBad:
-                "exf6 keeps the kingside pawn structure but allows Qg4 attacking g7. gxf6 looks ugly but it's actually safer because it opens the g-file for defense and removes the Qg4 threat entirely.",
-            },
-          ],
-        },
-      ],
+],
     },
   ],
 };

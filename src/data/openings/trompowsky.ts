@@ -155,12 +155,7 @@ export const trompowsky: OpeningLine = {
           san: "Nf3",
           whyBad:
             "Nf3 develops but doesn't address the immediate pressure on d4 from ...c5 and ...Nc6. After ...cxd4, the center collapses. c3 first ensures d4 is rock-solid, then Nf3 can come on the next move with the center secured.",
-        },
-        {
-          san: "O-O",
-          whyBad:
-            "Castling before reinforcing d4 is premature. Black can play ...cxd4 and suddenly White's center is gone. c3 is the defensive move that holds everything together — castle after the center is stabilized.",
-        },
+        }
       ],
     },
     {

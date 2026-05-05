@@ -29,41 +29,6 @@ export const pinsAndSkewers: PuzzleSet = {
       source: "handcrafted",
     },
     {
-      // White rook moves to d1, pinning black queen on d7 to king on d8.
-      // d-file pin: Rd1 pins Qd7 to Kd8.
-      // FEN: 3k4/3q4/8/8/8/8/8/3RK3 w - - 0 1 -- wait, white rook already on d1.
-      // Actually the rook is already on d1 in this FEN. The pin already exists.
-      // Let me have the rook move TO create the pin.
-      // White rook on e1 moves to d1, pinning Qd7 to Kd8.
-      // FEN: 3k4/3q4/8/8/8/8/8/4RK2
-      // rank1: 4RK2 = Re1, Kf1. Re1->d1: legal. d1 pins d7 to d8. Queen can't move.
-      // But... does this win the queen? The queen is pinned but still defended. Unless
-      // we can attack it again. Actually in puzzles, creating an absolute pin on a queen
-      // IS winning because the queen can't move and is worth more than whatever attacks it.
-      // But tactically, just pinning the queen to the king means the queen is stuck.
-      // If white later plays Rd7 capturing the queen, that works. But the puzzle is just
-      // the pin move itself, like the fork puzzles that end with the fork.
-      // Actually, let me make it a case where the pin WINS the piece directly:
-      // Rook pins bishop to king on same file.
-      // FEN: 3k4/3b4/8/8/8/8/8/4K2R w - - 0 1
-      // Rh1->d1? h1 to d1 is a rank move on rank 1. Legal. d1 pins bd7 to kd8.
-      // Bishop is worth 3, pinned and lost. Good puzzle.
-      // Wait: Rh1 to d1. That's on the 1st rank, moving from h1 to d1. Legal.
-      // After Rd1, the bishop on d7 is pinned to the king on d8. White threatens Rxd7+.
-      // Black can't save the bishop (it can't move). White wins it next move.
-      id: "ps-002",
-      fen: "3k4/3b4/8/8/8/8/8/4K2R w - - 0 1",
-      playerColor: "white",
-      solution: ["Rd1"],
-      themes: ["pin"],
-      rating: 900,
-      difficulty: "intermediate",
-      hint: "Place your rook on a file where it pins a piece to the king.",
-      explanation:
-        "Rd1 pins the black bishop on d7 to the king on d8 along the d-file. The bishop cannot move without exposing the king to check, and White will capture it on the next move.",
-      source: "handcrafted",
-    },
-    {
       // White queen pins black rook to king.
       // Queen on a1 moves to a5, pinning rook on c7 to king on e7... no, a5-c7-e9 doesn't work.
       // Diagonal a1-b2-c3-d4-e5-f6-g7-h8. Rook on d4, king on g7?
@@ -106,35 +71,6 @@ export const pinsAndSkewers: PuzzleSet = {
       hint: "Swing your rook to a file where it can pin a piece to the king.",
       explanation:
         "Re3 pins the black knight on e5 to the king on e8 along the e-file. The knight is frozen in place and will be captured, winning material.",
-      source: "handcrafted",
-    },
-    {
-      // Black bishop pins white knight to white queen.
-      // Diagonal: black bishop on a6 pins white knight on c4 to white queen on e2.
-      // a6-b5-c4-d3-e2 diagonal. (1,1) steps. Correct.
-      // FEN: 4k3/8/b7/8/2N5/8/4Q3/4K3 b - - 0 1
-      // rank6: b7 = ba6 (a6=b, b-h6 empty). Wait: "b7" means b is on a6? No!
-      // FEN notation: lowercase = black. "b" = black bishop. Rank 6 from a6-h6.
-      // "b7" = bishop on a6, then 7 empty squares (b6-h6). Correct.
-      // rank4: 2N5 = a4-b4 empty, Nc4, d4-h4 empty.
-      // rank2: 4Q3 = a2-d2 empty, Qe2, f2-h2 empty.
-      // Ba6->? Bishop is ALREADY on a6. It pins Nc4 to Qe2 from its current position.
-      // But the puzzle should be about CREATING the pin. Let me move the bishop there.
-      // Bishop starts on b7, moves to a6.
-      // FEN: 4k3/1b6/8/8/2N5/8/4Q3/4K3 b - - 0 1
-      // bb7->a6: (1,1) diagonal. Legal. Now a6 pins Nc4 to Qe2.
-      // Path: a6-b5(empty)-c4(knight)-d3(empty)-e2(queen). Pin!
-      // Black wins the knight (worth 3) since the knight can't move without losing the queen (worth 9).
-      id: "ps-004",
-      fen: "4k3/1b6/8/8/2N5/8/4Q3/4K3 b - - 0 1",
-      playerColor: "black",
-      solution: ["Ba6"],
-      themes: ["pin"],
-      rating: 950,
-      difficulty: "intermediate",
-      hint: "Move your bishop to pin a piece to a more valuable one behind it.",
-      explanation:
-        "Ba6 pins the white knight on c4 to the queen on e2 along the a6-e2 diagonal. The knight cannot move without losing the queen, so Black wins the knight.",
       source: "handcrafted",
     },
     // --- Skewers: attack valuable piece, capture what's behind (5-8) ---

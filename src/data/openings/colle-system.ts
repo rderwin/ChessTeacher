@@ -148,10 +148,6 @@ export const colleSystem: OpeningLine = {
       controls: "e4 square, supports the break",
       commonMistakes: [
         {
-          san: "Nc3",
-          whyBad: "Nc3 blocks the c-pawn (which is already on c3 supporting d4) and the knight doesn't support e4 as well from c3. On d2, the knight is perfectly placed to enable the e4 push and can reroute flexibly.",
-        },
-        {
           san: "O-O",
           whyBad: "Castling is close but Nbd2 first is more precise. The knight needs to support e4, and you want it in place before committing the king. Once you castle, e4 should be ready to go — so get the knight there first.",
         },
