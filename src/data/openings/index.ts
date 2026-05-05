@@ -9,6 +9,7 @@ import { englishOpening } from "./english-opening";
 import { frenchDefense } from "./french-defense";
 import { grunfeld } from "./grunfeld";
 import { italianGame } from "./italian-game";
+import { italianGameBlack } from "./italian-game-black";
 import { kingsIndian } from "./kings-indian";
 import { londonSystem } from "./london-system";
 import { nimzoIndian } from "./nimzo-indian";
@@ -32,6 +33,7 @@ export const ALL_OPENINGS: OpeningLine[] = [
   englishOpening,
   grunfeld,
   italianGame,
+  italianGameBlack,
   scotchGame,
   frenchDefense,
   kingsIndian,
