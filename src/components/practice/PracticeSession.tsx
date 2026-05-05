@@ -319,6 +319,31 @@ function LogCard({
             {entry.specificFeedback}
           </p>
         )}
+        {/* Always explain WHY the correct move is correct so the player
+            understands the reasoning, even before they figure out the move. */}
+        <div className="mt-2 bg-stone-900/40 border border-stone-700/40 rounded px-2.5 py-1.5">
+          <p className="text-[10px] uppercase tracking-wider text-stone-500 mb-1">
+            Why the right move works
+          </p>
+          <p className="text-xs text-stone-300 leading-relaxed">
+            {entry.explanation.why}
+          </p>
+          {entry.explanation.concepts.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {entry.explanation.concepts.map((c) => (
+                <span
+                  key={c}
+                  className={`text-[9px] px-1.5 py-0.5 rounded-full border ${
+                    CONCEPT_COLORS[c] ??
+                    "bg-stone-600/20 text-stone-300 border-stone-500/30"
+                  }`}
+                >
+                  {CONCEPT_LABELS[c] ?? c}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
         {entry.hintText && (
           <p
             className={`text-xs mt-1.5 italic ${

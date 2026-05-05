@@ -210,6 +210,75 @@ export const caroKann: OpeningLine = {
         },
       ],
     },
+    {
+      san: "Bd3",
+      color: "white",
+      why: "Develop the bishop and offer a trade! Bd3 attacks Black's bishop on h7 (which has no good way to avoid the trade). The light-squared bishops were always going to be exchanged in this line — it's a fair deal because Black's bishop on h7 is somewhat passive while yours on d3 is active. After the trade, both sides simplify into a slightly-better position for White (more space, slightly better pawn structure).",
+      concepts: ["development", "piece-activity"],
+      commonMistakes: [
+        { san: "Be2", whyBad: "Be2 is passive — the bishop has nothing to do on e2. Bd3 forces a trade that favors you slightly. Always develop bishops to ACTIVE squares." },
+        { san: "Bc4", whyBad: "Bc4 is fine but Black plays e6 closing the diagonal. Bd3 forces the trade NOW which is the cleaner approach." },
+      ],
+    },
+    {
+      san: "Bxd3",
+      color: "black",
+      why: "Trade bishops. Black is happy to trade because White's bishop was more active, and removing it eases the position. The trade also opens lines for Black's queen on d8 to develop. Now the position becomes more about pawn structure and piece coordination than minor piece activity.",
+      concepts: ["piece-activity"],
+      commonMistakes: [
+        { san: "Bg6", whyBad: "Bg6?? Bxg6 fxg6 — and now your kingside pawn structure is destroyed. Always TRADE when offered if the position simplifies favorably. Don't avoid trades just because they involve your piece moving." },
+      ],
+    },
+    {
+      san: "Qxd3",
+      color: "white",
+      why: "Recapture with the queen. The queen lands on a great central square (d3), where it: defends the c3 pawn (if it were threatened), prepares to castle queenside, and aims at h7 in some lines. The queen on d3 is a powerful piece — central, active, multi-purpose.",
+      concepts: ["piece-activity"],
+      commonMistakes: [
+        { san: "cxd3", whyBad: "cxd3 doubles your pawns on the d-file and weakens your structure. Qxd3 keeps the structure intact AND puts the queen on a powerful square. Always recapture with the BEST piece available." },
+      ],
+    },
+    {
+      san: "Ngf6",
+      color: "black",
+      why: "Develop the kingside knight to its natural square — finally! With the bishop trade complete, Ngf6 brings the last knight into play. From f6 it controls central squares (d5, e4) and prepares ...e6 and ...Be7 to complete development. Black is now fully developed minor piece-wise.",
+      concepts: ["development"],
+      commonMistakes: [
+        { san: "e6", whyBad: "e6 prepares Be7 but knights should be developed before bishops in this case (Ngf6 then Be7). Get the knight on its strong central square first." },
+        { san: "g6", whyBad: "g6 weakens the kingside dark squares and there's no fianchetto possible (the bishop is already gone, traded). Develop the knight to f6 instead." },
+      ],
+    },
+    {
+      san: "Bd2",
+      color: "white",
+      why: "Develop the bishop to support queenside castling. Bd2 might look modest but it's the right square: it connects rooks (preparing O-O-O), prepares Bc3 in some lines (for kingside attacks via the long diagonal), and stays out of the way of the knight on f3. Sometimes simple development beats fancy moves.",
+      concepts: ["development", "preparation"],
+      commonMistakes: [
+        { san: "Bf4", whyBad: "Bf4 is more active but in this position Bd2 is more important — it supports queenside castling. Once you've castled, you can REPOSITION the bishop. King safety first, piece activity second." },
+        { san: "O-O", whyBad: "Castling kingside (O-O) is fine but most White players in this line prefer queenside castling with O-O-O for sharper play. With Bd2 you keep the option of O-O-O alive — castle into the SAFER side or the more AGGRESSIVE side based on your style." },
+      ],
+    },
+    {
+      san: "e6",
+      color: "black",
+      why: "Solid pawn move — supports d5 (in some lines after exchanges) and prepares ...Be7 to complete development. The pawn on e6 is the cornerstone of the Caro-Kann's solid pawn structure. Black has fewer pawn weaknesses than in many other openings, which is the whole point of choosing the Caro-Kann.",
+      concepts: ["pawn-structure", "preparation"],
+      commonMistakes: [
+        { san: "Qc7", whyBad: "Qc7 is fine but e6 first is more flexible — it solidifies the pawn structure before committing the queen. Develop pawns to support pieces, then bring out pieces." },
+        { san: "Nb6", whyBad: "Nb6 puts the knight on a passive square (b6 is a rim square). Keep the knight on d7 where it has more options. e6 is the principled move." },
+      ],
+    },
+    {
+      san: "O-O-O",
+      color: "white",
+      why: "Castle queenside! With both knights developed, both bishops resolved (one traded, one on d2), and queen centralized, White is ready to castle. Queenside castling gives White an aggressive setup: the king is safe on c1/b1, and White can launch a kingside pawn storm with g4-g5 to attack. The classic Caro-Kann setup is complete: White has more space, slightly more active pieces, and aggressive castling. Black has solid structure, no weaknesses, and a defensive bishop trade banked. The middlegame will revolve around White's kingside attack vs Black's queenside counterplay (...c5 break) — a classic strategic battle. You've completed the Caro-Kann opening AND set up the early middlegame. From here, both sides have clear plans and the game is genuinely balanced. The Caro-Kann lives up to its reputation: solid for Black, slightly better for White, and always playable for both sides.",
+      concepts: ["king-safety", "attack"],
+      controls: "Queenside castling, prepares kingside attack",
+      commonMistakes: [
+        { san: "O-O", whyBad: "O-O (kingside castling) is also legal but you'd be castling INTO the area where you want to attack. Queenside castling is the principled choice — king on c1, rook on d1 already on a great file." },
+        { san: "Qe2", whyBad: "Qe2 wastes a tempo — the queen is great on d3. Castle now! Don't shuffle pieces when there are committal moves available." },
+      ],
+    },
   ],
   summary:
     "The Caro-Kann Classical teaches a critical strategic concept: develop your problem pieces BEFORE locking in your pawn structure. By playing ...c6 and ...d5 before ...e6, Black ensures the light-squared bishop escapes to f5 (and eventually h7) rather than getting buried behind pawns as in the French Defense. The key ideas are solid pawn structure, patient development, and the importance of piece activity even in quiet positions. Black accepts slightly less central space in exchange for a rock-solid position with no weaknesses.",

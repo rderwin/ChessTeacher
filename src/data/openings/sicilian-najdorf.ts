@@ -243,6 +243,102 @@ export const sicilianNajdorf: OpeningLine = {
       concepts: ["king-safety", "attack"],
       controls: "Connects rooks, activates the d1 rook on the half-open file",
     },
+    {
+      san: "Nbd7",
+      color: "black",
+      why: "Develop the queenside knight to d7. From d7 the knight has multiple jobs: it can support the e5 pawn, help defend after f3+g4 advances, jump to b6 (covering the queenside), or eventually maneuver to f8 if the kingside needs reinforcement. This is a flexible defensive setup before launching the queenside attack with ...b5.",
+      concepts: ["development"],
+      commonMistakes: [
+        { san: "b5", whyBad: "b5 launches the attack but you still have an undeveloped knight on b8! Develop FIRST, attack SECOND. Nbd7 brings the last piece into the game before pushing pawns." },
+        { san: "Nc6", whyBad: "Nc6 blocks the c-file (your main attacking file!). Nbd7 keeps the c-file clear for your rook and provides flexibility to defend the kingside if needed." },
+        { san: "a5", whyBad: "a5 prepares b4 but the queenside expansion needs the knight ready first. Nbd7 develops AND prepares ...b5 with full piece support." },
+      ],
+    },
+    {
+      san: "g4",
+      color: "white",
+      why: "The pawn storm begins! g4 starts the kingside attack — White will follow with g5 to evict Black's f6 knight, then h4-h5 to crash through to the king. In opposite-side castling positions, you must attack faster than your opponent. Pawn storms aren't optional; they're mandatory.",
+      concepts: ["attack", "space"],
+      controls: "f5, h5 squares — preparing g5 advance",
+      commonMistakes: [
+        { san: "Kb1", whyBad: "Kb1 is a typical 'tucking the king' move, but timing matters — start the attack first! Black's pawn storm with ...b5 is just as fast. Kb1 can come AFTER you've started g4. Attack now, secure the king later." },
+        { san: "h4", whyBad: "h4 supports g5 but g4 must come FIRST — the pawn march is g4 → g5 → h4 → h5. Move order is critical in pawn storms. Get g4 on the board immediately." },
+      ],
+    },
+    {
+      san: "b5",
+      color: "black",
+      why: "Black's counter-attack begins! ...b5 launches the queenside pawn storm with the same intensity White is showing on the kingside. The plan: ...b5-b4 to evict White's knight on c3, opening lines for Black's pieces against White's king. This is THE Najdorf race: who attacks faster wins.",
+      concepts: ["attack", "space"],
+      controls: "c4, a4 squares; prepares b4",
+      commonMistakes: [
+        { san: "Nb6", whyBad: "Nb6 looks defensive but it BLOCKS your b-pawn! The whole queenside attack depends on ...b5-b4. Knight on b6 stops the attack before it starts. Push the pawn first; the knight stays flexible on d7." },
+        { san: "h6", whyBad: "h6 is a defensive move when you should be ATTACKING. In opposite-side castling, defense alone loses — you must counterattack. ...b5 is the only way to win the race." },
+        { san: "Re8", whyBad: "Re8 develops the rook but it's too slow! The c-file (semi-open for Black) is the main attacking file, and ...b5 is the move that opens it for your rook. Pawns first, pieces follow." },
+      ],
+    },
+    {
+      san: "g5",
+      color: "white",
+      why: "Push the pawn! g5 attacks the f6 knight, forcing it to move. After Ne8 (or Nh5), Black's pieces are pushed back and White's pawns roll forward. The kingside attack gains momentum with every move. Keep pushing — momentum matters more than positional perfection.",
+      concepts: ["attack", "tempo"],
+      commonMistakes: [
+        { san: "Nxb5", whyBad: "Nxb5?? axb5 wins a piece — the knight on c3 isn't defended after the trade. Don't grab pawns when you have a kingside attack going! g5 is the move." },
+        { san: "Bxb5", whyBad: "Bxb5?? axb5 — same problem, you lose the bishop. Sacrifices are powerful but they need to LEAD somewhere. g5 is more direct." },
+        { san: "Rg1", whyBad: "Rg1 supports the future g5 push but g5 NOW is even better. Black's knight is on f6 — kick it immediately and gain tempo. Don't waste moves preparing what's already prepared." },
+      ],
+    },
+    {
+      san: "b4",
+      color: "black",
+      why: "Push the pawn! ...b4 attacks the c3 knight, forcing it to move. White's queenside is unraveling at the same rate as Black's kingside. Both attacks barrel forward simultaneously — this is what the Najdorf middlegame looks like at the highest level. May the better calculator win.",
+      concepts: ["attack", "tempo"],
+      commonMistakes: [
+        { san: "Ne8", whyBad: "Ne8 is forced eventually (when g5 attacks the f6 knight) but ...b4 first gains tempo on White's queenside. Order matters: push your attack while reacting to White's." },
+        { san: "Rb8", whyBad: "Rb8 supports the b-file but ...b4 is the active move — push the pawn NOW with tempo on the c3 knight. The race demands every tempo for attack." },
+      ],
+    },
+    {
+      san: "Ne2",
+      color: "white",
+      why: "The knight retreats to e2 (best square — keeps c3 unblocked, eyes the kingside via Nf4 or g3). Note: White could also try Nd5 or Na4, but Ne2 is the most solid retreat. From e2 the knight can later jump to f4 or d4 supporting the attack.",
+      concepts: ["piece-activity"],
+      commonMistakes: [
+        { san: "Nd5", whyBad: "Nd5 looks aggressive but Black plays Nxd5! exd5 Bxd5 — Black just gives up the knight for a bishop and a pawn. The d5 outpost requires preparation. Ne2 is safer." },
+        { san: "Na4", whyBad: "Na4 puts the knight on the rim — bad position, far from the king. Ne2 keeps the knight central and ready to redeploy to f4 (a great kingside square)." },
+        { san: "Nb1", whyBad: "Nb1 retreats further than necessary — the knight is buried. Ne2 keeps it active and ready to rejoin the attack." },
+      ],
+    },
+    {
+      san: "Ne8",
+      color: "black",
+      why: "Forced retreat — the f6 knight had to move because of g5. From e8 it has options: regroup to c7 (queenside defense), back to f6 if g5 is exchanged, or even f6-h7-g5 (rare but possible). The knight is awkward but alive. Now Black focuses on opening the queenside.",
+      concepts: ["piece-activity"],
+      commonMistakes: [
+        { san: "Nh5", whyBad: "Nh5 also retreats but the knight on h5 is exposed and can be kicked by g4 or even captured. Ne8 is safer and more flexible." },
+        { san: "Nxe4", whyBad: "Nxe4 fxe4 — wait, you don't have an f-pawn to recapture? Actually fxe4 is possible (the f-pawn captures back). But you've sacrificed a knight for a pawn, which is bad. Ne8 is forced." },
+      ],
+    },
+    {
+      san: "h4",
+      color: "white",
+      why: "More fuel for the fire! h4 prepares h5 to swap pawns and rip open the h-file. White is playing on autopilot now — every move advances the attack. Black has no time to consolidate; the assault is too fast.",
+      concepts: ["attack", "space"],
+      commonMistakes: [
+        { san: "Nf4", whyBad: "Nf4 is a thematic Najdorf move (the knight from e2 to f4) but you have a pawn storm to push! h4 keeps the attack rolling. Pieces support pawns in this race." },
+        { san: "Bh3", whyBad: "Bh3 develops the bishop but the attack is on the OTHER side. Bishop moves don't help the kingside attack — pawn moves do. h4 is the only forward move." },
+      ],
+    },
+    {
+      san: "a5",
+      color: "black",
+      why: "Continue the queenside attack! ...a5 prepares to push more pawns and supports b4. Black's queenside is opening up just as White's kingside opens. The race continues. From here, the position is double-edged — both attacks are real, both kings are in danger. This is the Najdorf in its most beautiful, terrifying form. You've reached the heart of the English Attack middlegame: the moment where calculation, courage, and concrete tactics decide everything. Welcome to one of chess's most violent middlegames.",
+      concepts: ["attack", "space"],
+      commonMistakes: [
+        { san: "Bf6", whyBad: "Bf6 defends but the Najdorf isn't a defensive opening. ...a5 keeps the attack going. Defense alone loses in opposite-side castling." },
+        { san: "Rb8", whyBad: "Rb8 is fine but ...a5 is more dynamic — push the queenside pawns NOW while White's king is still on the c-file. Activity, activity, activity." },
+      ],
+    },
   ],
   summary:
     "The Sicilian Najdorf teaches the art of asymmetrical chess. From move one, Black avoids symmetry with 1...c5 to create an unbalanced pawn structure where both sides have distinct plans. The prophylactic ...a6 is the soul of the variation -- it prevents White's pieces from reaching b5 while preparing queenside expansion with ...b5 and the central strike ...e5. After the English Attack setup (Be3, f3, Qd2, O-O-O), the position becomes a fierce race: White storms the kingside with g4-g5 while Black counterattacks on the queenside with ...b5 and targets the exposed white king. The key strategic lesson is that preparation (prophylaxis with ...a6 before the ambitious ...e5) and piece coordination (Be7 for safety, Be6 for control of d5) allow Black to play aggressively without overextending. Understanding when to play ...d5 or ...b5 as a pawn break, and keeping the balance between defense and attack, is the essence of the Najdorf.",

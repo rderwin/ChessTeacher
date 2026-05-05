@@ -218,6 +218,79 @@ export const frenchDefense: OpeningLine = {
         },
       ],
     },
+    {
+      san: "Qxh7",
+      color: "white",
+      why: "White doubles down — grab another pawn! The Poisoned Pawn variation: White grabs both g7 and h7 because the queen needs a way home, and the pawns are too tempting. Yes, the queen is way out of position, but White is now up two pawns. This is the trade: material for time. White must navigate VERY carefully or Black's initiative wins.",
+      concepts: ["attack", "tempo"],
+      commonMistakes: [
+        { san: "Qg5", whyBad: "Qg5 keeps the queen on the kingside but gives up the free h7 pawn. The whole point of the poisoned pawn line is to grab the material — if you're going to be greedy, fully commit. Half-measures lose both ways." },
+        { san: "Qg4", whyBad: "Qg4 retreats but still misses the second pawn. Qxh7 grabs the pawn AND keeps the queen relatively safe (it can come back via h5)." },
+      ],
+    },
+    {
+      san: "cxd4",
+      color: "black",
+      why: "Black opens the position! cxd4 captures White's central pawn, opening the c-file for the queen on c7 and gaining central activity. With White's queen miles away, Black uses every tempo to attack the weakened center and king. Lines opening = Black's pieces coming alive.",
+      concepts: ["pawn-structure", "attack"],
+      commonMistakes: [
+        { san: "Qxe5", whyBad: "Qxe5 grabs the e5 pawn but the queen on e5 is exposed and loses tempo. cxd4 first opens the position WITHOUT exposing your queen — pawn moves before piece sallies." },
+        { san: "Nbc6", whyBad: "Nbc6 develops but doesn't open the position. cxd4 is the principled move — break open the center while White's queen is offside. Strike while the iron is hot." },
+      ],
+    },
+    {
+      san: "Ne2",
+      color: "white",
+      why: "Develop the knight — finally! Ne2 is the only good square (Nf3 blocks the f-pawn, which White might want to play to f4 supporting e5). From e2 the knight can later jump to f4 or g3. White is way behind in development; every move must develop a piece.",
+      concepts: ["development"],
+      commonMistakes: [
+        { san: "Nf3", whyBad: "Nf3 blocks the f-pawn and prevents the f4 push that supports e5. In the Winawer, the f-pawn is critical — keep it free to advance. Ne2 leaves f-pawn options open." },
+        { san: "cxd4", whyBad: "cxd4 (recapturing) is fine but Ne2 develops a piece while leaving the d4 pawn structure ambiguous. Sometimes you give up a pawn to develop pieces — and Black is going to recapture eventually anyway." },
+        { san: "Bd3", whyBad: "Bd3 develops the bishop but leaves the queen completely cut off — and the queen on h7 needs to be careful. Develop the knight first to give the queen escape options." },
+      ],
+    },
+    {
+      san: "Nbc6",
+      color: "black",
+      why: "Develop the queen-side knight to c6, attacking the d4 pawn (or empty d4 square if exchanges have happened). The knight supports the central counterplay and prepares ...d4 (advancing the pawn) or ...Nxd4 (capturing). Black's pieces are coordinating around the open center.",
+      concepts: ["development", "attack"],
+      commonMistakes: [
+        { san: "Bd7", whyBad: "Bd7 develops the bishop but the bishop has nowhere good to go — the c-pawn is on c5 (or already gone), so the bishop's diagonal is limited. Nbc6 attacks the d-pawn — concrete pressure." },
+        { san: "Qxe5", whyBad: "Qxe5? Now the queen is exposed and Black has lost time. Develop pieces first; queen sallies later." },
+      ],
+    },
+    {
+      san: "f4",
+      color: "white",
+      why: "Support the e5 pawn! f4 reinforces the central pawn and prevents Black from playing ...Qxe5 to grab another pawn. The pawn structure begins to stabilize: White has a strong f4-e5 wedge, but the queen still needs to find a home. f4 also opens the king's escape route via f2.",
+      concepts: ["pawn-structure", "preparation"],
+      controls: "Supports e5, defends queen retreat",
+      commonMistakes: [
+        { san: "cxd4", whyBad: "cxd4 recaptures the central pawn but f4 supports e5 first — without f4, Black plays ...Qxe5 winning another pawn. Always secure your most valuable assets first." },
+        { san: "Nxd4", whyBad: "Nxd4 trades but the e2 knight is fine where it is — and f4 supports e5 (the linchpin of your pawn structure). f4 is the principled move." },
+      ],
+    },
+    {
+      san: "Bd7",
+      color: "black",
+      why: "Now develop the bishop. With Black's central pieces active and pressure on White's king, Bd7 prepares ...O-O-O (queenside castling) and keeps the bishop flexible — it can reroute via e8-h5 to harass White's queen. Black has compensation for the two pawns: better development, attacking chances, and the safer king.",
+      concepts: ["development", "preparation"],
+      commonMistakes: [
+        { san: "Nf5", whyBad: "Nf5 attacks White but the f5 square can be defended easily. Bd7 prepares castling — your king safety matters more than tactical sallies right now." },
+        { san: "Rh8", whyBad: "Moving the rook back to h8 wastes the open-file activity you just earned. Bd7 develops the bishop and prepares castling — keep the rook on g8 for now." },
+      ],
+    },
+    {
+      san: "Qd3",
+      color: "white",
+      why: "The queen finally comes home! After grabbing two pawns, the queen returns to a central, safe square. From d3 the queen supports the entire kingside, defends the c3 pawn, and can come to the kingside via d3-h7 or d3-h3 lines if Black's attack falters. White has stabilized — now it's a real game where the two extra pawns may matter in the endgame, but Black's piece activity is genuine compensation right now. You've reached the heart of the Winawer Poisoned Pawn middlegame: a complex, double-edged battle where calculation matters more than principles. Welcome to one of the most theoretically deep openings in chess.",
+      concepts: ["piece-activity", "king-safety"],
+      controls: "Queen returns to safety",
+      commonMistakes: [
+        { san: "Qh4", whyBad: "Qh4 keeps the queen on the kingside but it's exposed there. Qd3 brings the queen home where it's safe AND active. Don't keep your queen in the firing line." },
+        { san: "Qh6", whyBad: "Qh6 keeps the queen offside where Black can harass it with the rook on g8 or knight maneuvers. Qd3 is the only square where the queen is fully safe AND useful." },
+      ],
+    },
   ],
   summary:
     "The French Defense Winawer teaches the critical strategic concept of attacking pawn chains at their base (...c5 against the d4-e5 chain). The Winawer variation adds another layer: trading a bishop for a knight to inflict permanent pawn structure damage, then exploiting those weaknesses with active piece play. Black sacrifices the g7 pawn to activate the rook on the g-file and seize the initiative. The key lessons are that pawn structure matters more than the bishop pair, tempo and activity can compensate for material, and every move should serve multiple purposes.",

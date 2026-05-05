@@ -206,6 +206,107 @@ export const queensGambit: OpeningLine = {
         { san: "Qc2", whyBad: "The queen doesn't recapture the pawn and doesn't develop a piece. Bxc4 wins back the pawn while placing the bishop on a deadly diagonal targeting f7. Recapture with a developing move." },
       ],
     },
+    {
+      san: "Nd5",
+      color: "black",
+      why: "Black plays the Lasker Defense — Nd5 attacks the Bg5 and threatens to simplify the position by trading pieces. The idea: Black is cramped, so trading pieces relieves pressure. After Bxe7, Black's queen recaptures and Black has solved the dark-squared bishop problem.",
+      concepts: ["piece-activity", "attack"],
+      commonMistakes: [
+        { san: "b5", whyBad: "b5 attacks the bishop but is too aggressive — White just retreats with Bd3 or Be2 and Black has weakened the queenside for nothing. Nd5 is the principled move: attack AND prepare exchanges." },
+        { san: "Nb6", whyBad: "Nb6 attacks the bishop on c4 but the knight is poorly placed on b6 — out of play. Nd5 is centralized and active, hitting g5 with much more impact." },
+      ],
+    },
+    {
+      san: "Bxe7",
+      color: "white",
+      why: "Take the bishop — you must, or Black plays Nxg5 winning a piece. This is a forced exchange. The good news: trading the dark-squared bishops simplifies the position, and you keep your space advantage and active pieces.",
+      concepts: ["piece-activity"],
+      commonMistakes: [
+        { san: "Bh4", whyBad: "Bh4 retreats the bishop to keep it on the board, but Black plays Nxc3 and gains tempo. Bxe7 is forced — accept the trade and move on." },
+        { san: "Bf4", whyBad: "Bf4 also retreats but the bishop is offside and Black gains time. Always make the principled trade when forced — don't play for cheap tricks." },
+      ],
+    },
+    {
+      san: "Qxe7",
+      color: "black",
+      why: "Recapture with the queen. The queen lands on a fine square (e7), and Black's position is much freer now that one pair of minor pieces has been traded. This is the whole point of the Lasker Defense: trade pieces to relieve cramped positions.",
+      concepts: ["piece-activity"],
+      commonMistakes: [
+        { san: "Nxe7", whyBad: "Nxe7 misplaces the centralized knight — it was great on d5! Always recapture with the LEAST active piece. Qxe7 keeps the knight on its strong central square." },
+      ],
+    },
+    {
+      san: "O-O",
+      color: "white",
+      why: "Finally castle! White has been so active that castling kept getting deferred — but now is the time. King safety locked in, and your rook on f1 will support kingside pressure or swing to d1 later. Both kings are now safe and the real maneuvering middlegame begins.",
+      concepts: ["king-safety"],
+      commonMistakes: [
+        { san: "Nxd5", whyBad: "Nxd5 trades knights but Black plays exd5 and now the bishop on c4 is staring at... a pawn. You've also opened the e-file for Black's queen and rook. Castle first, keep the tension." },
+        { san: "Qe2", whyBad: "Qe2 is a fine move eventually, but king safety is non-negotiable. Always castle when the position allows it — your king is the most valuable piece." },
+      ],
+    },
+    {
+      san: "Nxc3",
+      color: "black",
+      why: "Trade off the c3 knight to further simplify. After this exchange, Black has reduced White's piece activity and equalized material. The Lasker Defense plan complete: trade two pairs of minor pieces (dark-squared bishops + a knight pair) to alleviate cramping.",
+      concepts: ["piece-activity"],
+      commonMistakes: [
+        { san: "b6", whyBad: "b6 preparing Bb7 is good but premature — White can play Nxd5 first and then your simplification plan loses one of its main exchanges. Trade pieces first, develop pieces second." },
+        { san: "c5", whyBad: "c5 is the OTHER freeing maneuver but right now Nxc3 is the principled move — trade pieces first, then break with c5 once the position is simpler. Move order matters." },
+      ],
+    },
+    {
+      san: "Rxc3",
+      color: "white",
+      why: "Recapture with the rook (not the b-pawn). Rxc3 keeps the pawn structure intact AND puts the rook on a semi-open file pointing at Black's queenside. The rook can later swing to a3, b3, or stay aimed at c-file targets. This is the modern, flexible recapture.",
+      concepts: ["piece-activity", "pawn-structure"],
+      controls: "Semi-open c-file",
+      commonMistakes: [
+        { san: "bxc3", whyBad: "bxc3 doubles your pawns and creates structural weaknesses. Rxc3 keeps the pawns intact AND keeps the rook active. In Queen's Gambit middlegames, your pawn structure is your long-term advantage — don't damage it without good reason." },
+      ],
+    },
+    {
+      san: "b6",
+      color: "black",
+      why: "Finally — the famous Queen's Gambit Declined problem solved! b6 prepares Bb7, FINALLY developing the c8 bishop after 13 moves of being stuck. The bishop will sit on b7 supporting d5 and pointing at the long diagonal. This is the standard freeing maneuver: trade pieces, then develop the bad bishop via b6+Bb7.",
+      concepts: ["development", "preparation"],
+      commonMistakes: [
+        { san: "c5", whyBad: "c5 is the OTHER freeing maneuver but right now b6 is more accurate — your light-squared bishop has been bottled up forever and needs to come out FIRST. After Bb7 is developed, then think about c5." },
+        { san: "e5", whyBad: "e5 challenges the center but White has Nxe5 (defended by the rook on c3? no wait — Nxe5 captures the pawn). Actually Black has fewer pieces defending e5 than White has attacking it. Don't open lines until your pieces are coordinated." },
+      ],
+    },
+    {
+      san: "Qe2",
+      color: "white",
+      why: "Centralize the queen and connect the rooks. From e2 the queen supports a possible e4 advance and watches the e-file. Now both rooks can come to central files (Rfd1) and you have a fully coordinated army. This is patient, positional chess: every piece on a useful square.",
+      concepts: ["piece-activity", "preparation"],
+      commonMistakes: [
+        { san: "e4", whyBad: "e4 immediately is too rushed — the bishop on c4 is undefended, and after exchanges Black can target it. Build up first with Qe2 supporting e4, THEN push the pawn." },
+        { san: "d5", whyBad: "d5 is a thematic break but timing matters. Right now Black hasn't yet played Bb7, so d5 doesn't have its full impact. Wait, develop, then strike." },
+      ],
+    },
+    {
+      san: "Bb7",
+      color: "black",
+      why: "The bishop reaches its best diagonal at last! From b7 it watches the long h1-a8 diagonal and supports the d5 square (in case of a future ...c5 break). Black is now FULLY developed for the first time in the game. The position is balanced — White has slightly more space, Black has solid structure.",
+      concepts: ["development", "piece-activity"],
+      controls: "Long diagonal h1-a8",
+      commonMistakes: [
+        { san: "Ba6", whyBad: "Ba6 trades the bishop for White's bishop on c4 — but in queenless middlegames the bishop pair matters less. Bb7 is more flexible and keeps options open. Don't trade automatically." },
+        { san: "c5", whyBad: "c5 before developing Bb7 wastes a tempo — your bishop is your worst piece and needs to come out FIRST. Always develop the worst piece before pawn breaks." },
+      ],
+    },
+    {
+      san: "Rfd1",
+      color: "white",
+      why: "Both rooks centralized — Rfd1 brings the king's rook to d1 to add pressure on the d-file. White is fully developed with EVERY piece on a great square: bishop on c4, knight on f3, queen on e2, rooks on c3 and d1, king safe on g1. The opening is complete and you've built the dream Queen's Gambit setup. Now the middlegame plan: prepare e4 to expand, or exchange on d5 at the right moment, or maneuver pieces toward Black's king. You've earned a balanced-but-pleasant middlegame — this is what good opening play looks like.",
+      concepts: ["piece-activity", "preparation"],
+      controls: "d-file fully covered",
+      commonMistakes: [
+        { san: "e4", whyBad: "e4 NOW is finally well-supported, but Rfd1 is more flexible — keep your options open. The pawn break is stronger when ALL pieces are perfectly placed first. One more move of preparation never hurts." },
+        { san: "Bb3", whyBad: "Retreating the bishop doesn't improve anything — it's already on a great square. Rfd1 makes a real improvement (rook on the d-file) instead of moving for the sake of moving." },
+      ],
+    },
   ],
   summary:
     "The Queen's Gambit teaches the art of patient, strategic pressure. White builds a strong pawn center with d4, uses c4 to challenge Black's hold on d5, and develops every piece to its ideal square before forcing concessions. The key lessons are: pile up pressure on a key square (d5) from multiple directions, develop with purpose rather than speed alone, place rooks on files that will open, and understand that slow preparation (e3, Rc1, Bd3) creates lasting advantages that quick attacks cannot. Black's challenge — the trapped light-squared bishop on c8 — illustrates why pawn structure decisions (like ...e6) carry long-term consequences.",

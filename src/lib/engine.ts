@@ -140,11 +140,20 @@ export function buildSurpriseLine(opening: OpeningLine): {
   const variant = variants[Math.floor(Math.random() * variants.length)];
 
   // Build a synthetic move list: main moves up to branchesAt, then opponentMove
-  // (which replaces the main line move at that index), then variant.moves
+  // (which replaces the main line move at that index), then variant.moves.
+  //
+  // The deviation move (variant.opponentMove) gets the variant name baked
+  // into its `why` text — when the bot plays it, the player sees "[Two
+  // Knights Defense] Instead of the quiet Bc5, Black plays Nf6..." and
+  // knows what they're up against.
   const mainPrefix = opening.moves.slice(0, variant.branchesAt);
+  const labeledOpponentMove: MoveExplanation = {
+    ...variant.opponentMove,
+    why: `[${variant.name}] ${variant.opponentMove.why}`,
+  };
   const synthMoves: MoveExplanation[] = [
     ...mainPrefix,
-    variant.opponentMove,
+    labeledOpponentMove,
     ...variant.moves,
   ];
 

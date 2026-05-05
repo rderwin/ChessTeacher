@@ -214,6 +214,123 @@ export const ruyLopez: OpeningLine = {
       concepts: ["king-safety", "development"],
       controls: "Activates the Rf8, completes kingside development",
     },
+    {
+      san: "h3",
+      color: "white",
+      why: "Prophylaxis! h3 prevents Bg4 (a permanent pin against the f3 knight) and gives your king a luft square. This quiet move is the cornerstone of the Closed Ruy Lopez — it shows you're playing for long-term advantages, not quick attacks. With h3 in, your knights are free to maneuver without fear of pins.",
+      concepts: ["prophylaxis", "king-safety"],
+      controls: "g4 square",
+      prevents: "Bg4 pin against the f3 knight",
+      commonMistakes: [
+        { san: "d4", whyBad: "d4 is the eventual goal but executing it now allows Bg4! pinning your knight, which kills the d4 break (after exd4 cxd4, you can't recapture with the knight properly with the pin in place). h3 first prevents this whole headache." },
+        { san: "a4", whyBad: "a4 attacks b5 but it's premature — Black just plays Bb7 and the queenside expansion was wasted. The Ruy Lopez plan is h3 → Nbd2 → Nf1 → Ng3 (the famous Lopez maneuver). Stay on plan." },
+        { san: "a3", whyBad: "a3 is too quiet and accomplishes little. h3 is the prophylactic move that prevents Bg4 forever AND gives the king luft. Always pick the prophylaxis with the most long-term value." },
+      ],
+    },
+    {
+      san: "Na5",
+      color: "black",
+      why: "The classic Chigorin maneuver! The knight from c6 attacks the bishop on b3 and prepares to support a queenside expansion with c5. The knight will eventually return to c6 once the bishop has been chased to c2. Black is fighting for queenside space and central counterplay.",
+      concepts: ["piece-activity", "space"],
+      controls: "Attacks Bb3",
+      commonMistakes: [
+        { san: "Nb8", whyBad: "Retreating the knight to b8 (the Breyer Defense) is a real plan but it's slower. Na5 immediately challenges the bishop and gains tempo for queenside expansion. Pick concrete plans over slow regroupings." },
+        { san: "Bb7", whyBad: "Bb7 develops the bishop but doesn't pressure White's pieces. Na5 makes White move the bishop AGAIN (already moved twice!) — gaining tempo while preparing c5." },
+      ],
+    },
+    {
+      san: "Bc2",
+      color: "white",
+      why: "The bishop retreats to c2, where it points at h7 (a key attacking square in many Ruy Lopez middlegames). Yes, the bishop has now moved THREE times — but each retreat improved its diagonal. From c2 it will support a future d4 push and aim at Black's kingside if you ever reach a Lopez-style attack.",
+      concepts: ["piece-activity"],
+      controls: "h7, b1-h7 diagonal",
+      commonMistakes: [
+        { san: "Bxf7+", whyBad: "Bxf7+ Kxf7 sacrifices the bishop for a pawn — completely unsound. The Ruy Lopez bishop is too valuable to throw away. Retreat with Bc2 and stay on the long-term plan." },
+        { san: "Bd5", whyBad: "Bd5 looks aggressive but Black plays Nxd5 and you've lost the bishop pair for a knight. Bc2 keeps the bishop AND aims at h7. Retreats can be improvements." },
+      ],
+    },
+    {
+      san: "c5",
+      color: "black",
+      why: "Black plays the central counter ...c5! This is the freeing move that opens the c-file for the queen and prepares ...Nc6 returning the knight. Black challenges White's center and gains space on the queenside. After this move, the position becomes much sharper and more dynamic.",
+      concepts: ["center-control", "space", "attack"],
+      controls: "d4 square",
+      commonMistakes: [
+        { san: "Nc6", whyBad: "Nc6 returns the knight but doesn't challenge White's center. c5 first creates real central tension — THEN you can return the knight. The order matters: pawn break before piece regrouping." },
+        { san: "Bb7", whyBad: "Bb7 is good development but c5 is the principled move — it challenges the center and prepares everything else. Develop AROUND your pawn breaks, not before them." },
+      ],
+    },
+    {
+      san: "d4",
+      color: "white",
+      why: "The big break! After many moves of preparation, White finally plays d4 — the strategic goal of the entire Ruy Lopez. The center pawns now confront each other directly. This is the moment of truth: White's slow buildup pays off with a strong central pawn duo, and the position opens up for active piece play.",
+      concepts: ["center-control", "attack"],
+      controls: "Central pawn break",
+      commonMistakes: [
+        { san: "a4", whyBad: "a4 is too slow — d4 is the central break you've been preparing for 10 moves. Don't get scared at the moment of truth. Execute the plan!" },
+        { san: "Nh4", whyBad: "Nh4 puts the knight on the rim — bad placement. d4 is the principled central break. Don't get distracted by side maneuvers when the main plan is ready." },
+      ],
+    },
+    {
+      san: "Qc7",
+      color: "black",
+      why: "Black's queen develops to c7, supporting the c5 pawn and connecting the rooks. From c7 the queen also defends e5 and watches the c-file (which may open after exchanges). This is multi-purpose — defense, development, and preparation all in one move.",
+      concepts: ["development", "preparation"],
+      commonMistakes: [
+        { san: "cxd4", whyBad: "Capturing on d4 immediately is fine but Qc7 first develops the queen with tempo. The pawn capture can come next move. Develop pieces with each move — don't waste moves on captures when piece development is available." },
+        { san: "exd4", whyBad: "exd4 gives up Black's central pawn structure. The c5 pawn supports counterplay against d4 — keep it on the board. Qc7 maintains tension and develops." },
+      ],
+    },
+    {
+      san: "Nbd2",
+      color: "white",
+      why: "The knight develops via d2 — the famous Ruy Lopez knight maneuver begins! From d2 the knight will reroute to f1 and then g3, finding its best square for both attack (h5, f5) and defense (e4 support). This 3-move maneuver is one of the most famous patterns in chess.",
+      concepts: ["development", "piece-activity"],
+      controls: "Reroutes to kingside via f1-g3",
+      commonMistakes: [
+        { san: "dxc5", whyBad: "Capturing on c5 releases the central tension prematurely. After dxc5 dxc5, Black's pieces become very active. Maintain tension; the threat of d5 (advancing) or dxc5 is more useful than the actual capture." },
+        { san: "d5", whyBad: "d5 closes the position immediately. While d5 IS a Ruy Lopez plan, it works better AFTER you've improved your knight via the f1-g3 maneuver. Sequence matters." },
+      ],
+    },
+    {
+      san: "cxd4",
+      color: "black",
+      why: "Black resolves the central tension by capturing on d4. After cxd4 cxd4 (forced recapture), the position simplifies and the c-file opens. Black's queen on c7 now has access to the open c-file — a long-term advantage. Sometimes simplifying is the right choice when you have favorable structural changes.",
+      concepts: ["pawn-structure", "piece-activity"],
+      commonMistakes: [
+        { san: "Nc6", whyBad: "Nc6 returns the knight but the central tension hasn't been resolved — White may push d5 next, locking your knight out. Resolve d4 first by capturing, then reroute." },
+      ],
+    },
+    {
+      san: "cxd4",
+      color: "white",
+      why: "Recapture with the c-pawn, maintaining a strong central pawn duo on d4 and e4. White's pawn structure is now ideal: two pawns abreast in the center, supported by pieces. The opening of the c-file will favor whoever controls it best — and your light-squared bishop on c2 + queen on d1 give you a head start.",
+      concepts: ["center-control", "pawn-structure"],
+      controls: "Strong d4+e4 pawn duo",
+      commonMistakes: [
+        { san: "Nxd4", whyBad: "Nxd4 trades a centralized pawn for an active piece — but cxd4 is even stronger because you keep the e4 pawn supported AND maintain the d4 pawn. Recapture with the pawn to keep ideal central structure." },
+      ],
+    },
+    {
+      san: "Nc6",
+      color: "black",
+      why: "Black returns the knight to its original square. This is the second half of the Chigorin maneuver: knight to a5 to chase the bishop, then back to c6 once the bishop is locked on c2. The c-file is open (semi-open for both sides), Black's pieces are well-coordinated, and the middlegame is about to begin.",
+      concepts: ["piece-activity"],
+      commonMistakes: [
+        { san: "Nb7", whyBad: "Nb7 is too passive — the knight on b7 has nothing to do. Nc6 is the standard square: it defends e5, supports d4 ideas (if you ever play exd4), and contests the center." },
+      ],
+    },
+    {
+      san: "d5",
+      color: "white",
+      why: "Push the pawn to d5! With the knight on c6 forced to move, White grabs more central space and locks the position. The d5 pawn is a thorn in Black's position — it cramps the queenside and limits the bishop on b7's scope. This is the Closed Ruy Lopez middlegame: White has more space and a long-term plan of kingside attack (using the f1-g3 knight maneuver), while Black plays for queenside counterplay. You've completed the OPENING — now the strategic middlegame begins. Welcome to the chess legends' favorite battle.",
+      concepts: ["space", "center-control"],
+      controls: "d5 outpost, locks the queenside",
+      commonMistakes: [
+        { san: "Nf1", whyBad: "Nf1 starts the knight maneuver but with the knight on c6 attacking d4, you should first stabilize the center. d5 grabs space AND forces the knight to move. Push the pawn first, then maneuver pieces." },
+        { san: "Nb3", whyBad: "Nb3 is fine but d5 is the principled move — gain space and force the knight to move. Pawn pushes are stronger than piece moves when you have a big center." },
+      ],
+    },
   ],
   summary:
     "The Ruy Lopez teaches the art of long-term strategic pressure. Unlike openings that seek immediate tactical confrontation, here you learned to build an advantage gradually — pinning the knight with Bb5, maintaining tension rather than releasing it, retreating the bishop to better diagonals, and patiently preparing the d4 central break with c3. The key lesson is that the THREAT of action (capturing on c6, breaking with d4) is often more powerful than executing it prematurely. This is the foundation of positional chess.",
